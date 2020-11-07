@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { createConnection } from "typeorm";
 import path from "path";
 import { User } from "./entities/User";
@@ -54,6 +55,10 @@ const main = async () => {
       res,
       redis,
     }),
+  });
+
+  apolloServer.applyMiddleware({
+    app,
   });
 
   app.listen(4000, () => {
