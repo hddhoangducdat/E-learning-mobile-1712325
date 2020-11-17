@@ -5,10 +5,12 @@ import Card from "../components/Card";
 import Course from "../components/Course";
 import { NotificationIcon } from "../components/Icon";
 import Logo from "../components/Logo";
+// import Menu from "../components/Menu";
 
 export default function Login({}) {
   return (
     <Container>
+      {/* <Menu /> */}
       <SafeAreaView>
         <ScrollView style={{ height: "100%" }}>
           <TitleBar>
