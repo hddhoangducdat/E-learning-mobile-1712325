@@ -16,12 +16,13 @@ import Course from "../components/Course";
 import { NotificationIcon } from "../components/Icon";
 import Logo from "../components/Logo";
 import Menu from "../components/Menu";
+import { HomeStackNavProps } from "../utils/params";
 
 interface HomeScreenProps {
   navigation: NavigationStackProp<{}>;
 }
 
-const HomeScreen = ({ navigation }: HomeScreenProps) => {
+const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
   const dispatch = useDispatch();
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
@@ -174,7 +175,8 @@ const Avatar = styled.Image`
 const Container = styled.View`
   flex: 1;
   background-color: #f0f3f5;
-  border-radius: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 `;
 
 const AnimatedContainer = Animated.createAnimatedComponent(Container);

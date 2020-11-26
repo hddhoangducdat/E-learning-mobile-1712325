@@ -1,5 +1,6 @@
 export interface ReduxReducers {
   openMenu: Boolean;
+  tabBarVisible: Boolean;
 }
 
 export interface ReduxActions {
@@ -8,3 +9,4 @@ export interface ReduxActions {
 }
 
 export const TRIGGER_MENU = "TRIGGER_MENU";
+export const TRIGGER_TAB_BAR = "TRIGGER_TAB_BAR";
