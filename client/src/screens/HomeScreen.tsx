@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NavigationStackProp } from "react-navigationk-stack";
 import {
   ScrollView,
@@ -28,6 +28,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
   const { openMenu } = useSelector((state: ReduxReducers) => state);
+  const [openLogin, setOpenLogin] = useState(true);
 
   useEffect(() => {
     toggleMenu();
@@ -146,7 +147,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
           </ScrollView>
         </SafeAreaView>
       </AnimatedContainer>
-      <Login />
+      {openLogin ? <Login setOpenLogin={setOpenLogin} /> : null}
     </RootView>
   );
 };

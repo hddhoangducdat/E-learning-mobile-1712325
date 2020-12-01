@@ -1,21 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Dimensions, ImageSourcePropType } from "react-native";
 import styled from "styled-components/native";
+import { getCourseWidth } from "../utils/getCourseWidth";
 
-const Course = (props) => (
-  <Container>
-    <Cover>
-      <Image source={props.image} />
-      <Logo source={props.logo} resizeMode="contain" />
-      <Subtitle>{props.subtitle}</Subtitle>
-      <Title>{props.title}</Title>
-    </Cover>
-    <Content>
-      <Avatar source={props.avatar} />
-      <Caption>{props.caption}</Caption>
-      <Author>Taught by {props.author}</Author>
-    </Content>
-  </Container>
-);
+const screenWidth = Dimensions.get("window").width;
+
+interface CourseProps {
+  image: ImageSourcePropType;
+  logo: ImageSourcePropType;
+  subtitle: string;
+  title: string;
+  avatar: ImageSourcePropType;
+  caption: string;
+  author: string;
+}
+
+const Course = ({
+  author,
+  avatar,
+  image,
+  caption,
+  logo,
+  subtitle,
+  title,
+}: CourseProps) => {
+  const [cardWidth, setCardWidth] = useState(getCourseWidth(screenWidth));
+
+  useEffect(() => {
+    Dimensions.addEventListener("change", (dimensions) => {
+      setCardWidth(getCourseWidth(dimensions.window.width));
+    });
+  });
+
+  return (
+    <Container style={{ width: cardWidth }}>
+      <Cover>
+        <Image source={image} />
+        <Logo source={logo} resizeMode="contain" />
+        <Subtitle>{subtitle}</Subtitle>
+        <Title>{title}</Title>
+      </Cover>
+      <Content>
+        <Avatar source={avatar} />
+        <Caption>{caption}</Caption>
+        <Author>Taught by {author}</Author>
+      </Content>
+    </Container>
+  );
+};
 
 const Content = styled.View`
   padding-left: 62px;

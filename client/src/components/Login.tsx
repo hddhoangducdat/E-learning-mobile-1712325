@@ -7,9 +7,11 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { BlurView } from "expo";
-interface LoginProps {}
+interface LoginProps {
+  setOpenLogin: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const Login: React.FC<LoginProps> = ({}) => {
+const Login: React.FC<LoginProps> = ({ setOpenLogin }) => {
   const [iconEmail, setIconEmail] = useState(
     require("../assets/images/icon-email.png")
   );
@@ -43,6 +45,9 @@ const Login: React.FC<LoginProps> = ({}) => {
           //   validate={() => {}}
           onSubmit={({ email, password }) => {
             console.log(email + " " + password);
+            setOpenLogin((value) => {
+              return !value;
+            });
           }}
         >
           {({ handleSubmit, values, handleChange }) => (
@@ -63,7 +68,7 @@ const Login: React.FC<LoginProps> = ({}) => {
                 onFocus={focusPassword}
               />
               <IconPassword source={iconPassword} />
-              <TouchableOpacity onPress={() => handleSubmit}>
+              <TouchableOpacity onPress={() => handleSubmit()}>
                 <ButtonView>
                   <ButtonText>Log in</ButtonText>
                 </ButtonView>
