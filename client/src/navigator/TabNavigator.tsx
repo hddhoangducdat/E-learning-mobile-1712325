@@ -51,8 +51,9 @@ export const TabsNavigator: React.FC<TabsNavigatorProps> = ({}) => {
         name="HomeTab"
         component={HomeNavigator}
       />
-      <Tabs.Screen name="Courses" component={CoursesScreen} />
       <Tabs.Screen name="Projects" component={ProjectsScreen} />
+
+      <Tabs.Screen name="Courses" component={CoursesScreen} />
     </Tabs.Navigator>
   );
 };

@@ -17,6 +17,7 @@ import { NotificationIcon } from "../components/Icon";
 import Logo from "../components/Logo";
 import Menu from "../components/Menu";
 import { HomeStackNavProps } from "../utils/params";
+import Login from "../components/Login";
 
 interface HomeScreenProps {
   navigation: NavigationStackProp<{}>;
@@ -145,6 +146,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
           </ScrollView>
         </SafeAreaView>
       </AnimatedContainer>
+      <Login />
     </RootView>
   );
 };
