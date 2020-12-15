@@ -4,11 +4,16 @@ import { Animated, Dimensions, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import MenuItem from "./MenuItem";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxReducers, TRIGGER_MENU } from "../../types";
+import { ReduxReducers, TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../types";
+import { MeQuery } from "../generated/graphql";
 
 const screenHeight = Dimensions.get("window").height;
 
-const Menu = () => {
+interface MenuProps {
+  me: MeQuery;
+}
+
+const Menu = ({ me }: MenuProps) => {
   const top = useRef(new Animated.Value(screenHeight)).current;
   const { openMenu } = useSelector((state: ReduxReducers) => state);
   const dispatch = useDispatch();
@@ -18,16 +23,18 @@ const Menu = () => {
   });
 
   const toggleMenu = () => {
-    if (!openMenu) {
-      Animated.spring(top, {
-        toValue: 54,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      Animated.spring(top, {
-        toValue: screenHeight,
-        useNativeDriver: false,
-      }).start();
+    if (me?.me) {
+      if (openMenu) {
+        Animated.spring(top, {
+          toValue: 54,
+          useNativeDriver: false,
+        }).start();
+      } else {
+        Animated.spring(top, {
+          toValue: screenHeight,
+          useNativeDriver: false,
+        }).start();
+      }
     }
   };
 

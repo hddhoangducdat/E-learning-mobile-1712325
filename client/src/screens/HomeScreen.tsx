@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { NavigationStackProp } from "react-navigationk-stack";
 import {
   ScrollView,
   SafeAreaView,
@@ -10,46 +9,53 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components/native";
-import { ReduxReducers, TRIGGER_MENU } from "../../types";
+import { ReduxReducers, TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../types";
 import Card from "../components/Card";
 import Course from "../components/Course";
-import { NotificationIcon } from "../components/Icon";
 import Logo from "../components/Logo";
 import Menu from "../components/Menu";
 import { HomeStackNavProps } from "../utils/params";
-import Login from "../components/Login";
-
-interface HomeScreenProps {
-  navigation: NavigationStackProp<{}>;
-}
+import AuthForm from "../components/form/AuthForm";
+import NotificationButton from "../components/NotificationButton";
+import { useMeQuery } from "../generated/graphql";
 
 const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
   const dispatch = useDispatch();
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
-  const { openMenu } = useSelector((state: ReduxReducers) => state);
-  const [openLogin, setOpenLogin] = useState(true);
+  const { openMenu, tabBarVisible } = useSelector(
+    (state: ReduxReducers) => state
+  );
+  const [openAuthForm, setOpenAuthForm] = useState(false);
+  const [{ data }] = useMeQuery();
 
   useEffect(() => {
     toggleMenu();
   });
 
   const toggleMenu = () => {
-    if (!openMenu) {
-      Animated.parallel([
-        Animated.timing(scale, {
-          toValue: 0.9,
-          duration: 300,
-          useNativeDriver: false,
-          easing: Easing.quad,
-        }),
-        Animated.timing(opacity, {
-          toValue: 0.5,
-          duration: 300,
-          useNativeDriver: false,
-        }),
-      ]).start();
-      StatusBar.setBarStyle("light-content", true);
+    if (openMenu) {
+      if (!data?.me) {
+        setOpenAuthForm(true);
+        if (tabBarVisible) {
+          dispatch({ type: TRIGGER_TAB_BAR });
+        }
+      } else {
+        Animated.parallel([
+          Animated.timing(scale, {
+            toValue: 0.9,
+            duration: 300,
+            useNativeDriver: false,
+            easing: Easing.quad,
+          }),
+          Animated.timing(opacity, {
+            toValue: 0.5,
+            duration: 300,
+            useNativeDriver: false,
+          }),
+        ]).start();
+        StatusBar.setBarStyle("light-content", true);
+      }
     } else {
       Animated.parallel([
         Animated.timing(scale, {
@@ -69,7 +75,8 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
 
   return (
     <RootView>
-      <Menu />
+      <Menu me={data!} />
+      {openAuthForm ? <AuthForm setOpenAuthForm={setOpenAuthForm} /> : null}
       <AnimatedContainer
         style={{
           transform: [{ scale }],
@@ -88,9 +95,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
               <Title>Welcome back,</Title>
               <Name>Dat</Name>
 
-              <NotificationIcon
-                style={{ position: "absolute", right: 20, top: 5 }}
-              />
+              <NotificationButton />
             </TitleBar>
             <ScrollView
               style={{
@@ -147,7 +152,6 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
           </ScrollView>
         </SafeAreaView>
       </AnimatedContainer>
-      {openLogin ? <Login setOpenLogin={setOpenLogin} /> : null}
     </RootView>
   );
 };
