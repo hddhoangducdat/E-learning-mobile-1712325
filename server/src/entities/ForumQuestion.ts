@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -10,7 +11,7 @@ import {
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Course } from "./Course";
-import { ForumQuestion } from "./ForumQuestion";
+import { User } from "./User";
 
 enum UserType {
   STUDENT = "STUDENT",
@@ -19,25 +20,30 @@ enum UserType {
 
 @ObjectType()
 @Entity()
-export class User extends BaseEntity {
+export class ForumQuestion extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Field()
-  @Column({ unique: true })
-  username!: string;
+  @ManyToOne(() => User, (user) => user.question)
+  user: User;
 
   @Field()
-  @Column({ unique: true })
-  email!: string;
+  @ManyToOne(() => Course, (course) => course.question)
+  course: Course;
 
-  @Column()
-  password!: string;
+  @Field()
+  @ManyToOne(() => Course, (course) => course.question)
+  lesson: Course;
 
   @Field()
   @Column()
-  phone!: string;
+  title!: string;
+
+  @Field()
+  @Column()
+  content!: string;
 
   @Field()
   @Column({
@@ -67,10 +73,6 @@ export class User extends BaseEntity {
   @Field()
   @OneToMany(() => Course, (course) => course.instructor)
   courseInstructor: Course[];
-
-  @Field()
-  @OneToMany(() => ForumQuestion, (forumQ) => forumQ.user)
-  question: ForumQuestion[];
 
   @Field(() => Date)
   @CreateDateColumn()
