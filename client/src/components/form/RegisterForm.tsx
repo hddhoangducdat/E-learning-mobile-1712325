@@ -2,6 +2,7 @@ import { Formik } from "formik";
 import React, { useState } from "react";
 import { Keyboard, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
+import { useRegisterMutation } from "../../generated/graphql";
 interface RegisterFormProps {}
 
 const RegisterForm: React.FC<RegisterFormProps> = ({}) => {
@@ -26,12 +27,15 @@ const RegisterForm: React.FC<RegisterFormProps> = ({}) => {
     Keyboard.dismiss();
   };
 
+  const [, register] = useRegisterMutation();
+
   return (
     <Formik
       initialValues={{ email: "", password: "", phone: "", username: "" }}
       //   validate={() => {}}
-      onSubmit={({ email, password, phone, username }) => {
-        console.log(email + " " + password);
+      onSubmit={async (dataOptions) => {
+        await register({ options: dataOptions });
+        // console.log(response.data);
         // setOpenAuthForm((value) => {
         //   return !value;
         // });

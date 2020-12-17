@@ -59,6 +59,7 @@ const main = async () => {
 
   apolloServer.applyMiddleware({
     app,
+    cors: true,
   });
 
   app.listen(4000, () => {

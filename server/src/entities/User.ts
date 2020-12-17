@@ -26,6 +26,9 @@ export class User extends BaseEntity {
   @Column()
   password!: string;
 
+  @Column()
+  phone!: string;
+
   @Field(() => Date)
   @CreateDateColumn()
   createdAt: Date;

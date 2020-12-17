@@ -41,6 +41,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
           dispatch({ type: TRIGGER_TAB_BAR });
         }
       } else {
+        setOpenAuthForm(false);
         Animated.parallel([
           Animated.timing(scale, {
             toValue: 0.9,

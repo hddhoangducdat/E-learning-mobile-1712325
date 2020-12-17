@@ -3,12 +3,15 @@ import styled, { DefaultTheme } from "styled-components/native";
 import { TouchableOpacity } from "react-native";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
+import { useDispatch } from "react-redux";
+import { TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../../types";
 interface AuthProps {
   setOpenAuthForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm }) => {
   const [form, setForm] = useState(true);
+  const dispatch = useDispatch();
 
   const theme: DefaultTheme = {
     form: form ? "400px" : "520px",
@@ -16,7 +19,13 @@ const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm }) => {
 
   return (
     <Container>
-      <TouchableOpacity onPress={() => {}}></TouchableOpacity>
+      <Touch
+        onPress={() => {
+          dispatch({ type: TRIGGER_MENU });
+          dispatch({ type: TRIGGER_TAB_BAR });
+          setOpenAuthForm(false);
+        }}
+      ></Touch>
       <Modal theme={theme}>
         <Logo source={require("../../assets/images/logo-dc.png")} />
         <TouchableOpacity
@@ -37,6 +46,12 @@ const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm }) => {
 };
 
 export default AuthForm;
+
+const Touch = styled.TouchableOpacity`
+  width: 100%;
+  height: 100%;
+  position: absolute;
+`;
 
 const Container = styled.View`
   z-index: 2;

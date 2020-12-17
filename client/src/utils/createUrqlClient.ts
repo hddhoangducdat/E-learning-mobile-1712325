@@ -11,6 +11,8 @@ import {
   LoginMutation,
   MeQuery,
   MeDocument,
+  RegisterMutation,
+  LogoutMutation,
   // RegisterMutation, LogoutMutation, VoteMutationVariables, DeletePostMutationVariables,
 } from "../generated/graphql";
 import { pipe, tap } from "wonka";
@@ -79,9 +81,9 @@ export const createUrqlClient = () => {
   //   cookie = ctx?.req?.headers?.cookie;
   // }
   return createClient({
-    url: "http://192.168.7.110/graphql",
+    url: "http://192.168.7.113:4000/graphql",
     fetchOptions: {
-      credentials: "include" as const,
+      credentials: "include",
       headers: cookie
         ? {
             cookie,
@@ -157,30 +159,30 @@ export const createUrqlClient = () => {
               );
               invalidateAllPosts(cache);
             },
-            // register: (_result, _args, cache, _info) => {
-            //   betterUpdateQuery<RegisterMutation, MeQuery>(
-            //     cache,
-            //     { query: MeDocument },
-            //     _result,
-            //     (result, query) => {
-            //       if (result.register.errors) {
-            //         return query;
-            //       } else
-            //         return {
-            //           me: result.register.user,
-            //         };
-            //     }
-            //   );
-            // },
+            register: (_result, _args, cache, _info) => {
+              betterUpdateQuery<RegisterMutation, MeQuery>(
+                cache,
+                { query: MeDocument },
+                _result,
+                (result, query) => {
+                  if (result.register.errors) {
+                    return query;
+                  } else
+                    return {
+                      me: result.register.user,
+                    };
+                }
+              );
+            },
 
-            // logout: (_result, _args, cache, _info) => {
-            //   betterUpdateQuery<LogoutMutation, MeQuery>(
-            //     cache,
-            //     { query: MeDocument },
-            //     _result,
-            //     () => ({ me: null })
-            //   );
-            // },
+            logout: (_result, _args, cache, _info) => {
+              betterUpdateQuery<LogoutMutation, MeQuery>(
+                cache,
+                { query: MeDocument },
+                _result,
+                () => ({ me: null })
+              );
+            },
           },
         },
       }),

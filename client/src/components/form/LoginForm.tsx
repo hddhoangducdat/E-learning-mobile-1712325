@@ -2,6 +2,7 @@ import { Formik } from "formik";
 import React, { useState } from "react";
 import { Keyboard, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
+import { useLoginMutation } from "../../generated/graphql";
 interface LoginFormProps {}
 
 const LoginForm: React.FC<LoginFormProps> = ({}) => {
@@ -25,13 +26,16 @@ const LoginForm: React.FC<LoginFormProps> = ({}) => {
   const tapBackground = () => {
     Keyboard.dismiss();
   };
-
+  const [, login] = useLoginMutation();
   return (
     <Formik
       initialValues={{ email: "", password: "" }}
       //   validate={() => {}}
-      onSubmit={({ email, password }) => {
-        console.log(email + " " + password);
+      onSubmit={async ({ email, password }) => {
+        const response = await login({
+          usernameOrEmail: email,
+          password: password,
+        });
         // setOpenAuthForm((value) => {
         //   return !value;
         // });
@@ -42,7 +46,7 @@ const LoginForm: React.FC<LoginFormProps> = ({}) => {
           <TextInput
             onChangeText={handleChange("email")}
             value={values.email}
-            placeholder="Email"
+            placeholder="Username or Email"
             keyboardType="email-address"
             onFocus={focusEmail}
           />

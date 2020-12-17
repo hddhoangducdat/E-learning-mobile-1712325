@@ -5,7 +5,7 @@ import { AntDesign } from "@expo/vector-icons";
 import MenuItem from "./MenuItem";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxReducers, TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../types";
-import { MeQuery } from "../generated/graphql";
+import { MeQuery, useLogoutMutation } from "../generated/graphql";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -17,6 +17,7 @@ const Menu = ({ me }: MenuProps) => {
   const top = useRef(new Animated.Value(screenHeight)).current;
   const { openMenu } = useSelector((state: ReduxReducers) => state);
   const dispatch = useDispatch();
+  const [, logout] = useLogoutMutation();
 
   useEffect(() => {
     toggleMenu();
@@ -42,8 +43,8 @@ const Menu = ({ me }: MenuProps) => {
     <AnimatedContainer style={{ top }}>
       <Cover>
         <Image source={require("../assets/images/background2.jpg")} />
-        <Title>Dat</Title>
-        <Subtitle>Software Developer</Subtitle>
+        <Title>{me?.me?.username}</Title>
+        <Subtitle>{me?.me?.email}</Subtitle>
       </Cover>
       <TouchableOpacity
         onPress={() => dispatch({ type: TRIGGER_MENU })}
@@ -61,12 +62,15 @@ const Menu = ({ me }: MenuProps) => {
       </TouchableOpacity>
       <Content>
         {items.map((item, index) => (
-          <MenuItem
+          <TouchableOpacity
             key={index}
-            icon={item.icon}
-            title={item.title}
-            text={item.text}
-          />
+            onPress={() => {
+              dispatch({ type: TRIGGER_MENU });
+              logout();
+            }}
+          >
+            <MenuItem icon={item.icon} title={item.title} text={item.text} />
+          </TouchableOpacity>
         ))}
       </Content>
     </AnimatedContainer>

@@ -1,6 +1,14 @@
 import { UserInput } from "../resolvers/UserInput";
 
 export const validateRegister = (options: UserInput) => {
+  if (options.phone.length !== 10) {
+    return [
+      {
+        field: "phone",
+        message: "Not a Vietnamese's phone number",
+      },
+    ];
+  }
   if (!options.email.includes("@")) {
     return [
       {

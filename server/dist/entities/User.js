@@ -38,6 +38,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], User.prototype, "phone", void 0);
+__decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.CreateDateColumn(),
     __metadata("design:type", Date)
