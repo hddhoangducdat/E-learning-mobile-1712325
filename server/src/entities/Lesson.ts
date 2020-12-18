@@ -9,13 +9,11 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
-import { User } from "./User";
 import { ForumQuestion } from "./ForumQuestion";
-
-enum Status {
-  PENDING = "PENDING",
-  COMPLETE = "COMPLETE",
-}
+import { Course } from "./Course";
+import { Section } from "./Section";
+import { Resource } from "./Resource";
+import { Assignment } from "./Assignment";
 
 @ObjectType()
 @Entity()
@@ -25,97 +23,58 @@ export class Lesson extends BaseEntity {
   id!: number;
 
   @Field()
+  @OneToMany(() => Resource, (resource) => resource.lesson)
+  resource: Resource[];
+
+  @Field()
+  @OneToMany(() => Assignment, (assignment) => assignment.lesson)
+  assignment: Assignment[];
+
+  @Field()
   @OneToMany(() => ForumQuestion, (forumQ) => forumQ.lesson)
   question: ForumQuestion[];
 
   @Field()
-  @Column()
-  title!: string;
+  @ManyToOne(() => Course, (course) => course.lesson)
+  course: Course;
+
+  @Field()
+  @ManyToOne(() => Section, (section) => section.lesson)
+  section: Section;
+
+  @Field()
+  @Column({ default: 0 })
+  numberOrder: number;
 
   @Field()
   @Column()
-  subtitle!: string;
+  name!: string;
 
   @Field()
-  @Column()
-  price!: number;
+  @Column({ default: "Code" })
+  content: string;
 
   @Field()
-  @Column()
-  description!: string;
+  @Column({ default: "https://www.youtube.com/watch?v=Z5iWr6Srsj8&t=64s" })
+  video: string;
 
   @Field()
-  @Column()
-  requirement!: string[];
-
-  @Field()
-  @Column()
-  learnWhat!: string[];
+  @Column({ default: "Code" })
+  captionName: string;
 
   @Field()
   @Column({
     default: 0,
   })
-  soldNumber: number;
+  hours: number;
 
   @Field()
-  @Column({ default: 0 })
-  videoNumber: number;
-
-  @Field()
-  @Column({ default: 0 })
-  rateNumber: number;
-
-  @Field()
-  @Column({ default: 0 })
-  totalHours: number;
-
-  @Field()
-  @Column({ default: 0 })
-  formalityPoint: number;
-
-  @Field()
-  @Column({ default: 0 })
-  contentPoint: number;
-
-  @Field()
-  @Column({ default: 0 })
-  presentationPoint: number;
-
-  @Field()
-  @Column({
-    default:
-      "https://specials-images.forbesimg.com/imageserve/5f302109ffad89f9130e07db/960x0.jpg?cropX1=0&cropX2=4800&cropY1=243&cropY2=2943",
-  })
-  imageUrl: string;
-
-  @Field()
-  @Column({ default: "https://www.youtube.com/watch?v=yET2SBRuNm0" })
-  promoVidUrl: string;
-
-  @Field()
-  @Column({
-    type: "enum",
-    enum: Status,
-    default: Status.PENDING,
-  })
-  status: Status;
+  @Column({ default: true })
+  isPreview: boolean;
 
   @Field()
   @Column({ default: false })
   isDeleted!: boolean;
-
-  @Field()
-  @Column({ default: false })
-  isHidden!: boolean;
-
-  @Field()
-  @ManyToOne(() => User, (user) => user.courseInstructor)
-  instructor: User;
-
-  @Field()
-  @OneToMany(() => ForumQuestion, (forumQ) => forumQ.course)
-  question: ForumQuestion[];
 
   @Field(() => Date)
   @CreateDateColumn()

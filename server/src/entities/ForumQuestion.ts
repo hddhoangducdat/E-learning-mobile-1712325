@@ -3,20 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Course } from "./Course";
 import { User } from "./User";
-
-enum UserType {
-  STUDENT = "STUDENT",
-  INSTRUCTOR = "INSTRUCTOR",
-}
+import { Lesson } from "./Lesson";
 
 @ObjectType()
 @Entity()
@@ -34,8 +28,8 @@ export class ForumQuestion extends BaseEntity {
   course: Course;
 
   @Field()
-  @ManyToOne(() => Course, (course) => course.question)
-  lesson: Course;
+  @ManyToOne(() => Lesson, (lesson) => lesson.question)
+  lesson: Lesson;
 
   @Field()
   @Column()
@@ -46,33 +40,28 @@ export class ForumQuestion extends BaseEntity {
   content!: string;
 
   @Field()
-  @Column({
-    default:
-      "https://img.favpng.com/12/15/21/computer-icons-avatar-user-profile-recommender-system-png-favpng-HaMDUPFH1etkLCdiFjgTKHzAs.jpg",
-  })
-  avatar: string;
+  @Column({ default: 0 })
+  votedNumber: number;
 
   @Field()
   @Column({
-    type: "enum",
-    enum: UserType,
-    default: UserType.STUDENT,
+    default: 0,
   })
-  type!: UserType;
+  repliedNumber: number;
 
   @Field()
   @Column({
-    default: false,
+    default: true,
   })
-  isDelete: boolean;
+  isResolved: boolean;
 
   @Field()
   @Column({ default: true })
-  isActivated: boolean;
+  isPublished: true;
 
   @Field()
-  @OneToMany(() => Course, (course) => course.instructor)
-  courseInstructor: Course[];
+  @Column({ default: [] })
+  tagIds: string[];
 
   @Field(() => Date)
   @CreateDateColumn()

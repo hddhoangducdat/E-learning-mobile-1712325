@@ -11,6 +11,10 @@ import {
 import { Field, ObjectType } from "type-graphql";
 import { User } from "./User";
 import { ForumQuestion } from "./ForumQuestion";
+import { Section } from "./Section";
+import { Lesson } from "./Lesson";
+import { Report } from "./Report";
+import { Assignment } from "./Assignment";
 
 enum Status {
   PENDING = "PENDING",
@@ -112,6 +116,22 @@ export class Course extends BaseEntity {
   @Field()
   @OneToMany(() => ForumQuestion, (forumQ) => forumQ.course)
   question: ForumQuestion[];
+
+  @Field()
+  @OneToMany(() => Section, (section) => section.course)
+  section: Section[];
+
+  @Field()
+  @OneToMany(() => Lesson, (lesson) => lesson.course)
+  lesson: Lesson[];
+
+  @Field()
+  @OneToMany(() => Report, (report) => report.course)
+  report: Report[];
+
+  @Field()
+  @OneToMany(() => Assignment, (assignment) => assignment.course)
+  assignment: Assignment[];
 
   @Field(() => Date)
   @CreateDateColumn()

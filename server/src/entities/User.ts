@@ -3,7 +3,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -11,6 +10,9 @@ import {
 import { Field, ObjectType } from "type-graphql";
 import { Course } from "./Course";
 import { ForumQuestion } from "./ForumQuestion";
+import { Feedback } from "./Feedback";
+import { Report } from "./Report";
+import { UserAnswer } from "./UserAnswer";
 
 enum UserType {
   STUDENT = "STUDENT",
@@ -71,6 +73,18 @@ export class User extends BaseEntity {
   @Field()
   @OneToMany(() => ForumQuestion, (forumQ) => forumQ.user)
   question: ForumQuestion[];
+
+  @Field()
+  @OneToMany(() => Feedback, (feedBack) => feedBack.user)
+  feedBack: Feedback[];
+
+  @Field()
+  @OneToMany(() => Report, (report) => report.user)
+  report: Report[];
+
+  @Field()
+  @OneToMany(() => UserAnswer, (answser) => answser.user)
+  anwser: UserAnswer[];
 
   @Field(() => Date)
   @CreateDateColumn()
