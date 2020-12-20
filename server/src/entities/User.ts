@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   Entity,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -13,8 +14,9 @@ import { ForumQuestion } from "./ForumQuestion";
 import { Feedback } from "./Feedback";
 import { Report } from "./Report";
 import { UserAnswer } from "./UserAnswer";
+import { Instructor } from "./Instructor";
 
-enum UserType {
+export enum UserType {
   STUDENT = "STUDENT",
   INSTRUCTOR = "INSTRUCTOR",
 }
@@ -27,7 +29,7 @@ export class User extends BaseEntity {
   id!: number;
 
   @Field()
-  @Column({ unique: true })
+  @Column()
   username!: string;
 
   @Field()
@@ -66,23 +68,21 @@ export class User extends BaseEntity {
   @Column({ default: true })
   isActivated: boolean;
 
-  @Field()
+  @OneToOne(() => Instructor, (instructor) => instructor.user)
+  instructor: Instructor;
+
   @OneToMany(() => Course, (course) => course.instructor)
   courseInstructor: Course[];
 
-  @Field()
   @OneToMany(() => ForumQuestion, (forumQ) => forumQ.user)
   question: ForumQuestion[];
 
-  @Field()
   @OneToMany(() => Feedback, (feedBack) => feedBack.user)
   feedBack: Feedback[];
 
-  @Field()
   @OneToMany(() => Report, (report) => report.user)
   report: Report[];
 
-  @Field()
   @OneToMany(() => UserAnswer, (answser) => answser.user)
   anwser: UserAnswer[];
 

@@ -6,6 +6,7 @@ import MenuItem from "./MenuItem";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxReducers, TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../types";
 import { MeQuery, useLogoutMutation } from "../generated/graphql";
+import AccountForm from "./Account";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -18,6 +19,7 @@ const Menu = ({ me }: MenuProps) => {
   const { openMenu } = useSelector((state: ReduxReducers) => state);
   const dispatch = useDispatch();
   const [, logout] = useLogoutMutation();
+  const [openAccountForm, setOpenAccountForm] = useState(false);
 
   useEffect(() => {
     toggleMenu();
@@ -41,6 +43,9 @@ const Menu = ({ me }: MenuProps) => {
 
   return (
     <AnimatedContainer style={{ top }}>
+      {openAccountForm ? (
+        <AccountForm setOpenAccountForm={setOpenAccountForm} />
+      ) : null}
       <Cover>
         <Image source={require("../assets/images/background2.jpg")} />
         <Title>{me?.me?.username}</Title>
@@ -61,17 +66,29 @@ const Menu = ({ me }: MenuProps) => {
         </CloseView>
       </TouchableOpacity>
       <Content>
-        {items.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => {
-              dispatch({ type: TRIGGER_MENU });
-              logout();
-            }}
-          >
-            <MenuItem icon={item.icon} title={item.title} text={item.text} />
-          </TouchableOpacity>
-        ))}
+        {items.map((item, index) => {
+          return (
+            <TouchableOpacity
+              key={index}
+              onPress={() => {
+                switch (item.title) {
+                  case "Log out":
+                    dispatch({ type: TRIGGER_MENU });
+                    logout();
+                    break;
+
+                  case "Account":
+                    dispatch({ type: TRIGGER_TAB_BAR });
+                    setOpenAccountForm(true);
+                    break;
+                  default:
+                }
+              }}
+            >
+              <MenuItem icon={item.icon} title={item.title} text={item.text} />
+            </TouchableOpacity>
+          );
+        })}
       </Content>
     </AnimatedContainer>
   );
@@ -140,10 +157,10 @@ const items = [
   },
   {
     icon: "ios-card",
-    title: "Billing",
-    text: "payments",
+    title: "Courses",
+    text: "start course",
   },
-  { icon: "ios-compass", title: "Learn React", text: "start course" },
+  { icon: "ios-compass", title: "Instructor", text: "manage your course" },
   {
     icon: "ios-exit",
     title: "Log out",

@@ -32,23 +32,11 @@ const UserInput_1 = require("./UserInput");
 const argon2_1 = __importDefault(require("argon2"));
 const constances_1 = require("../constances");
 const uuid_1 = require("uuid");
-let FieldError = class FieldError {
-};
-__decorate([
-    type_graphql_1.Field(),
-    __metadata("design:type", String)
-], FieldError.prototype, "field", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    __metadata("design:type", String)
-], FieldError.prototype, "message", void 0);
-FieldError = __decorate([
-    type_graphql_1.ObjectType()
-], FieldError);
+const FieldError_1 = require("./FieldError");
 let UserResponse = class UserResponse {
 };
 __decorate([
-    type_graphql_1.Field(() => [FieldError], { nullable: true }),
+    type_graphql_1.Field(() => [FieldError_1.FieldError], { nullable: true }),
     __metadata("design:type", Array)
 ], UserResponse.prototype, "errors", void 0);
 __decorate([
@@ -70,6 +58,25 @@ let UserResolver = class UserResolver {
             return null;
         }
         return User_1.User.findOne(req.session.userId);
+    }
+    updateUser(email, username, phone, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const errors = validateRegister_1.validateRegister({
+                email,
+                phone,
+                username,
+                password: "dummyPassword",
+            });
+            if (errors) {
+                return false;
+            }
+            yield User_1.User.update({ id: req.session.userId }, {
+                email,
+                phone,
+                username,
+            });
+            return true;
+        });
     }
     register(options, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -225,6 +232,16 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "me", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("email")),
+    __param(1, type_graphql_1.Arg("username")),
+    __param(2, type_graphql_1.Arg("phone")),
+    __param(3, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "updateUser", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg("options")),

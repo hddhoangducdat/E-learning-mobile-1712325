@@ -19,15 +19,12 @@ export class ForumQuestion extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field()
   @ManyToOne(() => User, (user) => user.question)
   user: User;
 
-  @Field()
   @ManyToOne(() => Course, (course) => course.question)
   course: Course;
 
-  @Field()
   @ManyToOne(() => Lesson, (lesson) => lesson.question)
   lesson: Lesson;
 
@@ -59,9 +56,9 @@ export class ForumQuestion extends BaseEntity {
   @Column({ default: true })
   isPublished: true;
 
-  @Field()
-  @Column({ default: [] })
-  tagIds: string[];
+  @Field(() => [String])
+  @Column({ array: true })
+  tagIds: string;
 
   @Field(() => Date)
   @CreateDateColumn()

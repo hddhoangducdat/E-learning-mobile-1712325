@@ -1,7 +1,9 @@
 import { Formik } from "formik";
 import React, { useState } from "react";
 import { Keyboard, TouchableOpacity } from "react-native";
+import { useDispatch } from "react-redux";
 import styled from "styled-components/native";
+import { TRIGGER_TAB_BAR } from "../../../types";
 import { useLoginMutation } from "../../generated/graphql";
 interface LoginFormProps {}
 
@@ -26,7 +28,9 @@ const LoginForm: React.FC<LoginFormProps> = ({}) => {
   const tapBackground = () => {
     Keyboard.dismiss();
   };
+
   const [, login] = useLoginMutation();
+  const dispatch = useDispatch();
   return (
     <Formik
       initialValues={{ email: "", password: "" }}
@@ -36,6 +40,9 @@ const LoginForm: React.FC<LoginFormProps> = ({}) => {
           usernameOrEmail: email,
           password: password,
         });
+        if (response?.data) {
+          dispatch({ type: TRIGGER_TAB_BAR });
+        }
         // setOpenAuthForm((value) => {
         //   return !value;
         // });

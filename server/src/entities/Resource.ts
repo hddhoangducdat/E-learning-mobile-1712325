@@ -17,7 +17,6 @@ export class Resource extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field()
   @ManyToOne(() => Lesson, (lesson) => lesson.resource)
   lesson: Lesson;
 

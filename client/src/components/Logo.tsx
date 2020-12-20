@@ -2,23 +2,25 @@ import React from "react";
 import styled from "styled-components/native";
 
 const Logo = (props: any) => (
-  <Container>
+  <Container
+    style={{
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.5,
+      shadowRadius: 2,
+      elevation: 5,
+    }}
+  >
     <Image source={props.image} resizeMode="contain" />
     <Text>{props.text}</Text>
   </Container>
 );
-
-const LogosWrapper = styled.View`
-  flex-direction: row;
-  padding: 20px 12px;
-`;
 
 const Container = styled.View`
   padding: 12px 16px 12px;
   height: 60px;
   background: white;
   border-radius: 10px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
   flex-direction: row;
   align-items: center;
   margin: 0 8px;

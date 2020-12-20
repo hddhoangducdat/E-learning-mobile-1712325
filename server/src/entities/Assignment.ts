@@ -10,7 +10,6 @@ import {
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Lesson } from "./Lesson";
-import { User } from "./User";
 import { Course } from "./Course";
 import { Section } from "./Section";
 import { AssignmentQuestion } from "./AssignmentQuestion";
@@ -28,23 +27,18 @@ export class Assignment extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field()
   @ManyToOne(() => Section, (section) => section.assignment)
   section: Section;
 
-  @Field()
   @ManyToOne(() => Course, (course) => course.assignment)
   course: Course;
 
-  @Field()
   @ManyToOne(() => Lesson, (lesson) => lesson.assignment)
   lesson: Lesson;
 
-  @Field()
   @OneToMany(() => AssignmentQuestion, (question) => question.assignment)
   question: AssignmentQuestion[];
 
-  @Field()
   @OneToMany(() => UserAnswer, (anwser) => anwser.assignment)
   anwser: UserAnswer[];
 

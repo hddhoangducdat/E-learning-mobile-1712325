@@ -44,13 +44,13 @@ export class Course extends BaseEntity {
   @Column()
   description!: string;
 
-  @Field()
-  @Column()
-  requirement!: string[];
+  @Field(() => [String])
+  @Column({ array: true })
+  requirement!: string;
 
-  @Field()
-  @Column()
-  learnWhat!: string[];
+  @Field(() => [String])
+  @Column({ array: true })
+  learnWhat!: string;
 
   @Field()
   @Column({
@@ -109,27 +109,21 @@ export class Course extends BaseEntity {
   @Column({ default: false })
   isHidden!: boolean;
 
-  @Field()
   @ManyToOne(() => User, (user) => user.courseInstructor)
   instructor: User;
 
-  @Field()
   @OneToMany(() => ForumQuestion, (forumQ) => forumQ.course)
   question: ForumQuestion[];
 
-  @Field()
   @OneToMany(() => Section, (section) => section.course)
   section: Section[];
 
-  @Field()
   @OneToMany(() => Lesson, (lesson) => lesson.course)
   lesson: Lesson[];
 
-  @Field()
   @OneToMany(() => Report, (report) => report.course)
   report: Report[];
 
-  @Field()
   @OneToMany(() => Assignment, (assignment) => assignment.course)
   assignment: Assignment[];
 

@@ -18,11 +18,9 @@ export class UserAnswer extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field()
   @ManyToOne(() => User, (user) => user.anwser)
   user: User;
 
-  @Field()
   @ManyToOne(() => Assignment, (assignment) => assignment.anwser)
   assignment: Assignment;
 

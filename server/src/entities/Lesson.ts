@@ -22,23 +22,18 @@ export class Lesson extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field()
   @OneToMany(() => Resource, (resource) => resource.lesson)
   resource: Resource[];
 
-  @Field()
   @OneToMany(() => Assignment, (assignment) => assignment.lesson)
   assignment: Assignment[];
 
-  @Field()
   @OneToMany(() => ForumQuestion, (forumQ) => forumQ.lesson)
   question: ForumQuestion[];
 
-  @Field()
   @ManyToOne(() => Course, (course) => course.lesson)
   course: Course;
 
-  @Field()
   @ManyToOne(() => Section, (section) => section.lesson)
   section: Section;
 

@@ -23,11 +23,9 @@ export class Report extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field()
   @ManyToOne(() => User, (user) => user.report)
   user: User;
 
-  @Field()
   @ManyToOne(() => Course, (course) => course.report)
   course: Course;
 

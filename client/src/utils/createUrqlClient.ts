@@ -13,13 +13,18 @@ import {
   MeDocument,
   RegisterMutation,
   LogoutMutation,
+  UpdateUserMutation,
+  BecomeOrUpdateInstructorMutation,
+  InstructorQuery,
+  InstructorDocument,
+  UpdateUserMutationVariables,
+  User,
   // RegisterMutation, LogoutMutation, VoteMutationVariables, DeletePostMutationVariables,
 } from "../generated/graphql";
 import { pipe, tap } from "wonka";
 import { cacheExchange, Resolver, Cache } from "@urql/exchange-graphcache";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import gql from "graphql-tag";
-import { isServer } from "./isServer";
+import { TRIGGER_TAB_BAR } from "../../types";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -151,10 +156,11 @@ export const createUrqlClient = () => {
                 (result, query) => {
                   if (result.login.errors) {
                     return query;
-                  } else
+                  } else {
                     return {
                       me: result.login.user,
                     };
+                  }
                 }
               );
               invalidateAllPosts(cache);
@@ -167,10 +173,59 @@ export const createUrqlClient = () => {
                 (result, query) => {
                   if (result.register.errors) {
                     return query;
-                  } else
+                  } else {
                     return {
                       me: result.register.user,
                     };
+                  }
+                }
+              );
+            },
+
+            updateUser: (_result, args, cache, _info) => {
+              betterUpdateQuery<UpdateUserMutation, MeQuery>(
+                cache,
+                { query: MeDocument },
+                _result,
+                (result, query) => {
+                  const {
+                    email,
+                    phone,
+                    username,
+                  } = args as UpdateUserMutationVariables;
+                  if (result.updateUser) {
+                    const me = query.me;
+                    return {
+                      me: {
+                        ...me,
+                        email,
+                        username,
+                        phone,
+                      } as User,
+                    };
+                  } else {
+                    return query;
+                  }
+                }
+              );
+            },
+
+            becomeOrUpdateInstructor: (_result, _args, cache, _info) => {
+              betterUpdateQuery<
+                BecomeOrUpdateInstructorMutation,
+                InstructorQuery
+              >(
+                cache,
+                { query: InstructorDocument },
+                _result,
+                (result, query) => {
+                  if (result.becomeOrUpdateInstructor.errors) {
+                    return query;
+                  } else {
+                    return {
+                      instructor: result.becomeOrUpdateInstructor.instructor,
+                    };
+                  }
                 }
               );
             },

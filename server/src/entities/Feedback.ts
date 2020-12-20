@@ -19,7 +19,6 @@ export class Feedback extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field()
   @ManyToOne(() => User, (user) => user.feedBack)
   user: User;
 

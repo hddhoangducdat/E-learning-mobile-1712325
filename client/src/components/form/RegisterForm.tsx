@@ -1,7 +1,9 @@
 import { Formik } from "formik";
 import React, { useState } from "react";
 import { Keyboard, TouchableOpacity } from "react-native";
+import { useDispatch } from "react-redux";
 import styled from "styled-components/native";
+import { TRIGGER_TAB_BAR } from "../../../types";
 import { useRegisterMutation } from "../../generated/graphql";
 interface RegisterFormProps {}
 
@@ -28,13 +30,24 @@ const RegisterForm: React.FC<RegisterFormProps> = ({}) => {
   };
 
   const [, register] = useRegisterMutation();
+  const dispatch = useDispatch();
 
   return (
     <Formik
       initialValues={{ email: "", password: "", phone: "", username: "" }}
       //   validate={() => {}}
-      onSubmit={async (dataOptions) => {
-        await register({ options: dataOptions });
+      onSubmit={async ({ email, password, phone, username }) => {
+        const response = await register({
+          options: {
+            email,
+            password: password.toLowerCase(),
+            phone,
+            username,
+          },
+        });
+        if (response?.data) {
+          dispatch({ type: TRIGGER_TAB_BAR });
+        }
         // console.log(response.data);
         // setOpenAuthForm((value) => {
         //   return !value;

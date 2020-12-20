@@ -3,7 +3,19 @@ import styled from "styled-components/native";
 
 export default function Card({ logo, image, title, subtitle, caption }: any) {
   return (
-    <Container>
+    <Container
+      style={{
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
+      }}
+    >
       <Cover>
         <Image source={image} />
         <Title>{title}</Title>
@@ -56,6 +68,7 @@ const Container = styled.View`
   border-radius: 14px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
   margin-left: 20px;
+  margin-right: 20px;
   margin-top: 20px;
 `;
 

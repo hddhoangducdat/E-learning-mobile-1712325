@@ -1,0 +1,5 @@
+fragment InstructorFragment on Instructor {
+  id
+  major
+  intro
+}

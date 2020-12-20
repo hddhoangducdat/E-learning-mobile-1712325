@@ -1,0 +1,3 @@
+mutation UpdateUser($username: String!, $email: String!, $phone: String!) {
+  updateUser(username: $username, email: $email, phone: $phone)
+}

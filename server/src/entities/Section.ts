@@ -5,6 +5,7 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
@@ -16,18 +17,15 @@ import { Assignment } from "./Assignment";
 @Entity()
 export class Section extends BaseEntity {
   @Field()
-  @Column()
+  @PrimaryGeneratedColumn()
   id!: string;
 
-  @Field()
   @ManyToOne(() => Course, (course) => course.section)
   course: Course;
 
-  @Field()
   @OneToMany(() => Lesson, (lesson) => lesson.section)
   lesson: Lesson[];
 
-  @Field()
   @OneToMany(() => Assignment, (assignment) => assignment.section)
   assignment: Assignment[];
 

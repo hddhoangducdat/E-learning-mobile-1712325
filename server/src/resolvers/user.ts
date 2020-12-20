@@ -1,4 +1,4 @@
-import { User } from "../entities/User";
+import { User, UserType } from "../entities/User";
 import {
   Arg,
   Ctx,
@@ -16,14 +16,7 @@ import { UserInput } from "./UserInput";
 import argon2 from "argon2";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constances";
 import { v4 } from "uuid";
-
-@ObjectType()
-class FieldError {
-  @Field()
-  field: string;
-  @Field()
-  message: string;
-}
+import { FieldError } from "./FieldError";
 
 @ObjectType()
 class UserResponse {
@@ -49,6 +42,35 @@ export class UserResolver {
       return null;
     }
     return User.findOne(req.session.userId);
+  }
+
+  @Mutation(() => Boolean)
+  async updateUser(
+    @Arg("email") email: string,
+    @Arg("username") username: string,
+    @Arg("phone") phone: string,
+    @Ctx() { req }: MyContext
+  ) {
+    const errors = validateRegister({
+      email,
+      phone,
+      username,
+      password: "dummyPassword",
+    });
+    if (errors) {
+      // return errors;
+      return false;
+    }
+    await User.update(
+      { id: req.session.userId },
+      {
+        email,
+        phone,
+        username,
+      }
+    );
+
+    return true;
   }
 
   @Mutation(() => UserResponse)

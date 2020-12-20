@@ -1,10 +1,22 @@
-import { Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { User } from "./User";
 
 @ObjectType()
 @Entity()
-export class Instructor extends User {
+export class Instructor extends BaseEntity {
+  @Field()
+  @PrimaryColumn()
+  id!: number;
+
   @Field()
   @Column()
   major!: string;
@@ -14,12 +26,14 @@ export class Instructor extends User {
   intro!: string;
 
   @Field()
-  @Column({ default: [] })
-  skills: string[];
+  @Column({ default: "web developement" })
+  skills: string;
 
-  @Field()
   @Column({ default: 0 })
   cumulativeTuition: number;
+
+  @OneToOne(() => User, (user) => user.instructor)
+  user: User;
 
   @Field(() => Date)
   @CreateDateColumn()

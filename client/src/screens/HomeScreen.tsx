@@ -91,10 +91,24 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                 onPress={() => dispatch({ type: TRIGGER_MENU })}
                 style={{ position: "absolute", top: 0, left: 20 }}
               >
-                <Avatar source={require("../assets/images/avatar.jpg")} />
+                {data?.me ? (
+                  <Avatar source={{ uri: data.me.avatar }} />
+                ) : (
+                  <Avatar
+                    source={require("../assets/images/avatar-icon.png")}
+                  />
+                )}
               </TouchableOpacity>
-              <Title>Welcome back,</Title>
-              <Name>Dat</Name>
+              {data?.me ? (
+                <>
+                  <Title>Welcome back,</Title>
+                  <Name>{data.me.username}</Name>
+                </>
+              ) : (
+                <>
+                  <Name style={{ marginTop: 8 }}>Getting started</Name>
+                </>
+              )}
 
               <NotificationButton />
             </TitleBar>
@@ -104,6 +118,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                 padding: 20,
                 paddingLeft: 12,
                 paddingTop: 30,
+                height: 115,
               }}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
@@ -115,7 +130,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
             <Subtitle>Continue Learning</Subtitle>
             <ScrollView
               horizontal={true}
-              style={{ paddingBottom: 30 }}
+              style={{ paddingBottom: 30, height: 340 }}
               showsHorizontalScrollIndicator={false}
             >
               {cards.map((card, index) => {
@@ -169,7 +184,7 @@ const Subtitle = styled.Text`
   font-weight: 600;
   font-size: 15px;
   margin-left: 20px;
-  margin-top: 20px;
+  /* margin-top: 20px; */
   text-transform: uppercase;
 `;
 

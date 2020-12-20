@@ -10,6 +10,19 @@ import { ApolloServer } from "apollo-server-express";
 import { COOKIE_NAME, __prod__ } from "./constances";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user";
+import { UserAnswer } from "./entities/UserAnswer";
+import { Report } from "./entities/Report";
+import { Resource } from "./entities/Resource";
+import { Section } from "./entities/Section";
+import { Lesson } from "./entities/Lesson";
+import { Instructor } from "./entities/Instructor";
+import { ForumQuestion } from "./entities/ForumQuestion";
+import { Feedback } from "./entities/Feedback";
+import { Course } from "./entities/Course";
+import { Category } from "./entities/Category";
+import { AssignmentQuestion } from "./entities/AssignmentQuestion";
+import { Assignment } from "./entities/Assignment";
+import { InstructorResolver } from "./resolvers/instructor";
 
 const main = async () => {
   const conn = await createConnection({
@@ -20,8 +33,23 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, ".migrations/*")],
-    entities: [User],
+    entities: [
+      User,
+      UserAnswer,
+      Report,
+      Section,
+      Resource,
+      Lesson,
+      Instructor,
+      ForumQuestion,
+      Feedback,
+      Course,
+      Category,
+      AssignmentQuestion,
+      Assignment,
+    ],
   });
+
   await conn.runMigrations();
 
   const app = express();
@@ -47,7 +75,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver],
+      resolvers: [UserResolver, InstructorResolver],
       validate: false,
     }),
     context: ({ req, res }) => ({

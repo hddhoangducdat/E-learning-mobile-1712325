@@ -17,7 +17,6 @@ export class AssignmentQuestion extends BaseEntity {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Field()
   @ManyToOne(() => Assignment, (assignment) => assignment.question)
   assignment: Assignment;
 
