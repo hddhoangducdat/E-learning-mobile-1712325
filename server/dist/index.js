@@ -41,11 +41,13 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
         type: "postgres",
         database: "ELearning",
+        host: "localhost",
+        port: 5432,
         username: "noir",
         password: "1",
         logging: true,
         synchronize: true,
-        migrations: [path_1.default.join(__dirname, ".migrations/*")],
+        migrations: [path_1.default.join(__dirname, "./migrations/*")],
         entities: [
             User_1.User,
             UserAnswer_1.UserAnswer,

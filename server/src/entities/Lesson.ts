@@ -19,8 +19,8 @@ import { Assignment } from "./Assignment";
 @Entity()
 export class Lesson extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @OneToMany(() => Resource, (resource) => resource.lesson)
   resource: Resource[];

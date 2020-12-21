@@ -15,6 +15,7 @@ import { Section } from "./Section";
 import { Lesson } from "./Lesson";
 import { Report } from "./Report";
 import { Assignment } from "./Assignment";
+import { Instructor } from "./Instructor";
 
 enum Status {
   PENDING = "PENDING",
@@ -25,8 +26,8 @@ enum Status {
 @Entity()
 export class Course extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @Field()
   @Column()
@@ -109,8 +110,8 @@ export class Course extends BaseEntity {
   @Column({ default: false })
   isHidden!: boolean;
 
-  @ManyToOne(() => User, (user) => user.courseInstructor)
-  instructor: User;
+  @ManyToOne(() => Instructor, (instructor) => instructor.courseInstruct)
+  instructor: Instructor;
 
   @OneToMany(() => ForumQuestion, (forumQ) => forumQ.course)
   question: ForumQuestion[];

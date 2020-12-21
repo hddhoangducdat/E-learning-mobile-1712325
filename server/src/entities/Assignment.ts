@@ -24,8 +24,8 @@ enum Status {
 @Entity()
 export class Assignment extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @ManyToOne(() => Section, (section) => section.assignment)
   section: Section;

@@ -13,6 +13,7 @@ exports.Instructor = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
 const User_1 = require("./User");
+const Course_1 = require("./Course");
 let Instructor = class Instructor extends typeorm_1.BaseEntity {
     constructor() {
         super(...arguments);
@@ -21,8 +22,8 @@ let Instructor = class Instructor extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryColumn(),
-    __metadata("design:type", Number)
+    typeorm_1.PrimaryGeneratedColumn("uuid"),
+    __metadata("design:type", String)
 ], Instructor.prototype, "id", void 0);
 __decorate([
     type_graphql_1.Field(),
@@ -47,6 +48,10 @@ __decorate([
     typeorm_1.OneToOne(() => User_1.User, (user) => user.instructor),
     __metadata("design:type", User_1.User)
 ], Instructor.prototype, "user", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Course_1.Course, (course) => course.instructor),
+    __metadata("design:type", Array)
+], Instructor.prototype, "courseInstruct", void 0);
 __decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.CreateDateColumn(),

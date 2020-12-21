@@ -23,7 +23,7 @@ let Section = class Section extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn(),
+    typeorm_1.PrimaryGeneratedColumn("uuid"),
     __metadata("design:type", String)
 ], Section.prototype, "id", void 0);
 __decorate([

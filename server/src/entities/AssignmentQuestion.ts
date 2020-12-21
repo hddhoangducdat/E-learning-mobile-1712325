@@ -15,7 +15,7 @@ import { Assignment } from "./Assignment";
 export class AssignmentQuestion extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
-  id!: number;
+  id!: string;
 
   @ManyToOne(() => Assignment, (assignment) => assignment.question)
   assignment: Assignment;

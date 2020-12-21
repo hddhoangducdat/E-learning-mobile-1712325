@@ -17,7 +17,7 @@ import { Assignment } from "./Assignment";
 @Entity()
 export class Section extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("uuid")
   id!: string;
 
   @ManyToOne(() => Course, (course) => course.section)

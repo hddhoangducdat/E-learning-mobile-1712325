@@ -28,11 +28,13 @@ const main = async () => {
   const conn = await createConnection({
     type: "postgres",
     database: "ELearning",
+    host: "localhost",
+    port: 5432,
     username: "noir",
     password: "1",
     logging: true,
     synchronize: true,
-    migrations: [path.join(__dirname, ".migrations/*")],
+    migrations: [path.join(__dirname, "./migrations/*")],
     entities: [
       User,
       UserAnswer,

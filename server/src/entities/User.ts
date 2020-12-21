@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -25,8 +26,8 @@ export enum UserType {
 @Entity()
 export class User extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @Field()
   @Column()
@@ -68,11 +69,14 @@ export class User extends BaseEntity {
   @Column({ default: true })
   isActivated: boolean;
 
-  @OneToOne(() => Instructor, (instructor) => instructor.user)
-  instructor: Instructor;
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  instructorId!: string;
 
-  @OneToMany(() => Course, (course) => course.instructor)
-  courseInstructor: Course[];
+  @Field(() => Instructor, { nullable: true })
+  @OneToOne(() => Instructor, (instructor) => instructor.user)
+  @JoinColumn()
+  instructor: Instructor;
 
   @OneToMany(() => ForumQuestion, (forumQ) => forumQ.user)
   question: ForumQuestion[];

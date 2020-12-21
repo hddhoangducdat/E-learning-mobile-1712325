@@ -14,8 +14,8 @@ import { Lesson } from "./Lesson";
 @Entity()
 export class Resource extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @ManyToOne(() => Lesson, (lesson) => lesson.resource)
   lesson: Lesson;

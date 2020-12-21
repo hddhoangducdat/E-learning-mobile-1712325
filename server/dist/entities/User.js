@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = exports.UserType = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
-const Course_1 = require("./Course");
 const ForumQuestion_1 = require("./ForumQuestion");
 const Feedback_1 = require("./Feedback");
 const Report_1 = require("./Report");
@@ -31,8 +30,8 @@ let User = class User extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
+    typeorm_1.PrimaryGeneratedColumn("uuid"),
+    __metadata("design:type", String)
 ], User.prototype, "id", void 0);
 __decorate([
     type_graphql_1.Field(),
@@ -82,13 +81,16 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "isActivated", void 0);
 __decorate([
+    type_graphql_1.Field(() => String, { nullable: true }),
+    typeorm_1.Column({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "instructorId", void 0);
+__decorate([
+    type_graphql_1.Field(() => Instructor_1.Instructor, { nullable: true }),
     typeorm_1.OneToOne(() => Instructor_1.Instructor, (instructor) => instructor.user),
+    typeorm_1.JoinColumn(),
     __metadata("design:type", Instructor_1.Instructor)
 ], User.prototype, "instructor", void 0);
-__decorate([
-    typeorm_1.OneToMany(() => Course_1.Course, (course) => course.instructor),
-    __metadata("design:type", Array)
-], User.prototype, "courseInstructor", void 0);
 __decorate([
     typeorm_1.OneToMany(() => ForumQuestion_1.ForumQuestion, (forumQ) => forumQ.user),
     __metadata("design:type", Array)

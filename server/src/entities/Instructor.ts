@@ -3,19 +3,22 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { User } from "./User";
+import { Course } from "./Course";
 
 @ObjectType()
 @Entity()
 export class Instructor extends BaseEntity {
   @Field()
-  @PrimaryColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @Field()
   @Column()
@@ -34,6 +37,9 @@ export class Instructor extends BaseEntity {
 
   @OneToOne(() => User, (user) => user.instructor)
   user: User;
+
+  @OneToMany(() => Course, (course) => course.instructor)
+  courseInstruct: Course[];
 
   @Field(() => Date)
   @CreateDateColumn()

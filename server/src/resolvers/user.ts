@@ -17,6 +17,7 @@ import argon2 from "argon2";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constances";
 import { v4 } from "uuid";
 import { FieldError } from "./FieldError";
+import { Instructor } from "../entities/Instructor";
 
 @ObjectType()
 class UserResponse {
@@ -36,12 +37,21 @@ export class UserResolver {
     return "";
   }
 
+  // @FieldResolver(() => User)
+  // creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
+  //   return userLoader.load(post.creatorId);
+  // }
+
   @Query(() => User, { nullable: true })
-  me(@Ctx() { req }: MyContext) {
+  async me(@Ctx() { req }: MyContext) {
     if (!req.session.userId) {
       return null;
     }
-    return User.findOne(req.session.userId);
+
+    const user = await User.findOne(req.session.userId, {
+      relations: ["instructor"],
+    });
+    return user;
   }
 
   @Mutation(() => Boolean)
@@ -120,11 +130,13 @@ export class UserResolver {
             where: {
               email: usernameOrEmail,
             },
+            relations: ["instructor"],
           }
         : {
             where: {
               username: usernameOrEmail,
             },
+            relations: ["instructor"],
           }
     );
     if (!user) {
@@ -151,7 +163,9 @@ export class UserResolver {
     }
 
     req.session.userId = user.id;
-    return { user };
+    return {
+      user,
+    };
   }
 
   @Mutation(() => Boolean)
@@ -243,5 +257,61 @@ export class UserResolver {
     );
     await sendEmail(email, html);
     return true;
+  }
+
+  @Mutation(() => UserResponse)
+  async becomeOrUpdateInstructor(
+    @Arg("major") major: string,
+    @Arg("intro") intro: string,
+    @Ctx() { req }: MyContext
+  ) {
+    if (major === "") {
+      return {
+        errors: [
+          {
+            field: "major",
+            message: "major can't be empty",
+          },
+        ],
+      };
+    }
+    if (intro === "") {
+      return {
+        errors: [
+          {
+            field: "intro",
+            message: "intro can't be empty",
+          },
+        ],
+      };
+    }
+    let instructor;
+    let user;
+    try {
+      user = await User.findOne(req.session.userId);
+      instructor = await Instructor.findOne(user?.instructorId);
+      if (!instructor) {
+        instructor = await Instructor.create({
+          major,
+          intro,
+        }).save();
+
+        user!.instructorId = instructor.id;
+        await User.save(user!);
+      } else {
+        instructor.major = major;
+        instructor.intro = intro;
+        await Instructor.save(instructor);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
+    return {
+      user: {
+        ...user,
+        instructor,
+      },
+    };
   }
 }

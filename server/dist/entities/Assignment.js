@@ -30,8 +30,8 @@ let Assignment = class Assignment extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
+    typeorm_1.PrimaryGeneratedColumn("uuid"),
+    __metadata("design:type", String)
 ], Assignment.prototype, "id", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Section_1.Section, (section) => section.assignment),

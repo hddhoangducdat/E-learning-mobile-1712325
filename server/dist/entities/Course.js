@@ -12,12 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Course = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
-const User_1 = require("./User");
 const ForumQuestion_1 = require("./ForumQuestion");
 const Section_1 = require("./Section");
 const Lesson_1 = require("./Lesson");
 const Report_1 = require("./Report");
 const Assignment_1 = require("./Assignment");
+const Instructor_1 = require("./Instructor");
 var Status;
 (function (Status) {
     Status["PENDING"] = "PENDING";
@@ -31,8 +31,8 @@ let Course = class Course extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
+    typeorm_1.PrimaryGeneratedColumn("uuid"),
+    __metadata("design:type", String)
 ], Course.prototype, "id", void 0);
 __decorate([
     type_graphql_1.Field(),
@@ -133,8 +133,8 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Course.prototype, "isHidden", void 0);
 __decorate([
-    typeorm_1.ManyToOne(() => User_1.User, (user) => user.courseInstructor),
-    __metadata("design:type", User_1.User)
+    typeorm_1.ManyToOne(() => Instructor_1.Instructor, (instructor) => instructor.courseInstruct),
+    __metadata("design:type", Instructor_1.Instructor)
 ], Course.prototype, "instructor", void 0);
 __decorate([
     typeorm_1.OneToMany(() => ForumQuestion_1.ForumQuestion, (forumQ) => forumQ.course),

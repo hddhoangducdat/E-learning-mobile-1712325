@@ -33,6 +33,7 @@ const argon2_1 = __importDefault(require("argon2"));
 const constances_1 = require("../constances");
 const uuid_1 = require("uuid");
 const FieldError_1 = require("./FieldError");
+const Instructor_1 = require("../entities/Instructor");
 let UserResponse = class UserResponse {
 };
 __decorate([
@@ -54,10 +55,15 @@ let UserResolver = class UserResolver {
         return "";
     }
     me({ req }) {
-        if (!req.session.userId) {
-            return null;
-        }
-        return User_1.User.findOne(req.session.userId);
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!req.session.userId) {
+                return null;
+            }
+            const user = yield User_1.User.findOne(req.session.userId, {
+                relations: ["instructor"],
+            });
+            return user;
+        });
     }
     updateUser(email, username, phone, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -117,11 +123,13 @@ let UserResolver = class UserResolver {
                     where: {
                         email: usernameOrEmail,
                     },
+                    relations: ["instructor"],
                 }
                 : {
                     where: {
                         username: usernameOrEmail,
                     },
+                    relations: ["instructor"],
                 });
             if (!user) {
                 return {
@@ -145,7 +153,9 @@ let UserResolver = class UserResolver {
                 };
             }
             req.session.userId = user.id;
-            return { user };
+            return {
+                user,
+            };
         });
     }
     logout({ req, res }) {
@@ -217,6 +227,55 @@ let UserResolver = class UserResolver {
             return true;
         });
     }
+    becomeOrUpdateInstructor(major, intro, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (major === "") {
+                return {
+                    errors: [
+                        {
+                            field: "major",
+                            message: "major can't be empty",
+                        },
+                    ],
+                };
+            }
+            if (intro === "") {
+                return {
+                    errors: [
+                        {
+                            field: "intro",
+                            message: "intro can't be empty",
+                        },
+                    ],
+                };
+            }
+            let instructor;
+            let user;
+            try {
+                user = yield User_1.User.findOne(req.session.userId);
+                instructor = yield Instructor_1.Instructor.findOne(user === null || user === void 0 ? void 0 : user.instructorId);
+                if (!instructor) {
+                    instructor = yield Instructor_1.Instructor.create({
+                        major,
+                        intro,
+                    }).save();
+                    user.instructorId = instructor.id;
+                    yield User_1.User.save(user);
+                }
+                else {
+                    instructor.major = major;
+                    instructor.intro = intro;
+                    yield Instructor_1.Instructor.save(instructor);
+                }
+            }
+            catch (err) {
+                console.log(err);
+            }
+            return {
+                user: Object.assign(Object.assign({}, user), { instructor }),
+            };
+        });
+    }
 };
 __decorate([
     type_graphql_1.FieldResolver(() => String),
@@ -230,7 +289,7 @@ __decorate([
     __param(0, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "me", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
@@ -283,6 +342,15 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "forgotPassword", null);
+__decorate([
+    type_graphql_1.Mutation(() => UserResponse),
+    __param(0, type_graphql_1.Arg("major")),
+    __param(1, type_graphql_1.Arg("intro")),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "becomeOrUpdateInstructor", null);
 UserResolver = __decorate([
     type_graphql_1.Resolver(User_1.User)
 ], UserResolver);

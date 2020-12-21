@@ -16,8 +16,8 @@ import { User } from "./User";
 @Entity()
 export class Feedback extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @ManyToOne(() => User, (user) => user.feedBack)
   user: User;

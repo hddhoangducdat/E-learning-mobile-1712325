@@ -16,8 +16,8 @@ import { Lesson } from "./Lesson";
 @Entity()
 export class ForumQuestion extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @ManyToOne(() => User, (user) => user.question)
   user: User;

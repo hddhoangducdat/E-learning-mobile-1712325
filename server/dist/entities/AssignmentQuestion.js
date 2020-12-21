@@ -22,7 +22,7 @@ let AssignmentQuestion = class AssignmentQuestion extends typeorm_1.BaseEntity {
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], AssignmentQuestion.prototype, "id", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Assignment_1.Assignment, (assignment) => assignment.question),

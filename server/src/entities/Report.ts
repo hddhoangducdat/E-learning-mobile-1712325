@@ -20,8 +20,8 @@ enum Status {
 @Entity()
 export class Report extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
   @ManyToOne(() => User, (user) => user.report)
   user: User;

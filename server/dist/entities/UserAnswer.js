@@ -22,8 +22,8 @@ let UserAnswer = class UserAnswer extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
+    typeorm_1.PrimaryGeneratedColumn("uuid"),
+    __metadata("design:type", String)
 ], UserAnswer.prototype, "id", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => User_1.User, (user) => user.anwser),
