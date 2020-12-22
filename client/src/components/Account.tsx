@@ -4,7 +4,6 @@ import { TouchableOpacity } from "react-native";
 import { useDispatch } from "react-redux";
 import {
   useMeQuery,
-  useInstructorQuery,
   useBecomeOrUpdateInstructorMutation,
   useUpdateUserMutation,
 } from "../generated/graphql";
@@ -20,7 +19,6 @@ const AccountForm: React.FC<AccountProps> = ({ setOpenAccountForm }) => {
   const [{ data }] = useMeQuery();
   const [, becomeOrUpdateInstructor] = useBecomeOrUpdateInstructorMutation();
   const [, updateUser] = useUpdateUserMutation();
-  const [teacher] = useInstructorQuery();
   const [form, setForm] = useState(true);
   const dispatch = useDispatch();
 
@@ -29,7 +27,7 @@ const AccountForm: React.FC<AccountProps> = ({ setOpenAccountForm }) => {
   };
 
   const [role, setRole] = useState(
-    teacher.data?.instructor ? "TEACHER" : "STUDENT"
+    data?.me?.instructor ? "TEACHER" : "STUDENT"
   );
 
   return (
@@ -56,8 +54,8 @@ const AccountForm: React.FC<AccountProps> = ({ setOpenAccountForm }) => {
             email: data?.me?.email,
             username: data?.me?.username,
             phone: data?.me?.phone,
-            major: teacher.data?.instructor?.major,
-            intro: teacher.data?.instructor?.intro,
+            major: data?.me?.instructor?.major,
+            intro: data?.me?.instructor?.intro,
           }}
           //   validate={() => {}}
           onSubmit={async ({ email, username, phone, major, intro }) => {

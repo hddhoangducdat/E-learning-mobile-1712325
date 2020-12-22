@@ -21,9 +21,14 @@ let Resource = class Resource extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
 ], Resource.prototype, "id", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Resource.prototype, "lessonId", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Lesson_1.Lesson, (lesson) => lesson.resource),
     __metadata("design:type", Lesson_1.Lesson)
@@ -38,6 +43,11 @@ __decorate([
     typeorm_1.Column(),
     __metadata("design:type", String)
 ], Resource.prototype, "url", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Resource.prototype, "type", void 0);
 __decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.CreateDateColumn(),

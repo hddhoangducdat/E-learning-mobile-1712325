@@ -17,12 +17,16 @@ import { Section } from "./entities/Section";
 import { Lesson } from "./entities/Lesson";
 import { Instructor } from "./entities/Instructor";
 import { ForumQuestion } from "./entities/ForumQuestion";
-import { Feedback } from "./entities/Feedback";
+import { FeedBack } from "./entities/FeedBack";
 import { Course } from "./entities/Course";
 import { Category } from "./entities/Category";
 import { AssignmentQuestion } from "./entities/AssignmentQuestion";
 import { Assignment } from "./entities/Assignment";
 import { InstructorResolver } from "./resolvers/instructor";
+import { Question } from "./entities/Question";
+import { StudentCourse } from "./entities/StudentCourse";
+import { CourseResolver } from "./resolvers/course";
+import { CategoryResolver } from "./resolvers/category";
 
 const main = async () => {
   const conn = await createConnection({
@@ -43,8 +47,9 @@ const main = async () => {
       Resource,
       Lesson,
       Instructor,
-      ForumQuestion,
-      Feedback,
+      Question,
+      StudentCourse,
+      FeedBack,
       Course,
       Category,
       AssignmentQuestion,
@@ -56,41 +61,46 @@ const main = async () => {
 
   const app = express();
 
-  let RedisStore = connectRedis(session);
-  let redis = new Redis();
+  // let RedisStore = connectRedis(session);
+  // let redis = new Redis();
 
-  app.use(
-    session({
-      name: COOKIE_NAME,
-      store: new RedisStore({ client: redis, disableTouch: true }),
-      secret: "asdfh29fheafdfasf2h3r123fhdsaf9",
-      resave: false,
-      cookie: {
-        maxAge: 1000 * 60 * 60 * 2 * 365 * 10,
-        httpOnly: true,
-        sameSite: "lax",
-        secure: __prod__,
-      },
-      saveUninitialized: false,
-    })
-  );
+  // app.use(
+  //   session({
+  //     name: COOKIE_NAME,
+  //     store: new RedisStore({ client: redis, disableTouch: true }),
+  //     secret: "asdfh29fheafdfasf2h3r123fhdsaf9",
+  //     resave: false,
+  //     cookie: {
+  //       maxAge: 1000 * 60 * 60 * 2 * 365 * 10,
+  //       httpOnly: true,
+  //       sameSite: "lax",
+  //       secure: __prod__,
+  //     },
+  //     saveUninitialized: false,
+  //   })
+  // );
 
-  const apolloServer = new ApolloServer({
-    schema: await buildSchema({
-      resolvers: [UserResolver, InstructorResolver],
-      validate: false,
-    }),
-    context: ({ req, res }) => ({
-      req,
-      res,
-      redis,
-    }),
-  });
+  // const apolloServer = new ApolloServer({
+  //   schema: await buildSchema({
+  //     resolvers: [
+  //       UserResolver,
+  //       InstructorResolver,
+  //       CourseResolver,
+  //       CategoryResolver,
+  //     ],
+  //     validate: false,
+  //   }),
+  //   context: ({ req, res }) => ({
+  //     req,
+  //     res,
+  //     redis,
+  //   }),
+  // });
 
-  apolloServer.applyMiddleware({
-    app,
-    cors: true,
-  });
+  // apolloServer.applyMiddleware({
+  //   app,
+  //   cors: true,
+  // });
 
   app.listen(4000, () => {
     console.log("server started on localhost 4000");

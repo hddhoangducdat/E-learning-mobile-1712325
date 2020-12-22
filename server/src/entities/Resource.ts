@@ -14,8 +14,12 @@ import { Lesson } from "./Lesson";
 @Entity()
 export class Resource extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Field()
+  @Column()
+  lessonId: number;
 
   @ManyToOne(() => Lesson, (lesson) => lesson.resource)
   lesson: Lesson;
@@ -27,6 +31,10 @@ export class Resource extends BaseEntity {
   @Field()
   @Column()
   url!: string;
+
+  @Field()
+  @Column()
+  type!: string;
 
   @Field(() => Date)
   @CreateDateColumn()

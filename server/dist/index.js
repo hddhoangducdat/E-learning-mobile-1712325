@@ -17,26 +17,19 @@ const typeorm_1 = require("typeorm");
 const path_1 = __importDefault(require("path"));
 const User_1 = require("./entities/User");
 const express_1 = __importDefault(require("express"));
-const connect_redis_1 = __importDefault(require("connect-redis"));
-const ioredis_1 = __importDefault(require("ioredis"));
-const express_session_1 = __importDefault(require("express-session"));
-const apollo_server_express_1 = require("apollo-server-express");
-const constances_1 = require("./constances");
-const type_graphql_1 = require("type-graphql");
-const user_1 = require("./resolvers/user");
 const UserAnswer_1 = require("./entities/UserAnswer");
 const Report_1 = require("./entities/Report");
 const Resource_1 = require("./entities/Resource");
 const Section_1 = require("./entities/Section");
 const Lesson_1 = require("./entities/Lesson");
 const Instructor_1 = require("./entities/Instructor");
-const ForumQuestion_1 = require("./entities/ForumQuestion");
-const Feedback_1 = require("./entities/Feedback");
+const FeedBack_1 = require("./entities/FeedBack");
 const Course_1 = require("./entities/Course");
 const Category_1 = require("./entities/Category");
 const AssignmentQuestion_1 = require("./entities/AssignmentQuestion");
 const Assignment_1 = require("./entities/Assignment");
-const instructor_1 = require("./resolvers/instructor");
+const Question_1 = require("./entities/Question");
+const StudentCourse_1 = require("./entities/StudentCourse");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
         type: "postgres",
@@ -56,8 +49,9 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             Resource_1.Resource,
             Lesson_1.Lesson,
             Instructor_1.Instructor,
-            ForumQuestion_1.ForumQuestion,
-            Feedback_1.Feedback,
+            Question_1.Question,
+            StudentCourse_1.StudentCourse,
+            FeedBack_1.FeedBack,
             Course_1.Course,
             Category_1.Category,
             AssignmentQuestion_1.AssignmentQuestion,
@@ -66,36 +60,6 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     yield conn.runMigrations();
     const app = express_1.default();
-    let RedisStore = connect_redis_1.default(express_session_1.default);
-    let redis = new ioredis_1.default();
-    app.use(express_session_1.default({
-        name: constances_1.COOKIE_NAME,
-        store: new RedisStore({ client: redis, disableTouch: true }),
-        secret: "asdfh29fheafdfasf2h3r123fhdsaf9",
-        resave: false,
-        cookie: {
-            maxAge: 1000 * 60 * 60 * 2 * 365 * 10,
-            httpOnly: true,
-            sameSite: "lax",
-            secure: constances_1.__prod__,
-        },
-        saveUninitialized: false,
-    }));
-    const apolloServer = new apollo_server_express_1.ApolloServer({
-        schema: yield type_graphql_1.buildSchema({
-            resolvers: [user_1.UserResolver, instructor_1.InstructorResolver],
-            validate: false,
-        }),
-        context: ({ req, res }) => ({
-            req,
-            res,
-            redis,
-        }),
-    });
-    apolloServer.applyMiddleware({
-        app,
-        cors: true,
-    });
     app.listen(4000, () => {
         console.log("server started on localhost 4000");
     });

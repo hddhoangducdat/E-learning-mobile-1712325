@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
@@ -15,11 +16,19 @@ import { Assignment } from "./Assignment";
 @Entity()
 export class UserAnswer extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryColumn()
+  id!: number;
 
-  @ManyToOne(() => User, (user) => user.anwser)
+  @Field()
+  @Column()
+  userId: number;
+
+  @ManyToOne(() => User, (user) => user.result)
   user: User;
+
+  @Field()
+  @Column()
+  assignmentId: number;
 
   @ManyToOne(() => Assignment, (assignment) => assignment.anwser)
   assignment: Assignment;

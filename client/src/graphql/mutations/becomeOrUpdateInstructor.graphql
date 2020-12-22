@@ -1,5 +1,5 @@
 mutation BecomeOrUpdateInstructor($major: String!, $intro: String!) {
   becomeOrUpdateInstructor(major: $major, intro: $intro) {
-    ...InstructorResponseFragment
+    ...UserResponseFragment
   }
 }

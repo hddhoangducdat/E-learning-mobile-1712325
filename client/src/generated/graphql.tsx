@@ -19,12 +19,12 @@ export type Scalars = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
-  instructor?: Maybe<Instructor>;
+  categories: Array<Category>;
 };
 
 export type User = {
   __typename?: 'User';
-  id: Scalars['Float'];
+  id: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
   phone: Scalars['String'];
@@ -32,17 +32,70 @@ export type User = {
   type: Scalars['String'];
   isDelete: Scalars['Boolean'];
   isActivated: Scalars['Boolean'];
+  instructorId?: Maybe<Scalars['String']>;
+  instructor?: Maybe<Instructor>;
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+};
+
+export type Instructor = {
+  __typename?: 'Instructor';
+  id: Scalars['String'];
+  major: Scalars['String'];
+  intro: Scalars['String'];
+  skills: Scalars['String'];
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
 };
 
 
-export type Instructor = {
-  __typename?: 'Instructor';
-  id: Scalars['Float'];
-  major: Scalars['String'];
-  intro: Scalars['String'];
-  skills: Scalars['String'];
+export type Category = {
+  __typename?: 'Category';
+  id: Scalars['String'];
+  name: Scalars['String'];
+  imageUrl: Scalars['String'];
+  course: Array<Course>;
+  isDeleted: Scalars['Boolean'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+};
+
+export type Course = {
+  __typename?: 'Course';
+  id: Scalars['String'];
+  title: Scalars['String'];
+  subtitle: Scalars['String'];
+  price: Scalars['Float'];
+  description: Scalars['String'];
+  requirement: Scalars['String'];
+  learnWhat: Array<Scalars['String']>;
+  soldNumber: Scalars['Float'];
+  videoNumber: Scalars['Float'];
+  rateNumber: Scalars['Float'];
+  totalHours: Scalars['Float'];
+  formalityPoint: Scalars['Float'];
+  contentPoint: Scalars['Float'];
+  presentationPoint: Scalars['Float'];
+  imageUrl: Scalars['String'];
+  promoVidUrl: Scalars['String'];
+  status: Scalars['String'];
+  isDeleted: Scalars['Boolean'];
+  isHidden: Scalars['Boolean'];
+  categoryId: Scalars['String'];
+  category: Category;
+  instructorId: Scalars['String'];
+  section: Array<Section>;
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+};
+
+export type Section = {
+  __typename?: 'Section';
+  id: Scalars['String'];
+  courseId: Scalars['String'];
+  numberOrder: Scalars['Float'];
+  name: Scalars['String'];
+  isDeleted: Scalars['Boolean'];
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
 };
@@ -55,7 +108,7 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
-  becomeOrUpdateInstructor: InstructorResponse;
+  becomeOrUpdateInstructor: UserResponse;
 };
 
 
@@ -112,12 +165,6 @@ export type UserInput = {
   phone: Scalars['String'];
 };
 
-export type InstructorResponse = {
-  __typename?: 'InstructorResponse';
-  errors?: Maybe<Array<FieldError>>;
-  instructor?: Maybe<Instructor>;
-};
-
 export type ErrorFragmentFragment = (
   { __typename?: 'FieldError' }
   & Pick<FieldError, 'field' | 'message'>
@@ -125,23 +172,16 @@ export type ErrorFragmentFragment = (
 
 export type InstructorFragmentFragment = (
   { __typename?: 'Instructor' }
-  & Pick<Instructor, 'id' | 'major' | 'intro'>
-);
-
-export type InstructorResponseFragmentFragment = (
-  { __typename?: 'InstructorResponse' }
-  & { errors?: Maybe<Array<(
-    { __typename?: 'FieldError' }
-    & ErrorFragmentFragment
-  )>>, instructor?: Maybe<(
-    { __typename?: 'Instructor' }
-    & InstructorFragmentFragment
-  )> }
+  & Pick<Instructor, 'id' | 'major' | 'intro' | 'skills'>
 );
 
 export type UserFragmentFragment = (
   { __typename?: 'User' }
   & Pick<User, 'id' | 'username' | 'email' | 'avatar' | 'phone'>
+  & { instructor?: Maybe<(
+    { __typename?: 'Instructor' }
+    & InstructorFragmentFragment
+  )> }
 );
 
 export type UserResponseFragmentFragment = (
@@ -164,8 +204,8 @@ export type BecomeOrUpdateInstructorMutationVariables = Exact<{
 export type BecomeOrUpdateInstructorMutation = (
   { __typename?: 'Mutation' }
   & { becomeOrUpdateInstructor: (
-    { __typename?: 'InstructorResponse' }
-    & InstructorResponseFragmentFragment
+    { __typename?: 'UserResponse' }
+    & UserResponseFragmentFragment
   ) }
 );
 
@@ -240,14 +280,14 @@ export type UpdateUserMutation = (
   & Pick<Mutation, 'updateUser'>
 );
 
-export type InstructorQueryVariables = Exact<{ [key: string]: never; }>;
+export type CategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type InstructorQuery = (
+export type CategoriesQuery = (
   { __typename?: 'Query' }
-  & { instructor?: Maybe<(
-    { __typename?: 'Instructor' }
-    & InstructorFragmentFragment
+  & { categories: Array<(
+    { __typename?: 'Category' }
+    & Pick<Category, 'id' | 'imageUrl' | 'name'>
   )> }
 );
 
@@ -273,19 +313,9 @@ export const InstructorFragmentFragmentDoc = gql`
   id
   major
   intro
+  skills
 }
     `;
-export const InstructorResponseFragmentFragmentDoc = gql`
-    fragment InstructorResponseFragment on InstructorResponse {
-  errors {
-    ...ErrorFragment
-  }
-  instructor {
-    ...InstructorFragment
-  }
-}
-    ${ErrorFragmentFragmentDoc}
-${InstructorFragmentFragmentDoc}`;
 export const UserFragmentFragmentDoc = gql`
     fragment UserFragment on User {
   id
@@ -293,8 +323,11 @@ export const UserFragmentFragmentDoc = gql`
   email
   avatar
   phone
+  instructor {
+    ...InstructorFragment
+  }
 }
-    `;
+    ${InstructorFragmentFragmentDoc}`;
 export const UserResponseFragmentFragmentDoc = gql`
     fragment UserResponseFragment on UserResponse {
   errors {
@@ -309,10 +342,10 @@ ${UserFragmentFragmentDoc}`;
 export const BecomeOrUpdateInstructorDocument = gql`
     mutation BecomeOrUpdateInstructor($major: String!, $intro: String!) {
   becomeOrUpdateInstructor(major: $major, intro: $intro) {
-    ...InstructorResponseFragment
+    ...UserResponseFragment
   }
 }
-    ${InstructorResponseFragmentFragmentDoc}`;
+    ${UserResponseFragmentFragmentDoc}`;
 
 export function useBecomeOrUpdateInstructorMutation() {
   return Urql.useMutation<BecomeOrUpdateInstructorMutation, BecomeOrUpdateInstructorMutationVariables>(BecomeOrUpdateInstructorDocument);
@@ -377,16 +410,18 @@ export const UpdateUserDocument = gql`
 export function useUpdateUserMutation() {
   return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument);
 };
-export const InstructorDocument = gql`
-    query Instructor {
-  instructor {
-    ...InstructorFragment
+export const CategoriesDocument = gql`
+    query Categories {
+  categories {
+    id
+    imageUrl
+    name
   }
 }
-    ${InstructorFragmentFragmentDoc}`;
+    `;
 
-export function useInstructorQuery(options: Omit<Urql.UseQueryArgs<InstructorQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<InstructorQuery>({ query: InstructorDocument, ...options });
+export function useCategoriesQuery(options: Omit<Urql.UseQueryArgs<CategoriesQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<CategoriesQuery>({ query: CategoriesDocument, ...options });
 };
 export const MeDocument = gql`
     query Me {

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Category = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
+const Course_1 = require("./Course");
 let Category = class Category extends typeorm_1.BaseEntity {
     constructor() {
         super(...arguments);
@@ -20,14 +21,24 @@ let Category = class Category extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
 ], Category.prototype, "id", void 0);
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column(),
     __metadata("design:type", String)
 ], Category.prototype, "name", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Category.prototype, "imageUrl", void 0);
+__decorate([
+    type_graphql_1.Field(() => [Course_1.Course]),
+    typeorm_1.OneToMany(() => Course_1.Course, (course) => course.category),
+    __metadata("design:type", Array)
+], Category.prototype, "course", void 0);
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column({ default: false }),

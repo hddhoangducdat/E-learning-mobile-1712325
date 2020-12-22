@@ -9,13 +9,12 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
-import { User } from "./User";
-import { ForumQuestion } from "./ForumQuestion";
 import { Section } from "./Section";
-import { Lesson } from "./Lesson";
 import { Report } from "./Report";
-import { Assignment } from "./Assignment";
 import { Instructor } from "./Instructor";
+import { Category } from "./Category";
+import { StudentCourse } from "./StudentCourse";
+import { FeedBack } from "./FeedBack";
 
 enum Status {
   PENDING = "PENDING",
@@ -26,8 +25,8 @@ enum Status {
 @Entity()
 export class Course extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Field()
   @Column()
@@ -39,18 +38,18 @@ export class Course extends BaseEntity {
 
   @Field()
   @Column()
-  price!: number;
+  price!: string;
 
   @Field()
   @Column()
   description!: string;
 
-  @Field(() => [String])
-  @Column({ array: true })
+  @Field()
+  @Column()
   requirement!: string;
 
-  @Field(() => [String])
-  @Column({ array: true })
+  @Field()
+  @Column()
   learnWhat!: string;
 
   @Field()
@@ -110,23 +109,33 @@ export class Course extends BaseEntity {
   @Column({ default: false })
   isHidden!: boolean;
 
+  @Field()
+  @Column()
+  categoryId: number;
+
+  @Field()
+  @ManyToOne(() => Category, (category) => category.course)
+  category: Category;
+
+  @OneToMany(() => StudentCourse, (student) => student.course)
+  students: StudentCourse[];
+
+  @Field()
+  @Column()
+  instructorId!: number;
+
   @ManyToOne(() => Instructor, (instructor) => instructor.courseInstruct)
   instructor: Instructor;
 
-  @OneToMany(() => ForumQuestion, (forumQ) => forumQ.course)
-  question: ForumQuestion[];
+  @OneToMany(() => FeedBack, (feedBacks) => feedBacks.course)
+  feedBacks: FeedBack[];
 
+  @Field(() => [Section])
   @OneToMany(() => Section, (section) => section.course)
   section: Section[];
 
-  @OneToMany(() => Lesson, (lesson) => lesson.course)
-  lesson: Lesson[];
-
   @OneToMany(() => Report, (report) => report.course)
   report: Report[];
-
-  @OneToMany(() => Assignment, (assignment) => assignment.course)
-  assignment: Assignment[];
 
   @Field(() => Date)
   @CreateDateColumn()

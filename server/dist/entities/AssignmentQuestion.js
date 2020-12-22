@@ -22,8 +22,13 @@ let AssignmentQuestion = class AssignmentQuestion extends typeorm_1.BaseEntity {
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.PrimaryGeneratedColumn(),
-    __metadata("design:type", String)
+    __metadata("design:type", Number)
 ], AssignmentQuestion.prototype, "id", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], AssignmentQuestion.prototype, "assignmentId", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Assignment_1.Assignment, (assignment) => assignment.question),
     __metadata("design:type", Assignment_1.Assignment)
@@ -33,21 +38,6 @@ __decorate([
     typeorm_1.Column(),
     __metadata("design:type", String)
 ], AssignmentQuestion.prototype, "content", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    typeorm_1.Column({ default: 0 }),
-    __metadata("design:type", String)
-], AssignmentQuestion.prototype, "contentHtml", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    typeorm_1.Column({ default: false }),
-    __metadata("design:type", Boolean)
-], AssignmentQuestion.prototype, "isMultipleChoice", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    typeorm_1.Column(),
-    __metadata("design:type", String)
-], AssignmentQuestion.prototype, "answer", void 0);
 __decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.CreateDateColumn(),

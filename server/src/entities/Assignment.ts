@@ -10,8 +10,6 @@ import {
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { Lesson } from "./Lesson";
-import { Course } from "./Course";
-import { Section } from "./Section";
 import { AssignmentQuestion } from "./AssignmentQuestion";
 import { UserAnswer } from "./UserAnswer";
 
@@ -24,31 +22,37 @@ enum Status {
 @Entity()
 export class Assignment extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-  @ManyToOne(() => Section, (section) => section.assignment)
-  section: Section;
-
-  @ManyToOne(() => Course, (course) => course.assignment)
-  course: Course;
+  @Field()
+  @Column()
+  lessonId: number;
 
   @ManyToOne(() => Lesson, (lesson) => lesson.assignment)
   lesson: Lesson;
 
+  @Field()
+  @Column({ default: "TEXT" })
+  type: string;
+
+  @Field()
+  @Column({ nullable: true })
+  code: string;
+
   @OneToMany(() => AssignmentQuestion, (question) => question.assignment)
   question: AssignmentQuestion[];
 
-  @OneToMany(() => UserAnswer, (anwser) => anwser.assignment)
-  anwser: UserAnswer[];
+  @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.assignment)
+  userResult: UserAnswer;
 
   @Field()
   @Column()
-  time!: string;
+  anwser: string;
 
   @Field()
-  @Column({ default: 0 })
-  numberQuestion: number;
+  @Column({ default: 30000 })
+  time: number;
 
   @Field()
   @Column()
@@ -57,14 +61,6 @@ export class Assignment extends BaseEntity {
   @Field()
   @Column({ default: true })
   isDeleted: boolean;
-
-  @Field()
-  @Column({
-    type: "enum",
-    enum: Status,
-    default: Status.PENDING,
-  })
-  status: Status;
 
   @Field(() => Date)
   @CreateDateColumn()

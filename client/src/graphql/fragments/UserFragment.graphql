@@ -4,4 +4,7 @@ fragment UserFragment on User {
   email
   avatar
   phone
+  instructor {
+    ...InstructorFragment
+  }
 }

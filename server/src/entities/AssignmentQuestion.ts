@@ -15,7 +15,11 @@ import { Assignment } from "./Assignment";
 export class AssignmentQuestion extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
-  id!: string;
+  id!: number;
+
+  @Field()
+  @Column()
+  assignmentId: number;
 
   @ManyToOne(() => Assignment, (assignment) => assignment.question)
   assignment: Assignment;
@@ -23,18 +27,6 @@ export class AssignmentQuestion extends BaseEntity {
   @Field()
   @Column()
   content!: string;
-
-  @Field()
-  @Column({ default: 0 })
-  contentHtml!: string;
-
-  @Field()
-  @Column({ default: false })
-  isMultipleChoice: boolean;
-
-  @Field()
-  @Column()
-  answer!: string;
 
   @Field(() => Date)
   @CreateDateColumn()

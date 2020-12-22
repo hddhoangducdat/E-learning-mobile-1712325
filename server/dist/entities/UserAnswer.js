@@ -22,13 +22,23 @@ let UserAnswer = class UserAnswer extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
+    typeorm_1.PrimaryColumn(),
+    __metadata("design:type", Number)
 ], UserAnswer.prototype, "id", void 0);
 __decorate([
-    typeorm_1.ManyToOne(() => User_1.User, (user) => user.anwser),
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], UserAnswer.prototype, "userId", void 0);
+__decorate([
+    typeorm_1.ManyToOne(() => User_1.User, (user) => user.result),
     __metadata("design:type", User_1.User)
 ], UserAnswer.prototype, "user", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], UserAnswer.prototype, "assignmentId", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Assignment_1.Assignment, (assignment) => assignment.anwser),
     __metadata("design:type", Assignment_1.Assignment)

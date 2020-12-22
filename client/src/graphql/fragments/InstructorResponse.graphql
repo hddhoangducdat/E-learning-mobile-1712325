@@ -1,8 +1,0 @@
-fragment InstructorResponseFragment on InstructorResponse {
-  errors {
-    ...ErrorFragment
-  }
-  instructor {
-    ...InstructorFragment
-  }
-}

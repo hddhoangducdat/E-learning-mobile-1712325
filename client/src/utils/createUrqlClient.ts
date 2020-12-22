@@ -15,8 +15,6 @@ import {
   LogoutMutation,
   UpdateUserMutation,
   BecomeOrUpdateInstructorMutation,
-  InstructorQuery,
-  InstructorDocument,
   UpdateUserMutationVariables,
   User,
   // RegisterMutation, LogoutMutation, VoteMutationVariables, DeletePostMutationVariables,
@@ -211,19 +209,16 @@ export const createUrqlClient = () => {
             },
 
             becomeOrUpdateInstructor: (_result, _args, cache, _info) => {
-              betterUpdateQuery<
-                BecomeOrUpdateInstructorMutation,
-                InstructorQuery
-              >(
+              betterUpdateQuery<BecomeOrUpdateInstructorMutation, MeQuery>(
                 cache,
-                { query: InstructorDocument },
+                { query: MeDocument },
                 _result,
                 (result, query) => {
                   if (result.becomeOrUpdateInstructor.errors) {
                     return query;
                   } else {
                     return {
-                      instructor: result.becomeOrUpdateInstructor.instructor,
+                      me: result.becomeOrUpdateInstructor.user,
                     };
                   }
                 }

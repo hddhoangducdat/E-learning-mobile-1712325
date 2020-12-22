@@ -3,24 +3,25 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToMany,
   ManyToOne,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
+import { Course } from "./Course";
 import { User } from "./User";
 
 @ObjectType()
 @Entity()
-export class Feedback extends BaseEntity {
+export class FeedBack extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-  @ManyToOne(() => User, (user) => user.feedBack)
-  user: User;
+  @Field()
+  @Column()
+  rate!: number;
 
   @Field()
   @Column()
@@ -29,6 +30,20 @@ export class Feedback extends BaseEntity {
   @Field()
   @Column()
   content!: string;
+
+  @Field()
+  @Column()
+  userId!: number;
+
+  @Field()
+  @Column()
+  courseId!: number;
+
+  @ManyToOne(() => User, (user) => user.feedBacks)
+  user: User;
+
+  @ManyToOne(() => Course, (course) => course.feedBacks)
+  course: Course;
 
   @Field()
   @Column({ default: false })

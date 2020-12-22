@@ -17,7 +17,7 @@ import Menu from "../components/Menu";
 import { HomeStackNavProps } from "../utils/params";
 import AuthForm from "../components/form/AuthForm";
 import NotificationButton from "../components/NotificationButton";
-import { useMeQuery } from "../generated/graphql";
+import { useMeQuery, useCategoriesQuery } from "../generated/graphql";
 
 const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
   const dispatch = useDispatch();
@@ -28,6 +28,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
   );
   const [openAuthForm, setOpenAuthForm] = useState(false);
   const [{ data }] = useMeQuery();
+  const [cate] = useCategoriesQuery();
 
   useEffect(() => {
     toggleMenu();
@@ -123,8 +124,10 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             >
-              {logos.map((logo, index) => {
-                return <Logo key={index} image={logo.image} text={logo.text} />;
+              {cate.data?.categories.map((logo) => {
+                return (
+                  <Logo key={logo.id} image={logo.imageUrl} text={logo.name} />
+                );
               })}
             </ScrollView>
             <Subtitle>Continue Learning</Subtitle>

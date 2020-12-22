@@ -14,7 +14,6 @@ const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
 const Course_1 = require("./Course");
 const Lesson_1 = require("./Lesson");
-const Assignment_1 = require("./Assignment");
 let Section = class Section extends typeorm_1.BaseEntity {
     constructor() {
         super(...arguments);
@@ -23,9 +22,14 @@ let Section = class Section extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
 ], Section.prototype, "id", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Section.prototype, "courseId", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Course_1.Course, (course) => course.section),
     __metadata("design:type", Course_1.Course)
@@ -34,10 +38,6 @@ __decorate([
     typeorm_1.OneToMany(() => Lesson_1.Lesson, (lesson) => lesson.section),
     __metadata("design:type", Array)
 ], Section.prototype, "lesson", void 0);
-__decorate([
-    typeorm_1.OneToMany(() => Assignment_1.Assignment, (assignment) => assignment.section),
-    __metadata("design:type", Array)
-], Section.prototype, "assignment", void 0);
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column({ default: 0 }),

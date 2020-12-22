@@ -12,12 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Course = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
-const ForumQuestion_1 = require("./ForumQuestion");
 const Section_1 = require("./Section");
-const Lesson_1 = require("./Lesson");
 const Report_1 = require("./Report");
-const Assignment_1 = require("./Assignment");
 const Instructor_1 = require("./Instructor");
+const Category_1 = require("./Category");
+const StudentCourse_1 = require("./StudentCourse");
+const FeedBack_1 = require("./FeedBack");
 var Status;
 (function (Status) {
     Status["PENDING"] = "PENDING";
@@ -31,8 +31,8 @@ let Course = class Course extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
 ], Course.prototype, "id", void 0);
 __decorate([
     type_graphql_1.Field(),
@@ -47,7 +47,7 @@ __decorate([
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column(),
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], Course.prototype, "price", void 0);
 __decorate([
     type_graphql_1.Field(),
@@ -55,13 +55,13 @@ __decorate([
     __metadata("design:type", String)
 ], Course.prototype, "description", void 0);
 __decorate([
-    type_graphql_1.Field(() => [String]),
-    typeorm_1.Column({ array: true }),
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
     __metadata("design:type", String)
 ], Course.prototype, "requirement", void 0);
 __decorate([
-    type_graphql_1.Field(() => [String]),
-    typeorm_1.Column({ array: true }),
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
     __metadata("design:type", String)
 ], Course.prototype, "learnWhat", void 0);
 __decorate([
@@ -133,29 +133,41 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Course.prototype, "isHidden", void 0);
 __decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Course.prototype, "categoryId", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.ManyToOne(() => Category_1.Category, (category) => category.course),
+    __metadata("design:type", Category_1.Category)
+], Course.prototype, "category", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => StudentCourse_1.StudentCourse, (student) => student.course),
+    __metadata("design:type", Array)
+], Course.prototype, "students", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Course.prototype, "instructorId", void 0);
+__decorate([
     typeorm_1.ManyToOne(() => Instructor_1.Instructor, (instructor) => instructor.courseInstruct),
     __metadata("design:type", Instructor_1.Instructor)
 ], Course.prototype, "instructor", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => ForumQuestion_1.ForumQuestion, (forumQ) => forumQ.course),
+    typeorm_1.OneToMany(() => FeedBack_1.FeedBack, (feedBacks) => feedBacks.course),
     __metadata("design:type", Array)
-], Course.prototype, "question", void 0);
+], Course.prototype, "feedBacks", void 0);
 __decorate([
+    type_graphql_1.Field(() => [Section_1.Section]),
     typeorm_1.OneToMany(() => Section_1.Section, (section) => section.course),
     __metadata("design:type", Array)
 ], Course.prototype, "section", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => Lesson_1.Lesson, (lesson) => lesson.course),
-    __metadata("design:type", Array)
-], Course.prototype, "lesson", void 0);
-__decorate([
     typeorm_1.OneToMany(() => Report_1.Report, (report) => report.course),
     __metadata("design:type", Array)
 ], Course.prototype, "report", void 0);
-__decorate([
-    typeorm_1.OneToMany(() => Assignment_1.Assignment, (assignment) => assignment.course),
-    __metadata("design:type", Array)
-], Course.prototype, "assignment", void 0);
 __decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.CreateDateColumn(),

@@ -27,13 +27,23 @@ let Report = class Report extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
 ], Report.prototype, "id", void 0);
 __decorate([
-    typeorm_1.ManyToOne(() => User_1.User, (user) => user.report),
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Report.prototype, "userId", void 0);
+__decorate([
+    typeorm_1.ManyToOne(() => User_1.User, (user) => user.reports),
     __metadata("design:type", User_1.User)
 ], Report.prototype, "user", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Report.prototype, "courseId", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Course_1.Course, (course) => course.report),
     __metadata("design:type", Course_1.Course)

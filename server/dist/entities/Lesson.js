@@ -12,11 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Lesson = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
-const ForumQuestion_1 = require("./ForumQuestion");
-const Course_1 = require("./Course");
 const Section_1 = require("./Section");
 const Resource_1 = require("./Resource");
 const Assignment_1 = require("./Assignment");
+const Question_1 = require("./Question");
 let Lesson = class Lesson extends typeorm_1.BaseEntity {
     constructor() {
         super(...arguments);
@@ -25,25 +24,29 @@ let Lesson = class Lesson extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
 ], Lesson.prototype, "id", void 0);
 __decorate([
+    type_graphql_1.Field(() => [Resource_1.Resource]),
     typeorm_1.OneToMany(() => Resource_1.Resource, (resource) => resource.lesson),
     __metadata("design:type", Array)
 ], Lesson.prototype, "resource", void 0);
 __decorate([
+    type_graphql_1.Field(() => [Assignment_1.Assignment]),
     typeorm_1.OneToMany(() => Assignment_1.Assignment, (assignment) => assignment.lesson),
     __metadata("design:type", Array)
 ], Lesson.prototype, "assignment", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => ForumQuestion_1.ForumQuestion, (forumQ) => forumQ.lesson),
+    type_graphql_1.Field(() => [Question_1.Question]),
+    typeorm_1.OneToMany(() => Question_1.Question, (forumQ) => forumQ.lesson),
     __metadata("design:type", Array)
-], Lesson.prototype, "question", void 0);
+], Lesson.prototype, "questions", void 0);
 __decorate([
-    typeorm_1.ManyToOne(() => Course_1.Course, (course) => course.lesson),
-    __metadata("design:type", Course_1.Course)
-], Lesson.prototype, "course", void 0);
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Lesson.prototype, "sectionId", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Section_1.Section, (section) => section.lesson),
     __metadata("design:type", Section_1.Section)
@@ -79,7 +82,7 @@ __decorate([
         default: 0,
     }),
     __metadata("design:type", Number)
-], Lesson.prototype, "hours", void 0);
+], Lesson.prototype, "times", void 0);
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column({ default: true }),

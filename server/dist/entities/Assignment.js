@@ -13,8 +13,6 @@ exports.Assignment = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
 const Lesson_1 = require("./Lesson");
-const Course_1 = require("./Course");
-const Section_1 = require("./Section");
 const AssignmentQuestion_1 = require("./AssignmentQuestion");
 const UserAnswer_1 = require("./UserAnswer");
 var Status;
@@ -30,39 +28,46 @@ let Assignment = class Assignment extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
 ], Assignment.prototype, "id", void 0);
 __decorate([
-    typeorm_1.ManyToOne(() => Section_1.Section, (section) => section.assignment),
-    __metadata("design:type", Section_1.Section)
-], Assignment.prototype, "section", void 0);
-__decorate([
-    typeorm_1.ManyToOne(() => Course_1.Course, (course) => course.assignment),
-    __metadata("design:type", Course_1.Course)
-], Assignment.prototype, "course", void 0);
+    type_graphql_1.Field(),
+    typeorm_1.Column(),
+    __metadata("design:type", Number)
+], Assignment.prototype, "lessonId", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Lesson_1.Lesson, (lesson) => lesson.assignment),
     __metadata("design:type", Lesson_1.Lesson)
 ], Assignment.prototype, "lesson", void 0);
 __decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column({ default: "TEXT" }),
+    __metadata("design:type", String)
+], Assignment.prototype, "type", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.Column({ nullable: true }),
+    __metadata("design:type", String)
+], Assignment.prototype, "code", void 0);
+__decorate([
     typeorm_1.OneToMany(() => AssignmentQuestion_1.AssignmentQuestion, (question) => question.assignment),
     __metadata("design:type", Array)
 ], Assignment.prototype, "question", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => UserAnswer_1.UserAnswer, (anwser) => anwser.assignment),
-    __metadata("design:type", Array)
-], Assignment.prototype, "anwser", void 0);
+    typeorm_1.OneToMany(() => UserAnswer_1.UserAnswer, (userAnswer) => userAnswer.assignment),
+    __metadata("design:type", UserAnswer_1.UserAnswer)
+], Assignment.prototype, "userResult", void 0);
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column(),
     __metadata("design:type", String)
-], Assignment.prototype, "time", void 0);
+], Assignment.prototype, "anwser", void 0);
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.Column({ default: 0 }),
+    typeorm_1.Column({ default: 30000 }),
     __metadata("design:type", Number)
-], Assignment.prototype, "numberQuestion", void 0);
+], Assignment.prototype, "time", void 0);
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column(),
@@ -73,15 +78,6 @@ __decorate([
     typeorm_1.Column({ default: true }),
     __metadata("design:type", Boolean)
 ], Assignment.prototype, "isDeleted", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    typeorm_1.Column({
-        type: "enum",
-        enum: Status,
-        default: Status.PENDING,
-    }),
-    __metadata("design:type", String)
-], Assignment.prototype, "status", void 0);
 __decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.CreateDateColumn(),

@@ -9,30 +9,33 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
-import { ForumQuestion } from "./ForumQuestion";
-import { Course } from "./Course";
 import { Section } from "./Section";
 import { Resource } from "./Resource";
 import { Assignment } from "./Assignment";
+import { Question } from "./Question";
 
 @ObjectType()
 @Entity()
 export class Lesson extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
+  @Field(() => [Resource])
   @OneToMany(() => Resource, (resource) => resource.lesson)
   resource: Resource[];
 
+  @Field(() => [Assignment])
   @OneToMany(() => Assignment, (assignment) => assignment.lesson)
   assignment: Assignment[];
 
-  @OneToMany(() => ForumQuestion, (forumQ) => forumQ.lesson)
-  question: ForumQuestion[];
+  @Field(() => [Question])
+  @OneToMany(() => Question, (forumQ) => forumQ.lesson)
+  questions: Question[];
 
-  @ManyToOne(() => Course, (course) => course.lesson)
-  course: Course;
+  @Field()
+  @Column()
+  sectionId: number;
 
   @ManyToOne(() => Section, (section) => section.lesson)
   section: Section;
@@ -47,7 +50,7 @@ export class Lesson extends BaseEntity {
 
   @Field()
   @Column({ default: "Code" })
-  content: string;
+  content!: string;
 
   @Field()
   @Column({ default: "https://www.youtube.com/watch?v=Z5iWr6Srsj8&t=64s" })
@@ -61,7 +64,7 @@ export class Lesson extends BaseEntity {
   @Column({
     default: 0,
   })
-  hours: number;
+  times: number;
 
   @Field()
   @Column({ default: true })

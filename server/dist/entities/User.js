@@ -12,11 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = exports.UserType = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
-const ForumQuestion_1 = require("./ForumQuestion");
-const Feedback_1 = require("./Feedback");
-const Report_1 = require("./Report");
-const UserAnswer_1 = require("./UserAnswer");
 const Instructor_1 = require("./Instructor");
+const StudentCourse_1 = require("./StudentCourse");
+const UserAnswer_1 = require("./UserAnswer");
+const Question_1 = require("./Question");
+const Report_1 = require("./Report");
+const FeedBack_1 = require("./FeedBack");
 var UserType;
 (function (UserType) {
     UserType["STUDENT"] = "STUDENT";
@@ -30,8 +31,8 @@ let User = class User extends typeorm_1.BaseEntity {
 };
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
+    typeorm_1.PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
 ], User.prototype, "id", void 0);
 __decorate([
     type_graphql_1.Field(),
@@ -81,9 +82,9 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "isActivated", void 0);
 __decorate([
-    type_graphql_1.Field(() => String, { nullable: true }),
+    type_graphql_1.Field(() => Number),
     typeorm_1.Column({ nullable: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", Number)
 ], User.prototype, "instructorId", void 0);
 __decorate([
     type_graphql_1.Field(() => Instructor_1.Instructor, { nullable: true }),
@@ -92,21 +93,25 @@ __decorate([
     __metadata("design:type", Instructor_1.Instructor)
 ], User.prototype, "instructor", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => ForumQuestion_1.ForumQuestion, (forumQ) => forumQ.user),
+    typeorm_1.OneToMany(() => StudentCourse_1.StudentCourse, (studentCourse) => studentCourse.user),
     __metadata("design:type", Array)
-], User.prototype, "question", void 0);
+], User.prototype, "myCourse", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => Feedback_1.Feedback, (feedBack) => feedBack.user),
+    typeorm_1.OneToMany(() => FeedBack_1.FeedBack, (feedBacks) => feedBacks.user),
     __metadata("design:type", Array)
-], User.prototype, "feedBack", void 0);
+], User.prototype, "feedBacks", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => UserAnswer_1.UserAnswer, (userAnswer) => userAnswer.user),
+    __metadata("design:type", Array)
+], User.prototype, "result", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Question_1.Question, (question) => question.user),
+    __metadata("design:type", Array)
+], User.prototype, "questions", void 0);
 __decorate([
     typeorm_1.OneToMany(() => Report_1.Report, (report) => report.user),
     __metadata("design:type", Array)
-], User.prototype, "report", void 0);
-__decorate([
-    typeorm_1.OneToMany(() => UserAnswer_1.UserAnswer, (answser) => answser.user),
-    __metadata("design:type", Array)
-], User.prototype, "anwser", void 0);
+], User.prototype, "reports", void 0);
 __decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.CreateDateColumn(),

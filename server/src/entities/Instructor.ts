@@ -17,8 +17,8 @@ import { Course } from "./Course";
 @Entity()
 export class Instructor extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Field()
   @Column()

@@ -20,11 +20,19 @@ enum Status {
 @Entity()
 export class Report extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-  @ManyToOne(() => User, (user) => user.report)
+  @Field()
+  @Column()
+  userId: number;
+
+  @ManyToOne(() => User, (user) => user.reports)
   user: User;
+
+  @Field()
+  @Column()
+  courseId: number;
 
   @ManyToOne(() => Course, (course) => course.report)
   course: Course;

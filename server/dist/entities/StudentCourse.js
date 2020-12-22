@@ -9,58 +9,53 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Feedback = void 0;
+exports.StudentCourse = exports.UserType = void 0;
 const typeorm_1 = require("typeorm");
 const type_graphql_1 = require("type-graphql");
+const Course_1 = require("./Course");
 const User_1 = require("./User");
-let Feedback = class Feedback extends typeorm_1.BaseEntity {
+var UserType;
+(function (UserType) {
+    UserType["STUDENT"] = "STUDENT";
+    UserType["INSTRUCTOR"] = "INSTRUCTOR";
+})(UserType = exports.UserType || (exports.UserType = {}));
+let StudentCourse = class StudentCourse extends typeorm_1.BaseEntity {
     constructor() {
         super(...arguments);
         this.updatedAt = new Date();
     }
 };
 __decorate([
-    type_graphql_1.Field(),
-    typeorm_1.PrimaryGeneratedColumn("uuid"),
-    __metadata("design:type", String)
-], Feedback.prototype, "id", void 0);
+    typeorm_1.PrimaryColumn(),
+    __metadata("design:type", Number)
+], StudentCourse.prototype, "userId", void 0);
 __decorate([
-    typeorm_1.ManyToOne(() => User_1.User, (user) => user.feedBack),
+    typeorm_1.PrimaryColumn(),
+    __metadata("design:type", Number)
+], StudentCourse.prototype, "courseId", void 0);
+__decorate([
+    type_graphql_1.Field(() => User_1.User),
+    typeorm_1.ManyToOne(() => User_1.User, (user) => user.myCourse),
     __metadata("design:type", User_1.User)
-], Feedback.prototype, "user", void 0);
+], StudentCourse.prototype, "user", void 0);
 __decorate([
-    type_graphql_1.Field(),
-    typeorm_1.Column(),
-    __metadata("design:type", String)
-], Feedback.prototype, "subject", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    typeorm_1.Column(),
-    __metadata("design:type", String)
-], Feedback.prototype, "content", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    typeorm_1.Column({ default: false }),
-    __metadata("design:type", Boolean)
-], Feedback.prototype, "isDeleted", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    typeorm_1.Column({ default: true }),
-    __metadata("design:type", Boolean)
-], Feedback.prototype, "isResolved", void 0);
+    type_graphql_1.Field(() => Course_1.Course),
+    typeorm_1.ManyToOne(() => Course_1.Course, (course) => course.students),
+    __metadata("design:type", Course_1.Course)
+], StudentCourse.prototype, "course", void 0);
 __decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.CreateDateColumn(),
     __metadata("design:type", Date)
-], Feedback.prototype, "createdAt", void 0);
+], StudentCourse.prototype, "createdAt", void 0);
 __decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.UpdateDateColumn(),
     __metadata("design:type", Object)
-], Feedback.prototype, "updatedAt", void 0);
-Feedback = __decorate([
+], StudentCourse.prototype, "updatedAt", void 0);
+StudentCourse = __decorate([
     type_graphql_1.ObjectType(),
     typeorm_1.Entity()
-], Feedback);
-exports.Feedback = Feedback;
-//# sourceMappingURL=Feedback.js.map
+], StudentCourse);
+exports.StudentCourse = StudentCourse;
+//# sourceMappingURL=StudentCourse.js.map

@@ -4,33 +4,41 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
-import { Course } from "./Course";
 import { User } from "./User";
 import { Lesson } from "./Lesson";
 
 @ObjectType()
 @Entity()
-export class ForumQuestion extends BaseEntity {
+export class Question extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
-
-  @ManyToOne(() => User, (user) => user.question)
-  user: User;
-
-  @ManyToOne(() => Course, (course) => course.question)
-  course: Course;
-
-  @ManyToOne(() => Lesson, (lesson) => lesson.question)
-  lesson: Lesson;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Field()
   @Column()
-  title!: string;
+  userId!: number;
+
+  @ManyToOne(() => User, (user) => user.questions)
+  user: User;
+
+  @Field()
+  @Column()
+  lessonId!: number;
+
+  @ManyToOne(() => Lesson, (lesson) => lesson.questions)
+  lesson: Lesson;
+
+  @Field()
+  @Column({ nullable: true })
+  questionId: number;
+
+  @ManyToOne(() => Question, (question) => question.repliedQuestion)
+  repliedQuestion: Question;
 
   @Field()
   @Column()
@@ -56,8 +64,8 @@ export class ForumQuestion extends BaseEntity {
   @Column({ default: true })
   isPublished: true;
 
-  @Field(() => [String])
-  @Column({ array: true })
+  @Field()
+  @Column({ nullable: true })
   tagIds: string;
 
   @Field(() => Date)

@@ -10,12 +10,12 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
-import { Course } from "./Course";
-import { ForumQuestion } from "./ForumQuestion";
-import { Feedback } from "./Feedback";
-import { Report } from "./Report";
-import { UserAnswer } from "./UserAnswer";
 import { Instructor } from "./Instructor";
+import { StudentCourse } from "./StudentCourse";
+import { UserAnswer } from "./UserAnswer";
+import { Question } from "./Question";
+import { Report } from "./Report";
+import { FeedBack } from "./FeedBack";
 
 export enum UserType {
   STUDENT = "STUDENT",
@@ -26,8 +26,8 @@ export enum UserType {
 @Entity()
 export class User extends BaseEntity {
   @Field()
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Field()
   @Column()
@@ -69,26 +69,29 @@ export class User extends BaseEntity {
   @Column({ default: true })
   isActivated: boolean;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => Number)
   @Column({ nullable: true })
-  instructorId!: string;
+  instructorId!: number;
 
   @Field(() => Instructor, { nullable: true })
   @OneToOne(() => Instructor, (instructor) => instructor.user)
   @JoinColumn()
   instructor: Instructor;
 
-  @OneToMany(() => ForumQuestion, (forumQ) => forumQ.user)
-  question: ForumQuestion[];
+  @OneToMany(() => StudentCourse, (studentCourse) => studentCourse.user)
+  myCourse: StudentCourse[];
 
-  @OneToMany(() => Feedback, (feedBack) => feedBack.user)
-  feedBack: Feedback[];
+  @OneToMany(() => FeedBack, (feedBacks) => feedBacks.user)
+  feedBacks: FeedBack[];
+
+  @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.user)
+  result: UserAnswer[];
+
+  @OneToMany(() => Question, (question) => question.user)
+  questions: Question[];
 
   @OneToMany(() => Report, (report) => report.user)
-  report: Report[];
-
-  @OneToMany(() => UserAnswer, (answser) => answser.user)
-  anwser: UserAnswer[];
+  reports: Report[];
 
   @Field(() => Date)
   @CreateDateColumn()
