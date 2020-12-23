@@ -13,11 +13,6 @@ import { Lesson } from "./Lesson";
 import { AssignmentQuestion } from "./AssignmentQuestion";
 import { UserAnswer } from "./UserAnswer";
 
-enum Status {
-  PENDING = "PENDING",
-  SOLVED = "SOLVED",
-}
-
 @ObjectType()
 @Entity()
 export class Assignment extends BaseEntity {

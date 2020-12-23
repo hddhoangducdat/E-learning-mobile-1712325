@@ -15,11 +15,6 @@ const type_graphql_1 = require("type-graphql");
 const Lesson_1 = require("./Lesson");
 const AssignmentQuestion_1 = require("./AssignmentQuestion");
 const UserAnswer_1 = require("./UserAnswer");
-var Status;
-(function (Status) {
-    Status["PENDING"] = "PENDING";
-    Status["SOLVED"] = "SOLVED";
-})(Status || (Status = {}));
 let Assignment = class Assignment extends typeorm_1.BaseEntity {
     constructor() {
         super(...arguments);

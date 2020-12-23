@@ -21,67 +21,55 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CourseResolver = void 0;
+exports.FeedBackResolver = void 0;
+const FeedBack_1 = require("../entities/FeedBack");
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
-const Course_1 = require("../entities/Course");
-let PaginatedCourse = class PaginatedCourse {
+let PaginatedFeedBack = class PaginatedFeedBack {
 };
 __decorate([
-    type_graphql_1.Field(() => [Course_1.Course]),
+    type_graphql_1.Field(() => [FeedBack_1.FeedBack]),
     __metadata("design:type", Array)
-], PaginatedCourse.prototype, "courses", void 0);
+], PaginatedFeedBack.prototype, "feedBacks", void 0);
 __decorate([
     type_graphql_1.Field(),
     __metadata("design:type", Boolean)
-], PaginatedCourse.prototype, "hasMore", void 0);
-PaginatedCourse = __decorate([
+], PaginatedFeedBack.prototype, "hasMore", void 0);
+PaginatedFeedBack = __decorate([
     type_graphql_1.ObjectType()
-], PaginatedCourse);
-let CourseResolver = class CourseResolver {
-    course(id) {
-        return Course_1.Course.findOne(id, {
-            relations: ["section"],
-        });
-    }
-    courses(limit, cursor) {
+], PaginatedFeedBack);
+let FeedBackResolver = class FeedBackResolver {
+    feedBacks(limit, cursor) {
         return __awaiter(this, void 0, void 0, function* () {
-            const realLimit = Math.min(20, limit);
+            const realLimit = Math.min(5, limit);
             const realLimitPlusOne = realLimit + 1;
             const replacements = [realLimitPlusOne];
             if (cursor) {
                 replacements.push(cursor);
             }
-            const courses = yield typeorm_1.getConnection().query(`
-        select * from course
+            const feedBacks = yield typeorm_1.getConnection().query(`
+        select * from feed_back
         ${cursor ? `where "createdAt" < $2` : ""}
         order by "createdAt" DESC
         limit $1
       `, replacements);
             return {
-                courses: courses.slice(0, realLimit),
-                hasMore: courses.length === realLimitPlusOne,
+                feedBacks: feedBacks.slice(0, realLimit),
+                hasMore: feedBacks.length === realLimitPlusOne,
             };
         });
     }
 };
 __decorate([
-    type_graphql_1.Query(() => Course_1.Course, { nullable: true }),
-    __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", void 0)
-], CourseResolver.prototype, "course", null);
-__decorate([
-    type_graphql_1.Query(() => PaginatedCourse),
+    type_graphql_1.Query(() => PaginatedFeedBack),
     __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Arg("cursor", () => Date, { nullable: true })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
-], CourseResolver.prototype, "courses", null);
-CourseResolver = __decorate([
-    type_graphql_1.Resolver(Course_1.Course)
-], CourseResolver);
-exports.CourseResolver = CourseResolver;
-//# sourceMappingURL=course.js.map
+], FeedBackResolver.prototype, "feedBacks", null);
+FeedBackResolver = __decorate([
+    type_graphql_1.Resolver(FeedBack_1.FeedBack)
+], FeedBackResolver);
+exports.FeedBackResolver = FeedBackResolver;
+//# sourceMappingURL=feedBack.js.map
