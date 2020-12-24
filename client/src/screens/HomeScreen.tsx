@@ -7,6 +7,7 @@ import {
   Easing,
   StatusBar,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components/native";
 import { ReduxReducers, TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../types";
@@ -17,7 +18,12 @@ import Menu from "../components/Menu";
 import { HomeStackNavProps } from "../utils/params";
 import AuthForm from "../components/form/AuthForm";
 import NotificationButton from "../components/NotificationButton";
-import { useMeQuery, useCategoriesQuery } from "../generated/graphql";
+import {
+  useMeQuery,
+  useCategoriesQuery,
+  useCoursesQuery,
+} from "../generated/graphql";
+import ReverseCourse from "../components/ReverseCourse";
 
 const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
   const dispatch = useDispatch();
@@ -29,6 +35,26 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
   const [openAuthForm, setOpenAuthForm] = useState(false);
   const [{ data }] = useMeQuery();
   const [cate] = useCategoriesQuery();
+
+  const [bestSeller] = useCoursesQuery({
+    variables: {
+      limit: 10,
+      orderType: "BEST_SELLER",
+    },
+  });
+
+  const [topRated] = useCoursesQuery({
+    variables: {
+      limit: 10,
+      orderType: "RATE",
+    },
+  });
+
+  const [newestCourses] = useCoursesQuery({
+    variables: {
+      limit: 10,
+    },
+  });
 
   useEffect(() => {
     toggleMenu();
@@ -124,19 +150,24 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             >
-              {cate.data?.categories.map((logo) => {
+              {cate.data?.categories.map((category) => {
                 return (
-                  <Logo key={logo.id} image={logo.imageUrl} text={logo.name} />
+                  <Logo
+                    key={category.id}
+                    image={category.imageUrl}
+                    text={category.name}
+                  />
                 );
               })}
             </ScrollView>
-            <Subtitle>Continue Learning</Subtitle>
+            <Subtitle>Most Popular Courses</Subtitle>
+
             <ScrollView
               horizontal={true}
-              style={{ paddingBottom: 30, height: 340 }}
+              style={{ paddingBottom: 30, height: 350 }}
               showsHorizontalScrollIndicator={false}
             >
-              {cards.map((card, index) => {
+              {bestSeller.data?.courses.courses.map((card, index) => {
                 return (
                   <TouchableOpacity
                     key={index}
@@ -144,28 +175,99 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                       navigation.push("Section");
                     }}
                   >
-                    <Card
-                      title={card.title}
-                      image={card.image}
-                      caption={card.caption}
-                      logo={card.logo}
-                      subtitle={card.subtitle}
-                    />
+                    {bestSeller.fetching ? null : (
+                      <Card
+                        image={card.imageUrl}
+                        caption={card.title}
+                        logo={card.category.imageUrl}
+                        subtitle={card.subtitle}
+                        rate={card.rateNumber}
+                        participant={card.soldNumber}
+                        price={card.price}
+                        isBestSeller={true}
+                      />
+                    )}
                   </TouchableOpacity>
                 );
               })}
+              <MoreView
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: {
+                    width: 0,
+                    height: 3,
+                  },
+                  shadowOpacity: 0.29,
+                  shadowRadius: 4.65,
+
+                  elevation: 7,
+                }}
+              >
+                <MaterialIcons name="navigate-next" size={50} color="white" />
+              </MoreView>
             </ScrollView>
-            <Subtitle>Popular Courses</Subtitle>
-            {courses.map((course, index) => (
-              <Course
-                key={index}
-                image={course.image}
-                title={course.title}
+            <Subtitle>Top rated courses</Subtitle>
+            <ScrollView
+              horizontal={true}
+              style={{ paddingBottom: 30, height: 350 }}
+              showsHorizontalScrollIndicator={false}
+            >
+              {topRated.data?.courses.courses.map((card, index) => {
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      navigation.push("Section");
+                    }}
+                  >
+                    {topRated.fetching ? null : (
+                      <Card
+                        image={card.imageUrl}
+                        caption={card.title}
+                        logo={card.category.imageUrl}
+                        subtitle={card.subtitle}
+                        rate={card.rateNumber}
+                        participant={card.soldNumber}
+                        price={card.price}
+                        isBestSeller={false}
+                      />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+              <TopRatedMoreView
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: {
+                    width: 0,
+                    height: 3,
+                  },
+                  shadowOpacity: 0.29,
+                  shadowRadius: 4.65,
+
+                  elevation: 7,
+                }}
+              >
+                <MaterialIcons name="navigate-next" size={50} color="white" />
+              </TopRatedMoreView>
+            </ScrollView>
+
+            <HeaderContainer>
+              <Subtitle>Our new courses</Subtitle>
+              <TouchableOpacity>
+                <More>See all</More>
+              </TouchableOpacity>
+            </HeaderContainer>
+            {newestCourses.data?.courses.courses.map((course, index) => (
+              <ReverseCourse
+                image={course.imageUrl}
+                caption={course.title}
+                logo={course.category.imageUrl}
                 subtitle={course.subtitle}
-                logo={course.logo}
-                author={course.author}
-                avatar={course.avatar}
-                caption={course.caption}
+                rate={course.rateNumber}
+                participant={course.soldNumber}
+                price={course.price}
+                isBestSeller={false}
               />
             ))}
           </ScrollView>
@@ -176,6 +278,30 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
 };
 
 export default HomeScreen;
+
+const MoreView = styled.View`
+  background-color: #3d23cf;
+  justify-content: center;
+  align-items: center;
+  height: 290px;
+  width: 70px;
+  margin-right: 20px;
+  margin-top: 20px;
+`;
+
+const TopRatedMoreView = styled.View`
+  background-color: #23cf96;
+  justify-content: center;
+  align-items: center;
+  height: 290px;
+  width: 70px;
+  margin-right: 20px;
+  margin-top: 20px;
+`;
+
+const HeaderContainer = styled.View`
+  flex-direction: row;
+`;
 
 const RootView = styled.View`
   background: black;
@@ -225,100 +351,8 @@ const TitleBar = styled.View`
   padding-left: 80px;
 `;
 
-const logos = [
-  {
-    image: require("../assets/images/logo-framerx.png"),
-    text: "Framer X",
-  },
-  {
-    image: require("../assets/images/logo-figma.png"),
-    text: "Figma",
-  },
-  {
-    image: require("../assets/images/logo-studio.png"),
-    text: "Studio",
-  },
-  {
-    image: require("../assets/images/logo-react.png"),
-    text: "React",
-  },
-  {
-    image: require("../assets/images/logo-swift.png"),
-    text: "Swift",
-  },
-  {
-    image: require("../assets/images/logo-sketch.png"),
-    text: "Sketch",
-  },
-];
-
-const cards = [
-  {
-    title: "React Native for Designers",
-    image: require("../assets/images/background11.jpg"),
-    subtitle: "React Native",
-    caption: "1 of 12 sections",
-    logo: require("../assets/images/logo-react.png"),
-  },
-  {
-    title: "Styled Components",
-    image: require("../assets/images/background12.jpg"),
-    subtitle: "React Native",
-    caption: "2 of 12 sections",
-    logo: require("../assets/images/logo-react.png"),
-  },
-  {
-    title: "Props and Icons",
-    image: require("../assets/images/background13.jpg"),
-    subtitle: "React Native",
-    caption: "3 of 12 sections",
-    logo: require("../assets/images/logo-react.png"),
-  },
-  {
-    title: "Static Data and Loop",
-    image: require("../assets/images/background14.jpg"),
-    subtitle: "React Native",
-    caption: "4 of 12 sections",
-    logo: require("../assets/images/logo-react.png"),
-  },
-];
-
-const courses = [
-  {
-    title: "Prototype in InVision Studio",
-    subtitle: "10 sections",
-    image: require("../assets/images/background13.jpg"),
-    logo: require("../assets/images/logo-studio.png"),
-    author: "Meng To",
-    avatar: require("../assets/images/avatar.jpg"),
-    caption: "Design and interactive prototype",
-  },
-  {
-    title: "React for Designers",
-    subtitle: "12 sections",
-    image: require("../assets/images/background11.jpg"),
-    logo: require("../assets/images/logo-react.png"),
-    author: "Meng To",
-    avatar: require("../assets/images/avatar.jpg"),
-    caption: "Learn to design and code a React site",
-  },
-  {
-    title: "Design and Code with Framer X",
-    subtitle: "10 sections",
-    image: require("../assets/images/background14.jpg"),
-    logo: require("../assets/images/logo-framerx.png"),
-    author: "Meng To",
-    avatar: require("../assets/images/avatar.jpg"),
-    caption: "Create powerful design and code components for your app",
-  },
-  {
-    title: "Design System in Figma",
-    subtitle: "10 sections",
-    image: require("../assets/images/background6.jpg"),
-    logo: require("../assets/images/logo-figma.png"),
-    author: "Meng To",
-    avatar: require("../assets/images/avatar.jpg"),
-    caption:
-      "Complete guide to designing a site using a collaborative design tool",
-  },
-];
+const More = styled.Text`
+  font-size: 15px;
+  margin-left: 135px;
+  color: #000;
+`;

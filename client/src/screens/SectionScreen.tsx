@@ -12,12 +12,12 @@ interface SectionScreenProps {}
 
 const section = {
   title: "React Native for Designers",
-  image: require("../assets/images/background11.jpg"),
+  image: require("../assets/images/background3.jpg"),
   subtitle: "React Native",
   caption: "1 of 12 sections",
   logo: require("../assets/images/logo-react.png"),
   content:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent non efficitur lectus, a tristique tortor. Sed et lacinia purus. Vivamus quam nisi, aliquet ut congue vel, vehicula et diam. Phasellus volutpat felis dapibus convallis pretium. Nam condimentum, augue sed feugiat finibus, felis justo luctus odio, id convallis augue leo vel lacus. Aenean ultricies fringilla velit in maximus. In sed felis non erat bibendum tempor. Phasellus dignissim libero quis elit facilisis porta ac a sem. Quisque dictum consequat placerat.",
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent non efficitur lectus, a tristique tortor. Sed et lacinia purus. Vivamus quam nisi, aliquet ut congue vel, vehicula et diam. Phasellus volutpat felis dapibus convallis pretium. Nam condimentum, augue sed feugiat finibus, felis justo luctus odio, id convallis augue leo vel lacus. Aenean ultricies fringilla velit in maximus. In sed felis non erat bibendum tempor. Phasellus dignissim libero quis elit facilisis porta ac a sem. Quisque dictum consequat placerat.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent non efficitur lectus, a tristique tortor. Sed et lacinia purus. Vivamus quam nisi, aliquet ut congue vel, vehicula et diam. Phasellus volutpat felis dapibus convallis pretium. Nam condimentum, augue sed feugiat finibus, felis justo luctus odio, id convallis augue leo vel lacus. Aenean ultricies fringilla velit in maximus. In sed felis non erat bibendum tempor. Phasellus dignissim libero quis elit facilisis porta ac a sem. Quisque dictum consequat placerat.",
 };
 
 const SectionScreen = ({ navigation }: HomeStackNavProps<"Section">) => {
@@ -47,10 +47,18 @@ const SectionScreen = ({ navigation }: HomeStackNavProps<"Section">) => {
           }}
           style={{ position: "absolute", top: 20, right: 20 }}
         >
-          <CloseView>
+          <CloseView
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.5,
+              shadowRadius: 2,
+              elevation: 5,
+            }}
+          >
             <AntDesign
               name="close"
-              size={22}
+              size={20}
               color="#4775f2"
               style={{ marginTop: -2 }}
             />

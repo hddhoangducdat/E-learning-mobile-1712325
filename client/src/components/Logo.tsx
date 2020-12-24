@@ -11,7 +11,7 @@ const Logo = (props: any) => (
       elevation: 5,
     }}
   >
-    <Image source={props.image} resizeMode="contain" />
+    <Image source={{ uri: props.image }} resizeMode="contain" />
     <Text>{props.text}</Text>
   </Container>
 );

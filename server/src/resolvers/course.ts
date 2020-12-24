@@ -17,6 +17,7 @@ import { Course } from "../entities/Course";
 import { FieldError } from "./FieldError";
 import { Lesson } from "../entities/Lesson";
 import { Section } from "../entities/Section";
+import { Category } from "../entities/Category";
 
 @ObjectType()
 class PaginatedCourse {
@@ -36,6 +37,11 @@ class PayCourseResponse {
 
 @Resolver(Course)
 export class CourseResolver {
+  @FieldResolver(() => Category)
+  category(@Root() course: Course) {
+    return Category.findOne(course.categoryId);
+  }
+
   @Query(() => Course, { nullable: true })
   async course(@Arg("id", () => Int) id: number) {
     let course = await Course.findOne(id, { relations: ["section"] });

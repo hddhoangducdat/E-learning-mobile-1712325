@@ -27,6 +27,7 @@ const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const Course_1 = require("../entities/Course");
 const FieldError_1 = require("./FieldError");
+const Category_1 = require("../entities/Category");
 let PaginatedCourse = class PaginatedCourse {
 };
 __decorate([
@@ -54,6 +55,9 @@ PayCourseResponse = __decorate([
     type_graphql_1.ObjectType()
 ], PayCourseResponse);
 let CourseResolver = class CourseResolver {
+    category(course) {
+        return Category_1.Category.findOne(course.categoryId);
+    }
     course(id) {
         return __awaiter(this, void 0, void 0, function* () {
             let course = yield Course_1.Course.findOne(id, { relations: ["section"] });
@@ -143,6 +147,13 @@ let CourseResolver = class CourseResolver {
         });
     }
 };
+__decorate([
+    type_graphql_1.FieldResolver(() => Category_1.Category),
+    __param(0, type_graphql_1.Root()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Course_1.Course]),
+    __metadata("design:returntype", void 0)
+], CourseResolver.prototype, "category", null);
 __decorate([
     type_graphql_1.Query(() => Course_1.Course, { nullable: true }),
     __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
