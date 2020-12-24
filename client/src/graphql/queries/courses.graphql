@@ -25,6 +25,7 @@ query Courses(
       imageUrl
       category {
         imageUrl
+        name
       }
     }
     hasMore

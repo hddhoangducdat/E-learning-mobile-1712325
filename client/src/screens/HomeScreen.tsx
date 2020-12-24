@@ -172,7 +172,12 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                   <TouchableOpacity
                     key={index}
                     onPress={() => {
-                      navigation.push("Section");
+                      navigation.push("Section", {
+                        courseId: card.id,
+                        categoryUrl: card.category.imageUrl,
+                        categoryName: card.category.name,
+                        isBestSeller: true,
+                      } as any);
                     }}
                   >
                     {bestSeller.fetching ? null : (

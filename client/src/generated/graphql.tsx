@@ -506,6 +506,23 @@ export type CategoriesQuery = (
   )> }
 );
 
+export type CourseQueryVariables = Exact<{
+  id: Scalars['Int'];
+}>;
+
+
+export type CourseQuery = (
+  { __typename?: 'Query' }
+  & { course?: Maybe<(
+    { __typename?: 'Course' }
+    & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'description' | 'requirement' | 'learnWhat' | 'soldNumber' | 'videoNumber' | 'rateNumber' | 'totalHours' | 'promoVidUrl' | 'formalityPoint' | 'contentPoint' | 'presentationPoint' | 'instructorId'>
+    & { section: Array<(
+      { __typename?: 'Section' }
+      & Pick<Section, 'id' | 'name'>
+    )> }
+  )> }
+);
+
 export type CoursesQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['DateTime']>;
@@ -526,7 +543,7 @@ export type CoursesQuery = (
       & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'soldNumber' | 'rateNumber' | 'categoryId' | 'imageUrl'>
       & { category: (
         { __typename?: 'Category' }
-        & Pick<Category, 'imageUrl'>
+        & Pick<Category, 'imageUrl' | 'name'>
       ) }
     )> }
   ) }
@@ -664,6 +681,36 @@ export const CategoriesDocument = gql`
 export function useCategoriesQuery(options: Omit<Urql.UseQueryArgs<CategoriesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<CategoriesQuery>({ query: CategoriesDocument, ...options });
 };
+export const CourseDocument = gql`
+    query Course($id: Int!) {
+  course(id: $id) {
+    id
+    title
+    subtitle
+    price
+    description
+    requirement
+    learnWhat
+    soldNumber
+    videoNumber
+    rateNumber
+    totalHours
+    promoVidUrl
+    formalityPoint
+    contentPoint
+    presentationPoint
+    instructorId
+    section {
+      id
+      name
+    }
+  }
+}
+    `;
+
+export function useCourseQuery(options: Omit<Urql.UseQueryArgs<CourseQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<CourseQuery>({ query: CourseDocument, ...options });
+};
 export const CoursesDocument = gql`
     query Courses($limit: Int!, $cursor: DateTime, $categoryId: Float, $isAsc: Boolean, $orderType: String, $search: String) {
   courses(
@@ -685,6 +732,7 @@ export const CoursesDocument = gql`
       imageUrl
       category {
         imageUrl
+        name
       }
     }
     hasMore

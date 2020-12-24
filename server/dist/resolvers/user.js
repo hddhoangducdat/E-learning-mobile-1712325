@@ -214,6 +214,14 @@ let UserResolver = class UserResolver {
             return { user };
         });
     }
+    instructor(instructorId) {
+        return User_1.User.findOne({
+            where: {
+                instructorId,
+            },
+            relations: ["instructor"],
+        });
+    }
     forgotPassword(email, { redis }) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield User_1.User.findOne({ where: { email } });
@@ -333,6 +341,13 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "changePassword", null);
+__decorate([
+    type_graphql_1.Query(() => User_1.User),
+    __param(0, type_graphql_1.Arg("instructorId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], UserResolver.prototype, "instructor", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
     __param(0, type_graphql_1.Arg("email")),

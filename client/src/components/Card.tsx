@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components/native";
-import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 
 export default function Card({

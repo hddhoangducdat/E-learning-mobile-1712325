@@ -4,6 +4,7 @@ import {
   Ctx,
   Field,
   FieldResolver,
+  Int,
   Mutation,
   ObjectType,
   Query,
@@ -236,6 +237,16 @@ export class UserResolver {
 
     req.session.userId = user.id;
     return { user };
+  }
+
+  @Query(() => User)
+  instructor(@Arg("instructorId") instructorId: number) {
+    return User.findOne({
+      where: {
+        instructorId,
+      },
+      relations: ["instructor"],
+    });
   }
 
   @Mutation(() => Boolean)

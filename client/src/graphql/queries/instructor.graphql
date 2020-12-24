@@ -1,0 +1,12 @@
+query Instructor($instructorId: Int!) {
+  instructor(instructorId: $instructorId) {
+    id
+    username
+    avatar
+    instructor {
+      major
+      intro
+      skills
+    }
+  }
+}
