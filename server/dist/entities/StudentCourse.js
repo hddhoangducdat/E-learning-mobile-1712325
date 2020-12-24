@@ -26,20 +26,20 @@ let StudentCourse = class StudentCourse extends typeorm_1.BaseEntity {
     }
 };
 __decorate([
+    type_graphql_1.Field(),
     typeorm_1.PrimaryColumn(),
     __metadata("design:type", Number)
 ], StudentCourse.prototype, "userId", void 0);
 __decorate([
+    type_graphql_1.Field(),
     typeorm_1.PrimaryColumn(),
     __metadata("design:type", Number)
 ], StudentCourse.prototype, "courseId", void 0);
 __decorate([
-    type_graphql_1.Field(() => User_1.User),
     typeorm_1.ManyToOne(() => User_1.User, (user) => user.myCourse),
     __metadata("design:type", User_1.User)
 ], StudentCourse.prototype, "user", void 0);
 __decorate([
-    type_graphql_1.Field(() => Course_1.Course),
     typeorm_1.ManyToOne(() => Course_1.Course, (course) => course.students),
     __metadata("design:type", Course_1.Course)
 ], StudentCourse.prototype, "course", void 0);

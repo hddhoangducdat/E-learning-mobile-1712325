@@ -35,7 +35,7 @@ export class Question extends BaseEntity {
 
   @Field()
   @Column({ nullable: true })
-  questionId: number;
+  repliedQuestionId: number;
 
   @ManyToOne(() => Question, (question) => question.repliedQuestion)
   repliedQuestion: Question;

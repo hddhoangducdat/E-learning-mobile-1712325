@@ -21,48 +21,50 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FeedBackResolver = void 0;
-const FeedBack_1 = require("../entities/FeedBack");
+exports.ReportResolver = void 0;
+const User_1 = require("../entities/User");
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
-const User_1 = require("../entities/User");
-let PaginatedFeedBack = class PaginatedFeedBack {
+const Report_1 = require("../entities/Report");
+let PaginatedReport = class PaginatedReport {
 };
 __decorate([
-    type_graphql_1.Field(() => [FeedBack_1.FeedBack]),
+    type_graphql_1.Field(() => [Report_1.Report]),
     __metadata("design:type", Array)
-], PaginatedFeedBack.prototype, "feedBacks", void 0);
+], PaginatedReport.prototype, "reports", void 0);
 __decorate([
     type_graphql_1.Field(),
     __metadata("design:type", Boolean)
-], PaginatedFeedBack.prototype, "hasMore", void 0);
-PaginatedFeedBack = __decorate([
+], PaginatedReport.prototype, "hasMore", void 0);
+PaginatedReport = __decorate([
     type_graphql_1.ObjectType()
-], PaginatedFeedBack);
-let FeedBackResolver = class FeedBackResolver {
-    user(feedBack) {
-        return User_1.User.findOne(feedBack.userId);
+], PaginatedReport);
+let ReportResolver = class ReportResolver {
+    user(report) {
+        return User_1.User.findOne(report.userId);
     }
-    feedBacks(limit, cursor, courseId) {
+    reports(limit, cursor, courseId) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(5, limit);
             const realLimitPlusOne = realLimit + 1;
             const replacements = [realLimitPlusOne];
+            let query = "";
             if (cursor) {
                 replacements.push(cursor);
+                query += `"createdAt" < $2`;
             }
             if (courseId) {
                 replacements.push(courseId);
             }
-            const feedBacks = yield typeorm_1.getConnection().query(`
-        select * from feed_back
-        ${cursor ? `where "createdAt" < $2 and ` : `where `} "courseId" = $${replacements.length}
+            const rePorts = yield typeorm_1.getConnection().query(`
+        select * from report
+        ${cursor ? `where "createdAt" < $2 and ` : "where "} "courseId" = $${replacements.length}       
         order by "createdAt" DESC
         limit $1
       `, replacements);
             return {
-                feedBacks: feedBacks.slice(0, realLimit),
-                hasMore: feedBacks.length === realLimitPlusOne,
+                reports: rePorts.slice(0, realLimit),
+                hasMore: rePorts.length === realLimitPlusOne,
             };
         });
     }
@@ -71,20 +73,20 @@ __decorate([
     type_graphql_1.FieldResolver(() => User_1.User),
     __param(0, type_graphql_1.Root()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [FeedBack_1.FeedBack]),
+    __metadata("design:paramtypes", [Report_1.Report]),
     __metadata("design:returntype", void 0)
-], FeedBackResolver.prototype, "user", null);
+], ReportResolver.prototype, "user", null);
 __decorate([
-    type_graphql_1.Query(() => PaginatedFeedBack),
+    type_graphql_1.Query(() => PaginatedReport),
     __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Arg("cursor", () => Date, { nullable: true })),
     __param(2, type_graphql_1.Arg("courseId", () => Number, { nullable: true })),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object, Object]),
     __metadata("design:returntype", Promise)
-], FeedBackResolver.prototype, "feedBacks", null);
-FeedBackResolver = __decorate([
-    type_graphql_1.Resolver(FeedBack_1.FeedBack)
-], FeedBackResolver);
-exports.FeedBackResolver = FeedBackResolver;
-//# sourceMappingURL=feedBack.js.map
+], ReportResolver.prototype, "reports", null);
+ReportResolver = __decorate([
+    type_graphql_1.Resolver(Report_1.Report)
+], ReportResolver);
+exports.ReportResolver = ReportResolver;
+//# sourceMappingURL=report.js.map

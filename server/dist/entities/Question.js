@@ -48,7 +48,7 @@ __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column({ nullable: true }),
     __metadata("design:type", Number)
-], Question.prototype, "questionId", void 0);
+], Question.prototype, "repliedQuestionId", void 0);
 __decorate([
     typeorm_1.ManyToOne(() => Question_1, (question) => question.repliedQuestion),
     __metadata("design:type", Question)

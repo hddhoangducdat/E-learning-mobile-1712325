@@ -255,7 +255,7 @@ export class UserResolver {
       "ex",
       1000 * 60 * 60
     );
-    await sendEmail(email, html);
+    // await sendEmail(email, html);
     return true;
   }
 

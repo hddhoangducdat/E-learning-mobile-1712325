@@ -26,6 +26,12 @@ import { Question } from "./entities/Question";
 import { StudentCourse } from "./entities/StudentCourse";
 import { CourseResolver } from "./resolvers/course";
 import { CategoryResolver } from "./resolvers/category";
+import { FeedBackResolver } from "./resolvers/feedBack";
+import { ReportResolver } from "./resolvers/report";
+import { LessonResolver } from "./resolvers/lesson";
+import { QuestionResolver } from "./resolvers/question";
+import { ResourceResolver } from "./resolvers/resource";
+import { AssignmentResolver } from "./resolvers/assignment";
 
 const main = async () => {
   const conn = await createConnection({
@@ -86,6 +92,12 @@ const main = async () => {
         InstructorResolver,
         CourseResolver,
         CategoryResolver,
+        FeedBackResolver,
+        ReportResolver,
+        LessonResolver,
+        QuestionResolver,
+        ResourceResolver,
+        AssignmentResolver,
       ],
       validate: false,
     }),

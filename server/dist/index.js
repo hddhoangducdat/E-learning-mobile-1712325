@@ -40,6 +40,12 @@ const Question_1 = require("./entities/Question");
 const StudentCourse_1 = require("./entities/StudentCourse");
 const course_1 = require("./resolvers/course");
 const category_1 = require("./resolvers/category");
+const feedBack_1 = require("./resolvers/feedBack");
+const report_1 = require("./resolvers/report");
+const lesson_1 = require("./resolvers/lesson");
+const question_1 = require("./resolvers/question");
+const resource_1 = require("./resolvers/resource");
+const assignment_1 = require("./resolvers/assignment");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
         type: "postgres",
@@ -92,6 +98,12 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
                 instructor_1.InstructorResolver,
                 course_1.CourseResolver,
                 category_1.CategoryResolver,
+                feedBack_1.FeedBackResolver,
+                report_1.ReportResolver,
+                lesson_1.LessonResolver,
+                question_1.QuestionResolver,
+                resource_1.ResourceResolver,
+                assignment_1.AssignmentResolver,
             ],
             validate: false,
         }),

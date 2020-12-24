@@ -1,4 +1,4 @@
-import { FeedBack } from "../entities/FeedBack";
+import { User } from "../entities/User";
 import {
   Arg,
   Field,
@@ -10,48 +10,51 @@ import {
   Root,
 } from "type-graphql";
 import { getConnection } from "typeorm";
-import { User } from "../entities/User";
+import { Report } from "../entities/Report";
 
 @ObjectType()
-class PaginatedFeedBack {
-  @Field(() => [FeedBack])
-  feedBacks: FeedBack[];
+class PaginatedReport {
+  @Field(() => [Report])
+  reports: Report[];
   @Field()
   hasMore: boolean;
 }
 
-@Resolver(FeedBack)
-export class FeedBackResolver {
+@Resolver(Report)
+export class ReportResolver {
   @FieldResolver(() => User)
-  user(@Root() feedBack: FeedBack) {
-    return User.findOne(feedBack.userId);
+  user(@Root() report: Report) {
+    return User.findOne(report.userId);
   }
 
-  @Query(() => PaginatedFeedBack)
-  async feedBacks(
+  @Query(() => PaginatedReport)
+  async reports(
     @Arg("limit", () => Int) limit: number,
     @Arg("cursor", () => Date, { nullable: true }) cursor: string | null,
     @Arg("courseId", () => Number, { nullable: true }) courseId: number | null
-  ): Promise<PaginatedFeedBack> {
+  ): Promise<PaginatedReport> {
     const realLimit = Math.min(5, limit);
     const realLimitPlusOne = realLimit + 1;
 
     const replacements: any[] = [realLimitPlusOne];
 
+    let query = "";
+
     if (cursor) {
       replacements.push(cursor);
+      query += `"createdAt" < $2`;
     }
 
     if (courseId) {
       replacements.push(courseId);
     }
 
-    const feedBacks = await getConnection().query(
+    const rePorts = await getConnection().query(
       `
-        select * from feed_back
-        ${cursor ? `where "createdAt" < $2 and ` : `where `} "courseId" = $${
+        select * from report
+        ${cursor ? `where "createdAt" < $2 and ` : "where "} "courseId" = $${
         replacements.length
-      }
+      }       
         order by "createdAt" DESC
         limit $1
       `,
@@ -59,8 +62,8 @@ export class FeedBackResolver {
     );
 
     return {
-      feedBacks: feedBacks.slice(0, realLimit),
-      hasMore: feedBacks.length === realLimitPlusOne,
+      reports: rePorts.slice(0, realLimit),
+      hasMore: rePorts.length === realLimitPlusOne,
     };
   }
 }

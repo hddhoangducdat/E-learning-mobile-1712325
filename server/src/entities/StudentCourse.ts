@@ -19,17 +19,17 @@ export enum UserType {
 @ObjectType()
 @Entity()
 export class StudentCourse extends BaseEntity {
+  @Field()
   @PrimaryColumn()
   userId!: number;
 
+  @Field()
   @PrimaryColumn()
   courseId!: number;
 
-  @Field(() => User)
   @ManyToOne(() => User, (user) => user.myCourse)
   user: User;
 
-  @Field(() => Course)
   @ManyToOne(() => Course, (course) => course.students)
   course: Course;
 
