@@ -22,7 +22,6 @@ import {
 import { pipe, tap } from "wonka";
 import { cacheExchange, Resolver, Cache } from "@urql/exchange-graphcache";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import { TRIGGER_TAB_BAR } from "../../types";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(

@@ -46,7 +46,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({}) => {
           },
         });
         if (response?.data) {
-          dispatch({ type: TRIGGER_TAB_BAR });
+          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
         }
         // console.log(response.data);
         // setOpenAuthForm((value) => {

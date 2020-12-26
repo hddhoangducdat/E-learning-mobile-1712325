@@ -13,7 +13,7 @@ import { ReduxReducers } from "../../types";
 import { loadAsync } from "expo-font";
 import { useEffect } from "react";
 import styled from "styled-components/native";
-import Svg, { Path, Text } from "react-native-svg";
+import Svg, { Path } from "react-native-svg";
 
 interface TabsNavigatorProps {}
 

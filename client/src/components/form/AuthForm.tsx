@@ -22,7 +22,7 @@ const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm }) => {
       <Touch
         onPress={() => {
           dispatch({ type: TRIGGER_MENU });
-          dispatch({ type: TRIGGER_TAB_BAR });
+          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
           setOpenAuthForm(false);
         }}
       ></Touch>

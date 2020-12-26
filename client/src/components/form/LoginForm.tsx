@@ -41,7 +41,7 @@ const LoginForm: React.FC<LoginFormProps> = ({}) => {
           password: password,
         });
         if (response?.data) {
-          dispatch({ type: TRIGGER_TAB_BAR });
+          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
         }
         // setOpenAuthForm((value) => {
         //   return !value;

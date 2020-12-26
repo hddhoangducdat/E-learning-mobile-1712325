@@ -27,9 +27,9 @@ const reducer = (state = initialState, action: Action): ReduxReducers => {
     case TRIGGER_MENU:
       return { ...state, openMenu: !state.openMenu };
     case TRIGGER_TAB_BAR:
-      return { ...state, tabBarVisible: !state.tabBarVisible };
+      return { ...state, tabBarVisible: action.payload };
     case TRIGGER_PROJECT_CARD:
-      return { ...state, openProject: (action as any).payload };
+      return { ...state, openProject: action.payload };
     default:
       return state;
   }

@@ -19,6 +19,7 @@ export type Scalars = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
+  instructor: User;
   course?: Maybe<Course>;
   courses: PaginatedCourse;
   categories: Array<Category>;
@@ -30,6 +31,11 @@ export type Query = {
   replyQuestions: PaginatedQuestion;
   resources: Array<Resource>;
   assignments: Array<Assignment>;
+};
+
+
+export type QueryInstructorArgs = {
+  instructorId: Scalars['Float'];
 };
 
 
@@ -235,6 +241,7 @@ export type Lesson = {
   isDeleted: Scalars['Boolean'];
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
+  section: Section;
 };
 
 export type Resource = {
@@ -495,6 +502,23 @@ export type UpdateUserMutation = (
   & Pick<Mutation, 'updateUser'>
 );
 
+export type AssignmentsQueryVariables = Exact<{
+  lessonId: Scalars['Float'];
+}>;
+
+
+export type AssignmentsQuery = (
+  { __typename?: 'Query' }
+  & { assignments: Array<(
+    { __typename?: 'Assignment' }
+    & Pick<Assignment, 'id' | 'type' | 'code' | 'anwser' | 'time' | 'title'>
+    & { question?: Maybe<Array<(
+      { __typename?: 'AssignmentQuestion' }
+      & Pick<AssignmentQuestion, 'id' | 'content'>
+    )>> }
+  )> }
+);
+
 export type CategoriesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -543,10 +567,83 @@ export type CoursesQuery = (
       & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'soldNumber' | 'rateNumber' | 'categoryId' | 'imageUrl'>
       & { category: (
         { __typename?: 'Category' }
-        & Pick<Category, 'imageUrl' | 'name'>
+        & Pick<Category, 'id' | 'imageUrl' | 'name'>
       ) }
     )> }
   ) }
+);
+
+export type FeedBacksQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['DateTime']>;
+  courseId: Scalars['Float'];
+}>;
+
+
+export type FeedBacksQuery = (
+  { __typename?: 'Query' }
+  & { feedBacks: (
+    { __typename?: 'PaginatedFeedBack' }
+    & Pick<PaginatedFeedBack, 'hasMore'>
+    & { feedBacks: Array<(
+      { __typename?: 'FeedBack' }
+      & Pick<FeedBack, 'id' | 'rate' | 'subject' | 'content' | 'userId' | 'createdAt'>
+      & { user: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username' | 'avatar'>
+      ) }
+    )> }
+  ) }
+);
+
+export type InstructorQueryVariables = Exact<{
+  instructorId: Scalars['Float'];
+}>;
+
+
+export type InstructorQuery = (
+  { __typename?: 'Query' }
+  & { instructor: (
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'username' | 'avatar'>
+    & { instructor?: Maybe<(
+      { __typename?: 'Instructor' }
+      & Pick<Instructor, 'id' | 'major' | 'intro' | 'skills'>
+    )> }
+  ) }
+);
+
+export type LessonQueryVariables = Exact<{
+  lessonId: Scalars['Int'];
+}>;
+
+
+export type LessonQuery = (
+  { __typename?: 'Query' }
+  & { lesson?: Maybe<(
+    { __typename?: 'Lesson' }
+    & Pick<Lesson, 'id' | 'name' | 'content' | 'video' | 'captionName'>
+    & { resource: Array<(
+      { __typename?: 'Resource' }
+      & Pick<Resource, 'id' | 'name' | 'url' | 'type'>
+    )>, section: (
+      { __typename?: 'Section' }
+      & Pick<Section, 'id' | 'name'>
+    ) }
+  )> }
+);
+
+export type LessonsQueryVariables = Exact<{
+  sectionId: Scalars['Float'];
+}>;
+
+
+export type LessonsQuery = (
+  { __typename?: 'Query' }
+  & { lessons: Array<(
+    { __typename?: 'Lesson' }
+    & Pick<Lesson, 'id' | 'name' | 'content' | 'times'>
+  )> }
 );
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
@@ -558,6 +655,52 @@ export type MeQuery = (
     { __typename?: 'User' }
     & UserFragmentFragment
   )> }
+);
+
+export type QuestionsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['DateTime']>;
+  lessonId: Scalars['Int'];
+}>;
+
+
+export type QuestionsQuery = (
+  { __typename?: 'Query' }
+  & { questions: (
+    { __typename?: 'PaginatedQuestion' }
+    & Pick<PaginatedQuestion, 'hasMore'>
+    & { questions: Array<(
+      { __typename?: 'Question' }
+      & Pick<Question, 'content' | 'votedNumber' | 'repliedNumber' | 'id'>
+      & { user: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username' | 'avatar'>
+      ) }
+    )> }
+  ) }
+);
+
+export type ReplyQuestionsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['DateTime']>;
+  questionId: Scalars['Int'];
+}>;
+
+
+export type ReplyQuestionsQuery = (
+  { __typename?: 'Query' }
+  & { replyQuestions: (
+    { __typename?: 'PaginatedQuestion' }
+    & Pick<PaginatedQuestion, 'hasMore'>
+    & { questions: Array<(
+      { __typename?: 'Question' }
+      & Pick<Question, 'content' | 'votedNumber' | 'repliedNumber' | 'id'>
+      & { user: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username' | 'avatar'>
+      ) }
+    )> }
+  ) }
 );
 
 export const ErrorFragmentFragmentDoc = gql`
@@ -668,6 +811,26 @@ export const UpdateUserDocument = gql`
 export function useUpdateUserMutation() {
   return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument);
 };
+export const AssignmentsDocument = gql`
+    query Assignments($lessonId: Float!) {
+  assignments(lessonId: $lessonId) {
+    id
+    type
+    code
+    anwser
+    time
+    title
+    question {
+      id
+      content
+    }
+  }
+}
+    `;
+
+export function useAssignmentsQuery(options: Omit<Urql.UseQueryArgs<AssignmentsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<AssignmentsQuery>({ query: AssignmentsDocument, ...options });
+};
 export const CategoriesDocument = gql`
     query Categories {
   categories {
@@ -731,6 +894,7 @@ export const CoursesDocument = gql`
       categoryId
       imageUrl
       category {
+        id
         imageUrl
         name
       }
@@ -743,6 +907,88 @@ export const CoursesDocument = gql`
 export function useCoursesQuery(options: Omit<Urql.UseQueryArgs<CoursesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<CoursesQuery>({ query: CoursesDocument, ...options });
 };
+export const FeedBacksDocument = gql`
+    query FeedBacks($limit: Int!, $cursor: DateTime, $courseId: Float!) {
+  feedBacks(limit: $limit, cursor: $cursor, courseId: $courseId) {
+    feedBacks {
+      id
+      rate
+      subject
+      content
+      userId
+      createdAt
+      user {
+        id
+        username
+        avatar
+      }
+    }
+    hasMore
+  }
+}
+    `;
+
+export function useFeedBacksQuery(options: Omit<Urql.UseQueryArgs<FeedBacksQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<FeedBacksQuery>({ query: FeedBacksDocument, ...options });
+};
+export const InstructorDocument = gql`
+    query Instructor($instructorId: Float!) {
+  instructor(instructorId: $instructorId) {
+    id
+    username
+    avatar
+    instructor {
+      id
+      major
+      intro
+      skills
+    }
+  }
+}
+    `;
+
+export function useInstructorQuery(options: Omit<Urql.UseQueryArgs<InstructorQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<InstructorQuery>({ query: InstructorDocument, ...options });
+};
+export const LessonDocument = gql`
+    query Lesson($lessonId: Int!) {
+  lesson(lessonId: $lessonId) {
+    id
+    resource {
+      id
+      name
+      url
+      type
+    }
+    section {
+      id
+      name
+    }
+    name
+    content
+    video
+    captionName
+  }
+}
+    `;
+
+export function useLessonQuery(options: Omit<Urql.UseQueryArgs<LessonQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<LessonQuery>({ query: LessonDocument, ...options });
+};
+export const LessonsDocument = gql`
+    query Lessons($sectionId: Float!) {
+  lessons(sectionId: $sectionId) {
+    id
+    name
+    content
+    times
+  }
+}
+    `;
+
+export function useLessonsQuery(options: Omit<Urql.UseQueryArgs<LessonsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<LessonsQuery>({ query: LessonsDocument, ...options });
+};
 export const MeDocument = gql`
     query Me {
   me {
@@ -753,4 +999,48 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const QuestionsDocument = gql`
+    query Questions($limit: Int!, $cursor: DateTime, $lessonId: Int!) {
+  questions(limit: $limit, cursor: $cursor, lessonId: $lessonId) {
+    questions {
+      content
+      votedNumber
+      repliedNumber
+      id
+      user {
+        id
+        username
+        avatar
+      }
+    }
+    hasMore
+  }
+}
+    `;
+
+export function useQuestionsQuery(options: Omit<Urql.UseQueryArgs<QuestionsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<QuestionsQuery>({ query: QuestionsDocument, ...options });
+};
+export const ReplyQuestionsDocument = gql`
+    query ReplyQuestions($limit: Int!, $cursor: DateTime, $questionId: Int!) {
+  replyQuestions(limit: $limit, cursor: $cursor, questionId: $questionId) {
+    hasMore
+    questions {
+      content
+      votedNumber
+      repliedNumber
+      id
+      user {
+        id
+        username
+        avatar
+      }
+    }
+  }
+}
+    `;
+
+export function useReplyQuestionsQuery(options: Omit<Urql.UseQueryArgs<ReplyQuestionsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<ReplyQuestionsQuery>({ query: ReplyQuestionsDocument, ...options });
 };

@@ -1,0 +1,16 @@
+query Questions($limit: Int!, $cursor: DateTime, $lessonId: Int!) {
+  questions(limit: $limit, cursor: $cursor, lessonId: $lessonId) {
+    questions {
+      content
+      votedNumber
+      repliedNumber
+      id
+      user {
+        id
+        username
+        avatar
+      }
+    }
+    hasMore
+  }
+}

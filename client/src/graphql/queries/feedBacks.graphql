@@ -1,0 +1,18 @@
+query FeedBacks($limit: Int!, $cursor: DateTime, $courseId: Float!) {
+  feedBacks(limit: $limit, cursor: $cursor, courseId: $courseId) {
+    feedBacks {
+      id
+      rate
+      subject
+      content
+      userId
+      createdAt
+      user {
+        id
+        username
+        avatar
+      }
+    }
+    hasMore
+  }
+}

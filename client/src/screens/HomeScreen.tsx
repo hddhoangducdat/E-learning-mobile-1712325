@@ -65,7 +65,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
       if (!data?.me) {
         setOpenAuthForm(true);
         if (tabBarVisible) {
-          dispatch({ type: TRIGGER_TAB_BAR });
+          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
         }
       } else {
         setOpenAuthForm(false);
@@ -265,6 +265,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
             </HeaderContainer>
             {newestCourses.data?.courses.courses.map((course, index) => (
               <ReverseCourse
+                key={index}
                 image={course.imageUrl}
                 caption={course.title}
                 logo={course.category.imageUrl}

@@ -78,7 +78,7 @@ const Menu = ({ me }: MenuProps) => {
                     break;
 
                   case "Account":
-                    dispatch({ type: TRIGGER_TAB_BAR });
+                    dispatch({ type: TRIGGER_TAB_BAR, payload: false });
                     setOpenAccountForm(true);
                     break;
                   default:

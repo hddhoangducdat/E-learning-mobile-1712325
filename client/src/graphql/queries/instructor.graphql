@@ -1,9 +1,10 @@
-query Instructor($instructorId: Int!) {
+query Instructor($instructorId: Float!) {
   instructor(instructorId: $instructorId) {
     id
     username
     avatar
     instructor {
+      id
       major
       intro
       skills

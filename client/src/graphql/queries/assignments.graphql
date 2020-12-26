@@ -1,0 +1,14 @@
+query Assignments($lessonId: Float!) {
+  assignments(lessonId: $lessonId) {
+    id
+    type
+    code
+    anwser
+    time
+    title
+    question {
+      id
+      content
+    }
+  }
+}

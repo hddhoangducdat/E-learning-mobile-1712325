@@ -1,0 +1,19 @@
+query Lesson($lessonId: Int!) {
+  lesson(lessonId: $lessonId) {
+    id
+    resource {
+      id
+      name
+      url
+      type
+    }
+    section {
+      id
+      name
+    }
+    name
+    content
+    video
+    captionName
+  }
+}

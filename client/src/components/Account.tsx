@@ -42,7 +42,7 @@ const AccountForm: React.FC<AccountProps> = ({ setOpenAccountForm }) => {
     >
       <Touch
         onPress={() => {
-          dispatch({ type: TRIGGER_TAB_BAR });
+          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
           setOpenAccountForm(false);
         }}
       ></Touch>
@@ -70,7 +70,7 @@ const AccountForm: React.FC<AccountProps> = ({ setOpenAccountForm }) => {
                 major: major!,
               });
             }
-            dispatch({ type: TRIGGER_TAB_BAR });
+            dispatch({ type: TRIGGER_TAB_BAR, payload: true });
             setOpenAccountForm(false);
           }}
         >

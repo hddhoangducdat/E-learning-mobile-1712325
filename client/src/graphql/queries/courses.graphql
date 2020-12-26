@@ -24,6 +24,7 @@ query Courses(
       categoryId
       imageUrl
       category {
+        id
         imageUrl
         name
       }

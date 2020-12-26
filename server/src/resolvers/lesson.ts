@@ -11,6 +11,7 @@ import {
 } from "type-graphql";
 import { getConnection } from "typeorm";
 import { Lesson } from "../entities/Lesson";
+import { Section } from "../entities/Section";
 
 @Resolver(Lesson)
 export class LessonResolver {
@@ -28,6 +29,11 @@ export class LessonResolver {
     );
 
     return lessons;
+  }
+
+  @FieldResolver(() => Section)
+  section(@Root() lesson: Lesson) {
+    return Section.findOne(lesson.sectionId);
   }
 
   @Query(() => Lesson, { nullable: true })

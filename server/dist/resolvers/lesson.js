@@ -25,6 +25,7 @@ exports.LessonResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const Lesson_1 = require("../entities/Lesson");
+const Section_1 = require("../entities/Section");
 let LessonResolver = class LessonResolver {
     lessons(sectionId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -35,6 +36,9 @@ let LessonResolver = class LessonResolver {
       `, [sectionId]);
             return lessons;
         });
+    }
+    section(lesson) {
+        return Section_1.Section.findOne(lesson.sectionId);
     }
     lesson(lessonId) {
         return Lesson_1.Lesson.findOne(lessonId, {
@@ -49,6 +53,13 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], LessonResolver.prototype, "lessons", null);
+__decorate([
+    type_graphql_1.FieldResolver(() => Section_1.Section),
+    __param(0, type_graphql_1.Root()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Lesson_1.Lesson]),
+    __metadata("design:returntype", void 0)
+], LessonResolver.prototype, "section", null);
 __decorate([
     type_graphql_1.Query(() => Lesson_1.Lesson, { nullable: true }),
     __param(0, type_graphql_1.Arg("lessonId", () => type_graphql_1.Int)),
