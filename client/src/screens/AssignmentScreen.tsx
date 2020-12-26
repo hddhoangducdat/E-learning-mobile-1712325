@@ -131,8 +131,10 @@ const AssignmentScreen: React.FC<ProjectsScreenProps> = ({ lessonId }) => {
 
   const [solve, setSolve] = useState<string[] | null>(null);
 
+  const [isSolve, setIsSolve] = useState(false);
+
   useEffect(() => {
-    if (data?.assignments && !solve) {
+    if (data?.assignments && !solve && !isSolve) {
       setSolve(
         data?.assignments.map((assignment) => {
           return assignment.question
@@ -142,8 +144,9 @@ const AssignmentScreen: React.FC<ProjectsScreenProps> = ({ lessonId }) => {
             : assignment.code;
         })
       );
+      setIsSolve(true);
     }
-  }, [data?.assignments.length]);
+  }, [isSolve]);
 
   return (
     <>

@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useMeQuery } from "../generated/graphql";
 
-export const userIsAuth = (navigate: any) => {
+export const userIsAuth = (
+  setOpenAuthForm: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   const [{ data, fetching }] = useMeQuery();
 
-  useEffect(() => {
-    // if (!fetching && !data?.me) {
-    navigate("Login");
-    // }
-  }, [fetching, data]);
+  if (!fetching && !data?.me) {
+    setOpenAuthForm(true);
+  }
 };

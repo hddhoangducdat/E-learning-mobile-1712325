@@ -17,11 +17,16 @@ import {
   useFeedBacksQuery,
   useCourseQuery,
   useInstructorQuery,
+  useIsOwnQuery,
+  useMeQuery,
+  usePurchaseMutation,
 } from "../generated/graphql";
 import { FontAwesome } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import Section from "../components/Section";
 import { timeCalc } from "../utils/timeCalc";
+import AuthForm from "../components/form/AuthForm";
+import { userIsAuth } from "../utils/userIsAuth";
 
 interface SectionScreenProps {}
 
@@ -32,6 +37,12 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
     isBestSeller,
     categoryName,
   }: any = route.params;
+
+  const [isOwn] = useIsOwnQuery({
+    variables: {
+      courseId,
+    },
+  });
 
   const [feedBacks] = useFeedBacksQuery({
     variables: {
@@ -110,10 +121,41 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
     }
   }, [positionScrollView]);
 
+  const [openAuthForm, setOpenAuthForm] = useState(false);
+
+  const [, purchase] = usePurchaseMutation();
+
+  const [me] = useMeQuery();
+
+  const handlePurchase = () => {
+    if (!me.data) {
+      setOpenAuthForm(true);
+    } else if (!isOwn.data?.isOwn) {
+      purchase({ courseId });
+    } else {
+    }
+  };
+
+  // useEffect(() => {}, [isOwn.data?.isOwn.bill]);
+
   return (
     <Container>
-      <AnimatedPayButton style={{ bottom }}>
-        <PayButtonText>Buy Now - {data?.course?.price}</PayButtonText>
+      {openAuthForm ? (
+        <AuthForm isCourse={courseId} setOpenAuthForm={setOpenAuthForm} />
+      ) : null}
+      <AnimatedPayButton
+        style={{
+          bottom,
+          backgroundColor: isOwn.data?.isOwn ? "#002fff" : "red",
+        }}
+      >
+        <TouchableOpacity onPress={handlePurchase}>
+          {isOwn.data?.isOwn ? (
+            <PayButtonText>Go to Course</PayButtonText>
+          ) : (
+            <PayButtonText>Buy Now - {data?.course?.price}</PayButtonText>
+          )}
+        </TouchableOpacity>
       </AnimatedPayButton>
       <ScrollView
         onScroll={(event: any) => {
@@ -192,7 +234,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                   html: `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/v2LJb0fJhqk?list=RDWCCp0zbnR50" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>`,
                 }}
               />
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handlePurchase}>
                 <PayButton
                   style={{
                     shadowColor: "#000",
@@ -204,9 +246,16 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                     shadowRadius: 4.65,
 
                     elevation: 7,
+                    backgroundColor: isOwn.data?.isOwn ? "#002fff" : "red",
                   }}
                 >
-                  <PayButtonText>Buy Now - {data?.course?.price}</PayButtonText>
+                  {isOwn.data?.isOwn ? (
+                    <PayButtonText>Go to Course</PayButtonText>
+                  ) : (
+                    <PayButtonText>
+                      Buy Now - {data?.course?.price}
+                    </PayButtonText>
+                  )}
                 </PayButton>
               </TouchableOpacity>
             </Marketing>
@@ -459,7 +508,6 @@ const TagIntro = styled.View`
 const PayButton = styled.View`
   width: 250px;
   align-items: center;
-  background-color: red;
   margin-top: 10px;
   padding: 10px;
   border-radius: 5px;
@@ -577,7 +625,6 @@ const PayButtonFixed = styled.View`
   position: absolute;
   /* bottom: 0px; */
   z-index: 90;
-  background-color: red;
 `;
 
 const AnimatedPayButton = Animated.createAnimatedComponent(PayButtonFixed);

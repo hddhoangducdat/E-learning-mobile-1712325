@@ -15,8 +15,6 @@ import {
 import { getConnection } from "typeorm";
 import { Course } from "../entities/Course";
 import { FieldError } from "./FieldError";
-import { Lesson } from "../entities/Lesson";
-import { Section } from "../entities/Section";
 import { Category } from "../entities/Category";
 
 @ObjectType()
@@ -37,6 +35,19 @@ class PayCourseResponse {
 
 @Resolver(Course)
 export class CourseResolver {
+  @Query(() => StudentCourse, { nullable: true })
+  isOwn(
+    @Arg("courseId", () => Int) courseId: number,
+    @Ctx() { req }: MyContext
+  ): Promise<StudentCourse | undefined> {
+    return StudentCourse.findOne({
+      where: {
+        userId: req.session.userId,
+        courseId,
+      },
+    });
+  }
+
   @FieldResolver(() => Category)
   category(@Root() course: Course) {
     return Category.findOne(course.categoryId);
@@ -125,7 +136,7 @@ export class CourseResolver {
   }
 
   @Mutation(() => PayCourseResponse)
-  async userPayForCourse(
+  async purchase(
     @Arg("courseId", () => Number) courseId: number,
     @Ctx() { req }: MyContext
   ) {

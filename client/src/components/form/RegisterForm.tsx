@@ -4,10 +4,15 @@ import { Keyboard, TouchableOpacity } from "react-native";
 import { useDispatch } from "react-redux";
 import styled from "styled-components/native";
 import { TRIGGER_TAB_BAR } from "../../../types";
-import { useRegisterMutation } from "../../generated/graphql";
-interface RegisterFormProps {}
+import {
+  usePurchaseMutation,
+  useRegisterMutation,
+} from "../../generated/graphql";
+interface RegisterFormProps {
+  isCourse?: number;
+}
 
-const RegisterForm: React.FC<RegisterFormProps> = ({}) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({ isCourse }) => {
   const [iconEmail, setIconEmail] = useState(
     require("../../assets/images/icon-email.png")
   );
@@ -24,6 +29,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({}) => {
     setIconEmail(require("../../assets/images/icon-email.png"));
     setIconPassword(require("../../assets/images/icon-password-animated.gif"));
   };
+
+  const [, purchase] = usePurchaseMutation();
 
   const tapBackground = () => {
     Keyboard.dismiss();
@@ -46,7 +53,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({}) => {
           },
         });
         if (response?.data) {
-          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          if (!isCourse) {
+            dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          } else {
+            purchase({
+              courseId: isCourse,
+            });
+          }
         }
         // console.log(response.data);
         // setOpenAuthForm((value) => {

@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { Linking } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import styled from "styled-components/native";
-import { Resource, useQuestionsQuery } from "../generated/graphql";
+import {
+  Resource,
+  usePostQuestionMutation,
+  usePostReplyQuestionMutation,
+  useQuestionsQuery,
+} from "../generated/graphql";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
@@ -30,8 +35,14 @@ const Forum = ({ lessonId }: ForumProps) => {
     },
   });
 
+  const [, postQuestion] = usePostQuestionMutation();
+
+  const [, postReplyQuestion] = usePostReplyQuestionMutation();
+
   const [open, setOpen] = useState<QuestionProps | null>(null);
   const [text, setText] = useState("");
+
+  console.log(open);
 
   return (
     <>
@@ -54,23 +65,42 @@ const Forum = ({ lessonId }: ForumProps) => {
             shadowRadius: 4.65,
             // elevation: 10,
           }}
+          multiline
           placeholder="Q&A section"
           onChangeText={(result: any) => setText(result)}
           defaultValue={text}
         />
-        <InputView
-          style={{
-            zIndex: 2000,
-            height: 50,
-            width: 50,
-            alignItems: "center",
-            justifyContent: "center",
+        <TouchableOpacity
+          onPress={() => {
+            if (open) {
+              postReplyQuestion({
+                content: text,
+                lessonId,
+                repliedQuestionId: open.repliedId,
+              });
+            } else {
+              postQuestion({
+                content: text,
+                lessonId,
+              });
+            }
+            setText("");
           }}
         >
-          <ChatButton>
-            <Entypo name="google-play" size={24} color="#0717ff" />
-          </ChatButton>
-        </InputView>
+          <InputView
+            style={{
+              zIndex: 2000,
+              height: 50,
+              width: 50,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ChatButton>
+              <Entypo name="google-play" size={24} color="#0717ff" />
+            </ChatButton>
+          </InputView>
+        </TouchableOpacity>
       </InputView>
       <ScrollView>
         <Container>
@@ -149,6 +179,7 @@ const Forum = ({ lessonId }: ForumProps) => {
 
 const ChatInput = styled.TextInput`
   height: 50px;
+  /* max-height: 150px; */
   width: 85%;
   background-color: #fff;
   color: #5d5d5d;

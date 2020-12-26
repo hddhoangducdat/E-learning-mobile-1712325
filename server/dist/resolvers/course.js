@@ -55,6 +55,14 @@ PayCourseResponse = __decorate([
     type_graphql_1.ObjectType()
 ], PayCourseResponse);
 let CourseResolver = class CourseResolver {
+    isOwn(courseId, { req }) {
+        return StudentCourse_1.StudentCourse.findOne({
+            where: {
+                userId: req.session.userId,
+                courseId,
+            },
+        });
+    }
     category(course) {
         return Category_1.Category.findOne(course.categoryId);
     }
@@ -117,7 +125,7 @@ let CourseResolver = class CourseResolver {
             };
         });
     }
-    userPayForCourse(courseId, { req }) {
+    purchase(courseId, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (req.session.userId) {
                 let studentCourse;
@@ -147,6 +155,14 @@ let CourseResolver = class CourseResolver {
         });
     }
 };
+__decorate([
+    type_graphql_1.Query(() => StudentCourse_1.StudentCourse, { nullable: true }),
+    __param(0, type_graphql_1.Arg("courseId", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "isOwn", null);
 __decorate([
     type_graphql_1.FieldResolver(() => Category_1.Category),
     __param(0, type_graphql_1.Root()),
@@ -180,7 +196,7 @@ __decorate([
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
-], CourseResolver.prototype, "userPayForCourse", null);
+], CourseResolver.prototype, "purchase", null);
 CourseResolver = __decorate([
     type_graphql_1.Resolver(Course_1.Course)
 ], CourseResolver);

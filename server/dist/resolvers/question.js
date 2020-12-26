@@ -43,6 +43,27 @@ let QuestionResolver = class QuestionResolver {
     user({ userId }) {
         return User_1.User.findOne(userId);
     }
+    postQuestion(lessonId, content, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let question = yield Question_1.Question.create({
+                content,
+                lessonId,
+                userId: req.session.userId,
+            }).save();
+            return question;
+        });
+    }
+    postReplyQuestion(lessonId, repliedQuestionId, content, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const question = yield Question_1.Question.create({
+                content,
+                lessonId,
+                userId: req.session.userId,
+                repliedQuestionId,
+            }).save();
+            return question;
+        });
+    }
     questions(limit, cursor, lessonId) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(10, limit);
@@ -91,6 +112,25 @@ __decorate([
     __metadata("design:paramtypes", [Question_1.Question]),
     __metadata("design:returntype", void 0)
 ], QuestionResolver.prototype, "user", null);
+__decorate([
+    type_graphql_1.Mutation(() => Question_1.Question),
+    __param(0, type_graphql_1.Arg("lessonId", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg("content", () => String)),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:returntype", Promise)
+], QuestionResolver.prototype, "postQuestion", null);
+__decorate([
+    type_graphql_1.Mutation(() => Question_1.Question),
+    __param(0, type_graphql_1.Arg("lessonId", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg("repliedQuestionId", () => type_graphql_1.Int)),
+    __param(2, type_graphql_1.Arg("content", () => String)),
+    __param(3, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, String, Object]),
+    __metadata("design:returntype", Promise)
+], QuestionResolver.prototype, "postReplyQuestion", null);
 __decorate([
     type_graphql_1.Query(() => PaginatedQuestion),
     __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),

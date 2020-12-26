@@ -65,7 +65,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
       if (!data?.me) {
         setOpenAuthForm(true);
         if (tabBarVisible) {
-          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          dispatch({ type: TRIGGER_TAB_BAR, payload: false });
         }
       } else {
         setOpenAuthForm(false);
@@ -115,7 +115,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
           <ScrollView style={{ height: "100%" }}>
             <TitleBar>
               <TouchableOpacity
-                onPress={() => dispatch({ type: TRIGGER_MENU })}
+                onPress={() => dispatch({ type: TRIGGER_MENU, payload: true })}
                 style={{ position: "absolute", top: 0, left: 20 }}
               >
                 {data?.me ? (

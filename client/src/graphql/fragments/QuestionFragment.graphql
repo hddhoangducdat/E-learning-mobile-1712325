@@ -1,0 +1,9 @@
+fragment QuestionFragment on Question {
+  id
+  content
+  votedNumber
+  repliedNumber
+  user {
+    ...UserFragment
+  }
+}

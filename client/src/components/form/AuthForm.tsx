@@ -7,9 +7,10 @@ import { useDispatch } from "react-redux";
 import { TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../../types";
 interface AuthProps {
   setOpenAuthForm: React.Dispatch<React.SetStateAction<boolean>>;
+  isCourse?: number;
 }
 
-const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm }) => {
+const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm, isCourse }) => {
   const [form, setForm] = useState(true);
   const dispatch = useDispatch();
 
@@ -22,7 +23,9 @@ const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm }) => {
       <Touch
         onPress={() => {
           dispatch({ type: TRIGGER_MENU });
-          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          if (!isCourse) {
+            dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          }
           setOpenAuthForm(false);
         }}
       ></Touch>
@@ -39,7 +42,11 @@ const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm }) => {
             <Text>Already have an account ? SIGN IN here</Text>
           )}
         </TouchableOpacity>
-        {form ? <LoginForm /> : <RegisterForm />}
+        {form ? (
+          <LoginForm isCourse={isCourse} />
+        ) : (
+          <RegisterForm isCourse={isCourse} />
+        )}
       </Modal>
     </Container>
   );

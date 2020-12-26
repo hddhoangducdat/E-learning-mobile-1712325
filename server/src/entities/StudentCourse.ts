@@ -1,9 +1,11 @@
 import {
   BaseEntity,
+  Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
@@ -20,11 +22,15 @@ export enum UserType {
 @Entity()
 export class StudentCourse extends BaseEntity {
   @Field()
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Field()
+  @Column()
   userId!: number;
 
   @Field()
-  @PrimaryColumn()
+  @Column()
   courseId!: number;
 
   @ManyToOne(() => User, (user) => user.myCourse)

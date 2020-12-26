@@ -4,10 +4,12 @@ import { Keyboard, TouchableOpacity } from "react-native";
 import { useDispatch } from "react-redux";
 import styled from "styled-components/native";
 import { TRIGGER_TAB_BAR } from "../../../types";
-import { useLoginMutation } from "../../generated/graphql";
-interface LoginFormProps {}
+import { useLoginMutation, usePurchaseMutation } from "../../generated/graphql";
+interface LoginFormProps {
+  isCourse?: number;
+}
 
-const LoginForm: React.FC<LoginFormProps> = ({}) => {
+const LoginForm: React.FC<LoginFormProps> = ({ isCourse }) => {
   const [iconEmail, setIconEmail] = useState(
     require("../../assets/images/icon-email.png")
   );
@@ -29,6 +31,8 @@ const LoginForm: React.FC<LoginFormProps> = ({}) => {
     Keyboard.dismiss();
   };
 
+  const [, purchase] = usePurchaseMutation();
+
   const [, login] = useLoginMutation();
   const dispatch = useDispatch();
   return (
@@ -41,7 +45,13 @@ const LoginForm: React.FC<LoginFormProps> = ({}) => {
           password: password,
         });
         if (response?.data) {
-          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          if (!isCourse) {
+            dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          } else {
+            purchase({
+              courseId: isCourse,
+            });
+          }
         }
         // setOpenAuthForm((value) => {
         //   return !value;

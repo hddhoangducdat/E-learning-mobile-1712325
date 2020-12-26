@@ -1,0 +1,13 @@
+mutation Purchase($courseId: Float!) {
+  purchase(courseId: $courseId) {
+    bill {
+      id
+      userId
+      courseId
+    }
+    errors {
+      field
+      message
+    }
+  }
+}

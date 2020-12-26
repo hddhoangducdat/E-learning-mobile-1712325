@@ -20,6 +20,7 @@ export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
   instructor: User;
+  isOwn?: Maybe<StudentCourse>;
   course?: Maybe<Course>;
   courses: PaginatedCourse;
   categories: Array<Category>;
@@ -36,6 +37,11 @@ export type Query = {
 
 export type QueryInstructorArgs = {
   instructorId: Scalars['Float'];
+};
+
+
+export type QueryIsOwnArgs = {
+  courseId: Scalars['Int'];
 };
 
 
@@ -127,6 +133,15 @@ export type Instructor = {
   updatedAt: Scalars['DateTime'];
 };
 
+
+export type StudentCourse = {
+  __typename?: 'StudentCourse';
+  id: Scalars['Float'];
+  userId: Scalars['Float'];
+  courseId: Scalars['Float'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+};
 
 export type Course = {
   __typename?: 'Course';
@@ -311,7 +326,9 @@ export type Mutation = {
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
   becomeOrUpdateInstructor: UserResponse;
-  userPayForCourse: PayCourseResponse;
+  purchase: PayCourseResponse;
+  postQuestion: Question;
+  postReplyQuestion: Question;
 };
 
 
@@ -350,8 +367,21 @@ export type MutationBecomeOrUpdateInstructorArgs = {
 };
 
 
-export type MutationUserPayForCourseArgs = {
+export type MutationPurchaseArgs = {
   courseId: Scalars['Float'];
+};
+
+
+export type MutationPostQuestionArgs = {
+  content: Scalars['String'];
+  lessonId: Scalars['Int'];
+};
+
+
+export type MutationPostReplyQuestionArgs = {
+  content: Scalars['String'];
+  repliedQuestionId: Scalars['Int'];
+  lessonId: Scalars['Int'];
 };
 
 export type UserResponse = {
@@ -379,14 +409,6 @@ export type PayCourseResponse = {
   errors?: Maybe<Array<FieldError>>;
 };
 
-export type StudentCourse = {
-  __typename?: 'StudentCourse';
-  userId: Scalars['Float'];
-  courseId: Scalars['Float'];
-  createdAt: Scalars['DateTime'];
-  updatedAt: Scalars['DateTime'];
-};
-
 export type ErrorFragmentFragment = (
   { __typename?: 'FieldError' }
   & Pick<FieldError, 'field' | 'message'>
@@ -395,6 +417,15 @@ export type ErrorFragmentFragment = (
 export type InstructorFragmentFragment = (
   { __typename?: 'Instructor' }
   & Pick<Instructor, 'id' | 'major' | 'intro' | 'skills'>
+);
+
+export type QuestionFragmentFragment = (
+  { __typename?: 'Question' }
+  & Pick<Question, 'id' | 'content' | 'votedNumber' | 'repliedNumber'>
+  & { user: (
+    { __typename?: 'User' }
+    & UserFragmentFragment
+  ) }
 );
 
 export type UserFragmentFragment = (
@@ -475,6 +506,54 @@ export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 export type LogoutMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'logout'>
+);
+
+export type PostQuestionMutationVariables = Exact<{
+  content: Scalars['String'];
+  lessonId: Scalars['Int'];
+}>;
+
+
+export type PostQuestionMutation = (
+  { __typename?: 'Mutation' }
+  & { postQuestion: (
+    { __typename?: 'Question' }
+    & QuestionFragmentFragment
+  ) }
+);
+
+export type PostReplyQuestionMutationVariables = Exact<{
+  content: Scalars['String'];
+  lessonId: Scalars['Int'];
+  repliedQuestionId: Scalars['Int'];
+}>;
+
+
+export type PostReplyQuestionMutation = (
+  { __typename?: 'Mutation' }
+  & { postReplyQuestion: (
+    { __typename?: 'Question' }
+    & QuestionFragmentFragment
+  ) }
+);
+
+export type PurchaseMutationVariables = Exact<{
+  courseId: Scalars['Float'];
+}>;
+
+
+export type PurchaseMutation = (
+  { __typename?: 'Mutation' }
+  & { purchase: (
+    { __typename?: 'PayCourseResponse' }
+    & { bill?: Maybe<(
+      { __typename?: 'StudentCourse' }
+      & Pick<StudentCourse, 'id' | 'userId' | 'courseId'>
+    )>, errors?: Maybe<Array<(
+      { __typename?: 'FieldError' }
+      & Pick<FieldError, 'field' | 'message'>
+    )>> }
+  ) }
 );
 
 export type RegisterMutationVariables = Exact<{
@@ -613,6 +692,19 @@ export type InstructorQuery = (
   ) }
 );
 
+export type IsOwnQueryVariables = Exact<{
+  courseId: Scalars['Int'];
+}>;
+
+
+export type IsOwnQuery = (
+  { __typename?: 'Query' }
+  & { isOwn?: Maybe<(
+    { __typename?: 'StudentCourse' }
+    & Pick<StudentCourse, 'id' | 'userId' | 'courseId'>
+  )> }
+);
+
 export type LessonQueryVariables = Exact<{
   lessonId: Scalars['Int'];
 }>;
@@ -671,11 +763,7 @@ export type QuestionsQuery = (
     & Pick<PaginatedQuestion, 'hasMore'>
     & { questions: Array<(
       { __typename?: 'Question' }
-      & Pick<Question, 'content' | 'votedNumber' | 'repliedNumber' | 'id'>
-      & { user: (
-        { __typename?: 'User' }
-        & Pick<User, 'id' | 'username' | 'avatar'>
-      ) }
+      & QuestionFragmentFragment
     )> }
   ) }
 );
@@ -694,21 +782,11 @@ export type ReplyQuestionsQuery = (
     & Pick<PaginatedQuestion, 'hasMore'>
     & { questions: Array<(
       { __typename?: 'Question' }
-      & Pick<Question, 'content' | 'votedNumber' | 'repliedNumber' | 'id'>
-      & { user: (
-        { __typename?: 'User' }
-        & Pick<User, 'id' | 'username' | 'avatar'>
-      ) }
+      & QuestionFragmentFragment
     )> }
   ) }
 );
 
-export const ErrorFragmentFragmentDoc = gql`
-    fragment ErrorFragment on FieldError {
-  field
-  message
-}
-    `;
 export const InstructorFragmentFragmentDoc = gql`
     fragment InstructorFragment on Instructor {
   id
@@ -729,6 +807,23 @@ export const UserFragmentFragmentDoc = gql`
   }
 }
     ${InstructorFragmentFragmentDoc}`;
+export const QuestionFragmentFragmentDoc = gql`
+    fragment QuestionFragment on Question {
+  id
+  content
+  votedNumber
+  repliedNumber
+  user {
+    ...UserFragment
+  }
+}
+    ${UserFragmentFragmentDoc}`;
+export const ErrorFragmentFragmentDoc = gql`
+    fragment ErrorFragment on FieldError {
+  field
+  message
+}
+    `;
 export const UserResponseFragmentFragmentDoc = gql`
     fragment UserResponseFragment on UserResponse {
   errors {
@@ -790,6 +885,51 @@ export const LogoutDocument = gql`
 
 export function useLogoutMutation() {
   return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
+};
+export const PostQuestionDocument = gql`
+    mutation PostQuestion($content: String!, $lessonId: Int!) {
+  postQuestion(content: $content, lessonId: $lessonId) {
+    ...QuestionFragment
+  }
+}
+    ${QuestionFragmentFragmentDoc}`;
+
+export function usePostQuestionMutation() {
+  return Urql.useMutation<PostQuestionMutation, PostQuestionMutationVariables>(PostQuestionDocument);
+};
+export const PostReplyQuestionDocument = gql`
+    mutation PostReplyQuestion($content: String!, $lessonId: Int!, $repliedQuestionId: Int!) {
+  postReplyQuestion(
+    content: $content
+    lessonId: $lessonId
+    repliedQuestionId: $repliedQuestionId
+  ) {
+    ...QuestionFragment
+  }
+}
+    ${QuestionFragmentFragmentDoc}`;
+
+export function usePostReplyQuestionMutation() {
+  return Urql.useMutation<PostReplyQuestionMutation, PostReplyQuestionMutationVariables>(PostReplyQuestionDocument);
+};
+export const PurchaseDocument = gql`
+    mutation Purchase($courseId: Float!) {
+  purchase(courseId: $courseId) {
+    bill {
+      id
+      userId
+      courseId
+    }
+    errors {
+      field
+      message
+    }
+  }
+}
+    `;
+
+export function usePurchaseMutation() {
+  return Urql.useMutation<PurchaseMutation, PurchaseMutationVariables>(PurchaseDocument);
 };
 export const RegisterDocument = gql`
     mutation Register($options: UserInput!) {
@@ -950,6 +1090,19 @@ export const InstructorDocument = gql`
 export function useInstructorQuery(options: Omit<Urql.UseQueryArgs<InstructorQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<InstructorQuery>({ query: InstructorDocument, ...options });
 };
+export const IsOwnDocument = gql`
+    query IsOwn($courseId: Int!) {
+  isOwn(courseId: $courseId) {
+    id
+    userId
+    courseId
+  }
+}
+    `;
+
+export function useIsOwnQuery(options: Omit<Urql.UseQueryArgs<IsOwnQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<IsOwnQuery>({ query: IsOwnDocument, ...options });
+};
 export const LessonDocument = gql`
     query Lesson($lessonId: Int!) {
   lesson(lessonId: $lessonId) {
@@ -1004,20 +1157,12 @@ export const QuestionsDocument = gql`
     query Questions($limit: Int!, $cursor: DateTime, $lessonId: Int!) {
   questions(limit: $limit, cursor: $cursor, lessonId: $lessonId) {
     questions {
-      content
-      votedNumber
-      repliedNumber
-      id
-      user {
-        id
-        username
-        avatar
-      }
+      ...QuestionFragment
     }
     hasMore
   }
 }
-    `;
+    ${QuestionFragmentFragmentDoc}`;
 
 export function useQuestionsQuery(options: Omit<Urql.UseQueryArgs<QuestionsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<QuestionsQuery>({ query: QuestionsDocument, ...options });
@@ -1027,19 +1172,11 @@ export const ReplyQuestionsDocument = gql`
   replyQuestions(limit: $limit, cursor: $cursor, questionId: $questionId) {
     hasMore
     questions {
-      content
-      votedNumber
-      repliedNumber
-      id
-      user {
-        id
-        username
-        avatar
-      }
+      ...QuestionFragment
     }
   }
 }
-    `;
+    ${QuestionFragmentFragmentDoc}`;
 
 export function useReplyQuestionsQuery(options: Omit<Urql.UseQueryArgs<ReplyQuestionsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<ReplyQuestionsQuery>({ query: ReplyQuestionsDocument, ...options });

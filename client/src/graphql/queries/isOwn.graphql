@@ -1,0 +1,7 @@
+query IsOwn($courseId: Int!) {
+  isOwn(courseId: $courseId) {
+    id
+    userId
+    courseId
+  }
+}

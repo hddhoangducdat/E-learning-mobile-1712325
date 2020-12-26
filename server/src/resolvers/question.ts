@@ -1,9 +1,11 @@
 import { FeedBack } from "../entities/FeedBack";
 import {
   Arg,
+  Ctx,
   Field,
   FieldResolver,
   Int,
+  Mutation,
   ObjectType,
   Query,
   Resolver,
@@ -13,6 +15,7 @@ import { getConnection } from "typeorm";
 import { Lesson } from "../entities/Lesson";
 import { Question } from "../entities/Question";
 import { User } from "../entities/User";
+import { MyContext } from "../types";
 
 @ObjectType()
 class PaginatedQuestion {
@@ -27,6 +30,38 @@ export class QuestionResolver {
   @FieldResolver(() => User)
   user(@Root() { userId }: Question) {
     return User.findOne(userId);
+  }
+
+  @Mutation(() => Question)
+  async postQuestion(
+    @Arg("lessonId", () => Int) lessonId: number,
+    @Arg("content", () => String) content: string,
+    @Ctx() { req }: MyContext
+  ): Promise<Question> {
+    let question = await Question.create({
+      content,
+      lessonId,
+      userId: req.session.userId,
+    }).save();
+
+    return question;
+  }
+
+  @Mutation(() => Question)
+  async postReplyQuestion(
+    @Arg("lessonId", () => Int) lessonId: number,
+    @Arg("repliedQuestionId", () => Int)
+    repliedQuestionId: number,
+    @Arg("content", () => String) content: string,
+    @Ctx() { req }: MyContext
+  ) {
+    const question = await Question.create({
+      content,
+      lessonId,
+      userId: req.session.userId,
+      repliedQuestionId,
+    }).save();
+    return question;
   }
 
   @Query(() => PaginatedQuestion)
