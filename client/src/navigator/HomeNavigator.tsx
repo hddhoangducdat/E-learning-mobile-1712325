@@ -3,6 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "../screens/HomeScreen";
 import SectionScreen from "../screens/SectionScreen";
 import { AppBottomTabProps, HomeParamList } from "../utils/params";
+import LessonScreen from "../screens/LessonScreen";
 
 const Stack = createStackNavigator<HomeParamList>();
 
@@ -18,6 +19,13 @@ const HomeNavigator = ({ navigation }: AppBottomTabProps<"HomeTab">) => {
         name="Section"
         component={SectionScreen}
         options={{ header: () => null }}
+      />
+      <Stack.Screen
+        name="Lesson"
+        component={LessonScreen}
+        options={{
+          header: () => null,
+        }}
       />
     </Stack.Navigator>
   );

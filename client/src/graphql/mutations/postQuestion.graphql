@@ -1,0 +1,5 @@
+mutation PostQuestion($content: String!, $lessonId: Int!) {
+  postQuestion(content: $content, lessonId: $lessonId) {
+    ...QuestionFragment
+  }
+}

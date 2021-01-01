@@ -1,26 +1,24 @@
-import { User } from "../entities/User";
+import { User, UserType } from "../entities/User";
 import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
+  Int,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  Root,
 } from "type-graphql";
 import { MyContext } from "../types";
 import { validateRegister } from "../utils/validateRegister";
 import { UserInput } from "./UserInput";
 import argon2 from "argon2";
-import { COOKIE_NAME } from "../constances";
-
-@ObjectType()
-class FieldError {
-  @Field()
-  field: string;
-  @Field()
-  message: string;
-}
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constances";
+import { v4 } from "uuid";
+import { FieldError } from "./FieldError";
+import { Instructor } from "../entities/Instructor";
 
 @ObjectType()
 class UserResponse {
@@ -30,14 +28,60 @@ class UserResponse {
   user?: User;
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() { req }: MyContext) {
+    if (req.session.userId === user.id) {
+      return user.email;
+    }
+    return "";
+  }
+
+  // @FieldResolver(() => User)
+  // creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
+  //   return userLoader.load(post.creatorId);
+  // }
+
   @Query(() => User, { nullable: true })
-  me(@Ctx() { req }: MyContext) {
+  async me(@Ctx() { req }: MyContext) {
     if (!req.session.userId) {
       return null;
     }
-    return User.findOne(req.session.userId);
+
+    const user = await User.findOne(req.session.userId, {
+      relations: ["instructor"],
+    });
+    return user;
+  }
+
+  @Mutation(() => Boolean)
+  async updateUser(
+    @Arg("email") email: string,
+    @Arg("username") username: string,
+    @Arg("phone") phone: string,
+    @Ctx() { req }: MyContext
+  ) {
+    const errors = validateRegister({
+      email,
+      phone,
+      username,
+      password: "dummyPassword",
+    });
+    if (errors) {
+      // return errors;
+      return false;
+    }
+    await User.update(
+      { id: req.session.userId },
+      {
+        email,
+        phone,
+        username,
+      }
+    );
+
+    return true;
   }
 
   @Mutation(() => UserResponse)
@@ -56,6 +100,7 @@ export class UserResolver {
         username: options.username,
         password: hashedPassword,
         email: options.email,
+        phone: options.phone,
       }).save();
     } catch (err) {
       if (err.code === "23505") {
@@ -86,11 +131,13 @@ export class UserResolver {
             where: {
               email: usernameOrEmail,
             },
+            relations: ["instructor"],
           }
         : {
             where: {
-              user: usernameOrEmail,
+              username: usernameOrEmail,
             },
+            relations: ["instructor"],
           }
     );
     if (!user) {
@@ -117,13 +164,15 @@ export class UserResolver {
     }
 
     req.session.userId = user.id;
-    return { user };
+    return {
+      user,
+    };
   }
 
   @Mutation(() => Boolean)
   logout(@Ctx() { req, res }: MyContext) {
     return new Promise((resolve) => {
-      req.session.destroy((err) => {
+      req.session.destroy((err: any) => {
         res.clearCookie(COOKIE_NAME);
         if (err) {
           console.log(err);
@@ -133,5 +182,147 @@ export class UserResolver {
         resolve(true);
       });
     });
+  }
+
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg("token") token: string,
+    @Arg("newPassword") newPassword: string,
+    @Ctx() { redis, req }: MyContext
+  ) {
+    if (newPassword.length <= 2) {
+      return {
+        errors: [
+          {
+            field: "newPassword",
+            message: "length must be greater than 2",
+          },
+        ],
+      };
+    }
+    const key = FORGET_PASSWORD_PREFIX + token;
+    const userId = await redis.get(key);
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "token expired",
+          },
+        ],
+      };
+    }
+
+    const user = await User.findOne(parseInt(userId));
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "user no longer existed",
+          },
+        ],
+      };
+    }
+
+    await User.update(
+      { id: parseInt(userId) },
+      {
+        password: await argon2.hash(newPassword),
+      }
+    );
+
+    await redis.del(key);
+
+    req.session.userId = user.id;
+    return { user };
+  }
+
+  @Query(() => User)
+  instructor(@Arg("instructorId") instructorId: number) {
+    return User.findOne({
+      where: {
+        instructorId,
+      },
+      relations: ["instructor"],
+    });
+  }
+
+  @Mutation(() => Boolean)
+  async forgotPassword(
+    @Arg("email") email: string,
+    @Ctx() { redis }: MyContext
+  ) {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return true;
+    }
+    const token = v4();
+    const html = `<a href="http://localhost:3000/change-password/${token}">reset password</a>`;
+    await redis.set(
+      FORGET_PASSWORD_PREFIX + token,
+      user.id,
+      "ex",
+      1000 * 60 * 60
+    );
+    // await sendEmail(email, html);
+    return true;
+  }
+
+  @Mutation(() => UserResponse)
+  async becomeOrUpdateInstructor(
+    @Arg("major") major: string,
+    @Arg("intro") intro: string,
+    @Ctx() { req }: MyContext
+  ) {
+    if (major === "") {
+      return {
+        errors: [
+          {
+            field: "major",
+            message: "major can't be empty",
+          },
+        ],
+      };
+    }
+    if (intro === "") {
+      return {
+        errors: [
+          {
+            field: "intro",
+            message: "intro can't be empty",
+          },
+        ],
+      };
+    }
+    let instructor;
+    let user;
+    try {
+      user = await User.findOne(req.session.userId);
+      instructor = await Instructor.findOne(user?.instructorId);
+      if (!instructor) {
+        instructor = await Instructor.create({
+          major,
+          intro,
+        }).save();
+
+        user!.instructorId = instructor.id;
+        await User.save(user!);
+      } else {
+        instructor.major = major;
+        instructor.intro = intro;
+        await Instructor.save(instructor);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
+    return {
+      user: {
+        ...user,
+        instructor,
+      },
+    };
   }
 }

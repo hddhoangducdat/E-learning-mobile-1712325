@@ -1,0 +1,13 @@
+mutation PostReplyQuestion(
+  $content: String!
+  $lessonId: Int!
+  $repliedQuestionId: Int!
+) {
+  postReplyQuestion(
+    content: $content
+    lessonId: $lessonId
+    repliedQuestionId: $repliedQuestionId
+  ) {
+    ...QuestionFragment
+  }
+}

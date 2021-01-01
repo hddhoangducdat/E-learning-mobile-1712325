@@ -15,6 +15,7 @@ export type AppBottomTabProps<T extends keyof AppParamList> = {
 export type HomeParamList = {
   Section: undefined;
   Home: undefined;
+  Lesson: undefined;
 };
 
 export type HomeStackNavProps<T extends keyof HomeParamList> = {

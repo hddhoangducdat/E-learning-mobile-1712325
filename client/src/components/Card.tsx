@@ -1,25 +1,98 @@
 import React from "react";
 import styled from "styled-components/native";
+import { FontAwesome } from "@expo/vector-icons";
 
-export default function Card({ logo, image, title, subtitle, caption }: any) {
+export default function Card({
+  logo,
+  image,
+  subtitle,
+  caption,
+  rate,
+  participant,
+  isBestSeller,
+  price,
+}: any) {
   return (
-    <Container>
+    <Container
+      style={{
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
+      }}
+    >
+      {isBestSeller ? (
+        <BestSeller source={require("../assets/images/best_seller.png")} />
+      ) : null}
+
       <Cover>
-        <Image source={image} />
-        <Title>{title}</Title>
+        <Image source={{ uri: image }} resizeMode="cover" />
       </Cover>
       <Content>
-        <Logo source={logo} />
+        <Logo
+          source={{
+            uri: logo,
+          }}
+        />
         <Wrapper>
-          <Caption>{caption}</Caption>
+          <Caption>{caption.slice(0, 23)}</Caption>
           <Subtitle>{subtitle}</Subtitle>
+          <RateContainer>
+            {rate / 2 <= 1 ? (
+              <FontAwesome name="star-o" size={15} color="#f2b20f" />
+            ) : rate / 2 <= 3 ? (
+              <FontAwesome name="star-half-empty" size={15} color="#f2b20f" />
+            ) : (
+              <FontAwesome name="star" size={15} color="#f2b20f" />
+            )}
+
+            <Rate>{rate / 2}</Rate>
+            <Text>{"(" + participant}</Text>
+            <FontAwesome name="user-o" size={10} color="black" />
+            <Text>{")"}</Text>
+            <RightText>{price}</RightText>
+          </RateContainer>
         </Wrapper>
       </Content>
     </Container>
   );
 }
 
+const RightText = styled.Text`
+  margin-left: 60px;
+`;
+
+const BestSeller = styled.Image`
+  transform: translate(12px, -12px);
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  z-index: 1000;
+  right: 0;
+`;
+
+const Text = styled.Text`
+  margin-right: 2px;
+`;
+
+const RateContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+const Rate = styled.Text`
+  font-size: 15px;
+  color: #000;
+  margin: 0 5px;
+`;
+
 const Content = styled.View`
+  margin-top: 3px;
   padding-left: 20px;
   flex-direction: row;
   align-items: center;
@@ -31,6 +104,7 @@ const Wrapper = styled.View`
 `;
 
 const Logo = styled.Image`
+  margin-right: 8px;
   width: 44px;
   height: 44px;
 `;
@@ -50,16 +124,20 @@ const Subtitle = styled.Text`
 `;
 
 const Container = styled.View`
+  position: relative;
   background-color: white;
   width: 315px;
-  height: 280px;
+  height: 290px;
   border-radius: 14px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
   margin-left: 20px;
+  margin-right: 20px;
   margin-top: 20px;
 `;
 
 const Cover = styled.View`
+  background-color: #423d3d;
+  align-items: center;
   width: 100%;
   height: 200px;
   border-top-left-radius: 14px;

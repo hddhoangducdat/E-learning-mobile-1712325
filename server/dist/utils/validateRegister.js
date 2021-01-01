@@ -2,6 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateRegister = void 0;
 const validateRegister = (options) => {
+    if (options.phone.length !== 10) {
+        return [
+            {
+                field: "phone",
+                message: "Not a Vietnamese's phone number",
+            },
+        ];
+    }
     if (!options.email.includes("@")) {
         return [
             {

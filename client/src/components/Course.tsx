@@ -33,7 +33,20 @@ const Course = ({
   });
 
   return (
-    <Container style={{ width: cardWidth }}>
+    <Container
+      style={{
+        width: cardWidth,
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
+      }}
+    >
       <Cover>
         <Image source={image} />
         <Logo source={logo} resizeMode="contain" />
@@ -83,8 +96,7 @@ const Container = styled.View`
   height: 335px;
   border-radius: 14px;
   background: white;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-  margin: 15px 10px;
+  margin: 15px 20px;
 `;
 
 const Cover = styled.View`

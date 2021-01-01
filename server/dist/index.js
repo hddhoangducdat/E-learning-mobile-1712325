@@ -24,16 +24,55 @@ const apollo_server_express_1 = require("apollo-server-express");
 const constances_1 = require("./constances");
 const type_graphql_1 = require("type-graphql");
 const user_1 = require("./resolvers/user");
+const UserAnswer_1 = require("./entities/UserAnswer");
+const Report_1 = require("./entities/Report");
+const Resource_1 = require("./entities/Resource");
+const Section_1 = require("./entities/Section");
+const Lesson_1 = require("./entities/Lesson");
+const Instructor_1 = require("./entities/Instructor");
+const FeedBack_1 = require("./entities/FeedBack");
+const Course_1 = require("./entities/Course");
+const Category_1 = require("./entities/Category");
+const AssignmentQuestion_1 = require("./entities/AssignmentQuestion");
+const Assignment_1 = require("./entities/Assignment");
+const instructor_1 = require("./resolvers/instructor");
+const Question_1 = require("./entities/Question");
+const StudentCourse_1 = require("./entities/StudentCourse");
+const course_1 = require("./resolvers/course");
+const category_1 = require("./resolvers/category");
+const feedBack_1 = require("./resolvers/feedBack");
+const report_1 = require("./resolvers/report");
+const lesson_1 = require("./resolvers/lesson");
+const question_1 = require("./resolvers/question");
+const resource_1 = require("./resolvers/resource");
+const assignment_1 = require("./resolvers/assignment");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
         type: "postgres",
         database: "ELearning",
+        host: "localhost",
+        port: 5432,
         username: "noir",
         password: "1",
         logging: true,
         synchronize: true,
-        migrations: [path_1.default.join(__dirname, ".migrations/*")],
-        entities: [User_1.User],
+        migrations: [path_1.default.join(__dirname, "./migrations/*")],
+        entities: [
+            Course_1.Course,
+            Section_1.Section,
+            User_1.User,
+            UserAnswer_1.UserAnswer,
+            Report_1.Report,
+            Resource_1.Resource,
+            Lesson_1.Lesson,
+            Instructor_1.Instructor,
+            Question_1.Question,
+            StudentCourse_1.StudentCourse,
+            FeedBack_1.FeedBack,
+            Category_1.Category,
+            AssignmentQuestion_1.AssignmentQuestion,
+            Assignment_1.Assignment,
+        ],
     });
     yield conn.runMigrations();
     const app = express_1.default();
@@ -54,7 +93,18 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     }));
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: yield type_graphql_1.buildSchema({
-            resolvers: [user_1.UserResolver],
+            resolvers: [
+                user_1.UserResolver,
+                instructor_1.InstructorResolver,
+                course_1.CourseResolver,
+                category_1.CategoryResolver,
+                feedBack_1.FeedBackResolver,
+                report_1.ReportResolver,
+                lesson_1.LessonResolver,
+                question_1.QuestionResolver,
+                resource_1.ResourceResolver,
+                assignment_1.AssignmentResolver,
+            ],
             validate: false,
         }),
         context: ({ req, res }) => ({
@@ -65,6 +115,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     apolloServer.applyMiddleware({
         app,
+        cors: true,
     });
     app.listen(4000, () => {
         console.log("server started on localhost 4000");

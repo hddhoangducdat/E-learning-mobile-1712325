@@ -1,0 +1,24 @@
+query Course($id: Int!) {
+  course(id: $id) {
+    id
+    title
+    subtitle
+    price
+    description
+    requirement
+    learnWhat
+    soldNumber
+    videoNumber
+    rateNumber
+    totalHours
+    promoVidUrl
+    formalityPoint
+    contentPoint
+    presentationPoint
+    instructorId
+    section {
+      id
+      name
+    }
+  }
+}

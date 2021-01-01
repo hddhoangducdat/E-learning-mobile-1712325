@@ -4,39 +4,52 @@ import { Animated, Dimensions, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import MenuItem from "./MenuItem";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxReducers, TRIGGER_MENU } from "../../types";
+import { ReduxReducers, TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../types";
+import { MeQuery, useLogoutMutation } from "../generated/graphql";
+import AccountForm from "./Account";
 
 const screenHeight = Dimensions.get("window").height;
 
-const Menu = () => {
+interface MenuProps {
+  me: MeQuery;
+}
+
+const Menu = ({ me }: MenuProps) => {
   const top = useRef(new Animated.Value(screenHeight)).current;
   const { openMenu } = useSelector((state: ReduxReducers) => state);
   const dispatch = useDispatch();
+  const [, logout] = useLogoutMutation();
+  const [openAccountForm, setOpenAccountForm] = useState(false);
 
   useEffect(() => {
     toggleMenu();
   });
 
   const toggleMenu = () => {
-    if (!openMenu) {
-      Animated.spring(top, {
-        toValue: 54,
-        useNativeDriver: false,
-      }).start();
-    } else {
-      Animated.spring(top, {
-        toValue: screenHeight,
-        useNativeDriver: false,
-      }).start();
+    if (me?.me) {
+      if (openMenu) {
+        Animated.spring(top, {
+          toValue: 54,
+          useNativeDriver: false,
+        }).start();
+      } else {
+        Animated.spring(top, {
+          toValue: screenHeight,
+          useNativeDriver: false,
+        }).start();
+      }
     }
   };
 
   return (
     <AnimatedContainer style={{ top }}>
+      {openAccountForm ? (
+        <AccountForm setOpenAccountForm={setOpenAccountForm} />
+      ) : null}
       <Cover>
         <Image source={require("../assets/images/background2.jpg")} />
-        <Title>Dat</Title>
-        <Subtitle>Software Developer</Subtitle>
+        <Title>{me?.me?.username}</Title>
+        <Subtitle>{me?.me?.email}</Subtitle>
       </Cover>
       <TouchableOpacity
         onPress={() => dispatch({ type: TRIGGER_MENU })}
@@ -53,14 +66,29 @@ const Menu = () => {
         </CloseView>
       </TouchableOpacity>
       <Content>
-        {items.map((item, index) => (
-          <MenuItem
-            key={index}
-            icon={item.icon}
-            title={item.title}
-            text={item.text}
-          />
-        ))}
+        {items.map((item, index) => {
+          return (
+            <TouchableOpacity
+              key={index}
+              onPress={() => {
+                switch (item.title) {
+                  case "Log out":
+                    dispatch({ type: TRIGGER_MENU });
+                    logout();
+                    break;
+
+                  case "Account":
+                    dispatch({ type: TRIGGER_TAB_BAR, payload: false });
+                    setOpenAccountForm(true);
+                    break;
+                  default:
+                }
+              }}
+            >
+              <MenuItem icon={item.icon} title={item.title} text={item.text} />
+            </TouchableOpacity>
+          );
+        })}
       </Content>
     </AnimatedContainer>
   );
@@ -129,10 +157,10 @@ const items = [
   },
   {
     icon: "ios-card",
-    title: "Billing",
-    text: "payments",
+    title: "Courses",
+    text: "start course",
   },
-  { icon: "ios-compass", title: "Learn React", text: "start course" },
+  { icon: "ios-compass", title: "Instructor", text: "manage your course" },
   {
     icon: "ios-exit",
     title: "Log out",

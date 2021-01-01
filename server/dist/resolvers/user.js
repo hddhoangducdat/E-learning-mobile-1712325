@@ -31,23 +31,13 @@ const validateRegister_1 = require("../utils/validateRegister");
 const UserInput_1 = require("./UserInput");
 const argon2_1 = __importDefault(require("argon2"));
 const constances_1 = require("../constances");
-let FieldError = class FieldError {
-};
-__decorate([
-    type_graphql_1.Field(),
-    __metadata("design:type", String)
-], FieldError.prototype, "field", void 0);
-__decorate([
-    type_graphql_1.Field(),
-    __metadata("design:type", String)
-], FieldError.prototype, "message", void 0);
-FieldError = __decorate([
-    type_graphql_1.ObjectType()
-], FieldError);
+const uuid_1 = require("uuid");
+const FieldError_1 = require("./FieldError");
+const Instructor_1 = require("../entities/Instructor");
 let UserResponse = class UserResponse {
 };
 __decorate([
-    type_graphql_1.Field(() => [FieldError], { nullable: true }),
+    type_graphql_1.Field(() => [FieldError_1.FieldError], { nullable: true }),
     __metadata("design:type", Array)
 ], UserResponse.prototype, "errors", void 0);
 __decorate([
@@ -58,11 +48,41 @@ UserResponse = __decorate([
     type_graphql_1.ObjectType()
 ], UserResponse);
 let UserResolver = class UserResolver {
-    me({ req }) {
-        if (!req.session.userId) {
-            return null;
+    email(user, { req }) {
+        if (req.session.userId === user.id) {
+            return user.email;
         }
-        return User_1.User.findOne(req.session.userId);
+        return "";
+    }
+    me({ req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!req.session.userId) {
+                return null;
+            }
+            const user = yield User_1.User.findOne(req.session.userId, {
+                relations: ["instructor"],
+            });
+            return user;
+        });
+    }
+    updateUser(email, username, phone, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const errors = validateRegister_1.validateRegister({
+                email,
+                phone,
+                username,
+                password: "dummyPassword",
+            });
+            if (errors) {
+                return false;
+            }
+            yield User_1.User.update({ id: req.session.userId }, {
+                email,
+                phone,
+                username,
+            });
+            return true;
+        });
     }
     register(options, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -77,6 +97,7 @@ let UserResolver = class UserResolver {
                     username: options.username,
                     password: hashedPassword,
                     email: options.email,
+                    phone: options.phone,
                 }).save();
             }
             catch (err) {
@@ -102,11 +123,13 @@ let UserResolver = class UserResolver {
                     where: {
                         email: usernameOrEmail,
                     },
+                    relations: ["instructor"],
                 }
                 : {
                     where: {
-                        user: usernameOrEmail,
+                        username: usernameOrEmail,
                     },
+                    relations: ["instructor"],
                 });
             if (!user) {
                 return {
@@ -130,7 +153,9 @@ let UserResolver = class UserResolver {
                 };
             }
             req.session.userId = user.id;
-            return { user };
+            return {
+                user,
+            };
         });
     }
     logout({ req, res }) {
@@ -146,14 +171,143 @@ let UserResolver = class UserResolver {
             });
         });
     }
+    changePassword(token, newPassword, { redis, req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (newPassword.length <= 2) {
+                return {
+                    errors: [
+                        {
+                            field: "newPassword",
+                            message: "length must be greater than 2",
+                        },
+                    ],
+                };
+            }
+            const key = constances_1.FORGET_PASSWORD_PREFIX + token;
+            const userId = yield redis.get(key);
+            if (!userId) {
+                return {
+                    errors: [
+                        {
+                            field: "token",
+                            message: "token expired",
+                        },
+                    ],
+                };
+            }
+            const user = yield User_1.User.findOne(parseInt(userId));
+            if (!user) {
+                return {
+                    errors: [
+                        {
+                            field: "token",
+                            message: "user no longer existed",
+                        },
+                    ],
+                };
+            }
+            yield User_1.User.update({ id: parseInt(userId) }, {
+                password: yield argon2_1.default.hash(newPassword),
+            });
+            yield redis.del(key);
+            req.session.userId = user.id;
+            return { user };
+        });
+    }
+    instructor(instructorId) {
+        return User_1.User.findOne({
+            where: {
+                instructorId,
+            },
+            relations: ["instructor"],
+        });
+    }
+    forgotPassword(email, { redis }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield User_1.User.findOne({ where: { email } });
+            if (!user) {
+                return true;
+            }
+            const token = uuid_1.v4();
+            const html = `<a href="http://localhost:3000/change-password/${token}">reset password</a>`;
+            yield redis.set(constances_1.FORGET_PASSWORD_PREFIX + token, user.id, "ex", 1000 * 60 * 60);
+            return true;
+        });
+    }
+    becomeOrUpdateInstructor(major, intro, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (major === "") {
+                return {
+                    errors: [
+                        {
+                            field: "major",
+                            message: "major can't be empty",
+                        },
+                    ],
+                };
+            }
+            if (intro === "") {
+                return {
+                    errors: [
+                        {
+                            field: "intro",
+                            message: "intro can't be empty",
+                        },
+                    ],
+                };
+            }
+            let instructor;
+            let user;
+            try {
+                user = yield User_1.User.findOne(req.session.userId);
+                instructor = yield Instructor_1.Instructor.findOne(user === null || user === void 0 ? void 0 : user.instructorId);
+                if (!instructor) {
+                    instructor = yield Instructor_1.Instructor.create({
+                        major,
+                        intro,
+                    }).save();
+                    user.instructorId = instructor.id;
+                    yield User_1.User.save(user);
+                }
+                else {
+                    instructor.major = major;
+                    instructor.intro = intro;
+                    yield Instructor_1.Instructor.save(instructor);
+                }
+            }
+            catch (err) {
+                console.log(err);
+            }
+            return {
+                user: Object.assign(Object.assign({}, user), { instructor }),
+            };
+        });
+    }
 };
+__decorate([
+    type_graphql_1.FieldResolver(() => String),
+    __param(0, type_graphql_1.Root()), __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [User_1.User, Object]),
+    __metadata("design:returntype", void 0)
+], UserResolver.prototype, "email", null);
 __decorate([
     type_graphql_1.Query(() => User_1.User, { nullable: true }),
     __param(0, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], UserResolver.prototype, "me", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("email")),
+    __param(1, type_graphql_1.Arg("username")),
+    __param(2, type_graphql_1.Arg("phone")),
+    __param(3, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "updateUser", null);
 __decorate([
     type_graphql_1.Mutation(() => UserResponse),
     __param(0, type_graphql_1.Arg("options")),
@@ -178,8 +332,41 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], UserResolver.prototype, "logout", null);
+__decorate([
+    type_graphql_1.Mutation(() => UserResponse),
+    __param(0, type_graphql_1.Arg("token")),
+    __param(1, type_graphql_1.Arg("newPassword")),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "changePassword", null);
+__decorate([
+    type_graphql_1.Query(() => User_1.User),
+    __param(0, type_graphql_1.Arg("instructorId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", void 0)
+], UserResolver.prototype, "instructor", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("email")),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "forgotPassword", null);
+__decorate([
+    type_graphql_1.Mutation(() => UserResponse),
+    __param(0, type_graphql_1.Arg("major")),
+    __param(1, type_graphql_1.Arg("intro")),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:returntype", Promise)
+], UserResolver.prototype, "becomeOrUpdateInstructor", null);
 UserResolver = __decorate([
-    type_graphql_1.Resolver()
+    type_graphql_1.Resolver(User_1.User)
 ], UserResolver);
 exports.UserResolver = UserResolver;
 //# sourceMappingURL=user.js.map

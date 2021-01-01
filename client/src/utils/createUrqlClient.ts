@@ -1,4 +1,7 @@
 import {
+  Client,
+  ClientOptions,
+  createClient,
   dedupExchange,
   Exchange,
   fetchExchange,
@@ -8,13 +11,23 @@ import {
   LoginMutation,
   MeQuery,
   MeDocument,
+  RegisterMutation,
+  LogoutMutation,
+  UpdateUserMutation,
+  BecomeOrUpdateInstructorMutation,
+  UpdateUserMutationVariables,
+  User,
+  PurchaseMutation,
+  IsOwnQuery,
+  IsOwnDocument,
+  PostQuestionMutation,
+  QuestionsQuery,
+  QuestionsDocument,
   // RegisterMutation, LogoutMutation, VoteMutationVariables, DeletePostMutationVariables,
 } from "../generated/graphql";
 import { pipe, tap } from "wonka";
 import { cacheExchange, Resolver, Cache } from "@urql/exchange-graphcache";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import gql from "graphql-tag";
-import { isServer } from "./isServer";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -27,7 +40,7 @@ const errorExchange: Exchange = ({ forward }) => (ops$) => {
   );
 };
 
-const cusorPagination = (): Resolver => {
+const cusorPagination = (query: string): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
     const { parentKey: entityKey, fieldName } = info;
     const allFields = cache.inspectFields(entityKey);
@@ -40,14 +53,14 @@ const cusorPagination = (): Resolver => {
     const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
     const isItInTheCache = cache.resolve(
       cache.resolveFieldByKey(entityKey, fieldKey) as string,
-      "posts"
+      query
     );
     info.partial = !isItInTheCache;
     const results: string[] = [];
     let hasMore = true;
     fieldInfos.forEach((fi) => {
       const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
-      const data = cache.resolve(key, "posts") as string[];
+      const data = cache.resolve(key, query) as string[];
       const _hasMore = cache.resolve(key, "hasMore");
       if (!_hasMore) {
         hasMore = _hasMore as boolean;
@@ -55,9 +68,9 @@ const cusorPagination = (): Resolver => {
       results.push(...data);
     });
     return {
-      __typename: "PaginatedPosts",
+      __typename: "PaginatedQuestion",
       hasMore,
-      posts: results,
+      questions: results,
     };
   };
 };
@@ -70,16 +83,31 @@ function invalidateAllPosts(cache: Cache) {
   });
 }
 
-export const createUrqlClient = (ssrExchange: any, ctx: any) => {
-  let cookie = "";
-  if (isServer()) {
-    cookie = ctx?.req?.headers?.cookie;
-  }
+function invalidateAllQuestions(cache: Cache) {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((info) => info.fieldName === "questions");
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "questions", fi.arguments || {});
+  });
+}
 
-  return {
-    url: "http://192.168.7.110/graphql",
+function invalidateAllReplyQuestions(cache: Cache) {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((info) => info.fieldName === "questions");
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "replyQuestions", fi.arguments || {});
+  });
+}
+
+export const createUrqlClient = () => {
+  let cookie = "";
+  // if (isServer()) {
+  //   cookie = ctx?.req?.headers?.cookie;
+  // }
+  return createClient({
+    url: "http://192.168.7.113:4000/graphql",
     fetchOptions: {
-      credentials: "include" as const,
+      credentials: "include",
       headers: cookie
         ? {
             cookie,
@@ -94,49 +122,34 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         resolvers: {
           Query: {
-            posts: cusorPagination(),
+            questions: cusorPagination("questions"),
           },
         },
         updates: {
           Mutation: {
-            deletePost: (_result, args, cache, _info) => {
-              cache.invalidate({
-                __typename: "Post",
-                id: (args as DeletePostMutationVariables).id,
-              });
-            },
-            vote: (_result, args, cache, _info) => {
-              const { postId, value } = args as VoteMutationVariables;
-              const data = cache.readFragment(
-                gql`
-                  fragment _ on Post {
-                    id
-                    points
-                    voteStatus
-                  }
-                `,
-                { id: postId } as any
-              );
-              if (data) {
-                if (data.voteStatus === value) {
-                  return;
-                }
-                const newPoints =
-                  (data.points as number) + (!data.voteStatus ? 1 : 2) * value;
-                cache.writeFragment(
-                  gql`
-                    fragment _ on Post {
-                      points
-                      voteStatus
-                    }
-                  `,
-                  { id: postId, points: newPoints, voteStatus: value } as any
-                );
-              }
+            postQuestion: (_result, _args, cache, _info) => {
+              invalidateAllQuestions(cache);
             },
 
-            createPost: (_result, _args, cache, _info) => {
-              invalidateAllPosts(cache);
+            postReplyQuestion: (_result, _args, cache, _info) => {
+              invalidateAllReplyQuestions(cache);
+            },
+
+            purchase: (_result, _args, cache, _info) => {
+              betterUpdateQuery<PurchaseMutation, IsOwnQuery>(
+                cache,
+                { query: IsOwnDocument },
+                _result,
+                (result, query) => {
+                  if (result.purchase.errors) {
+                    return query;
+                  } else {
+                    return {
+                      isOwn: result.purchase.bill,
+                    };
+                  }
+                }
+              );
             },
 
             login: (_result, _args, cache, _info) => {
@@ -147,10 +160,11 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 (result, query) => {
                   if (result.login.errors) {
                     return query;
-                  } else
+                  } else {
                     return {
                       me: result.login.user,
                     };
+                  }
                 }
               );
               invalidateAllPosts(cache);
@@ -163,10 +177,56 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 (result, query) => {
                   if (result.register.errors) {
                     return query;
-                  } else
+                  } else {
                     return {
                       me: result.register.user,
                     };
+                  }
+                }
+              );
+            },
+
+            updateUser: (_result, args, cache, _info) => {
+              betterUpdateQuery<UpdateUserMutation, MeQuery>(
+                cache,
+                { query: MeDocument },
+                _result,
+                (result, query) => {
+                  const {
+                    email,
+                    phone,
+                    username,
+                  } = args as UpdateUserMutationVariables;
+                  if (result.updateUser) {
+                    const me = query.me;
+                    return {
+                      me: {
+                        ...me,
+                        email,
+                        username,
+                        phone,
+                      } as User,
+                    };
+                  } else {
+                    return query;
+                  }
+                }
+              );
+            },
+
+            becomeOrUpdateInstructor: (_result, _args, cache, _info) => {
+              betterUpdateQuery<BecomeOrUpdateInstructorMutation, MeQuery>(
+                cache,
+                { query: MeDocument },
+                _result,
+                (result, query) => {
+                  if (result.becomeOrUpdateInstructor.errors) {
+                    return query;
+                  } else {
+                    return {
+                      me: result.becomeOrUpdateInstructor.user,
+                    };
+                  }
                 }
               );
             },
@@ -183,8 +243,8 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
       }),
       errorExchange,
-      ssrExchange,
+      // ssrExchange,
       fetchExchange,
     ],
-  };
+  });
 };

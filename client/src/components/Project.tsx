@@ -89,7 +89,17 @@ const Project: React.FC<ProjectProps> = ({
   };
 
   return (
-    <AnimatedContainer style={{ width: cardWidth, height: cardHeight }}>
+    <AnimatedContainer
+      style={{
+        width: cardWidth,
+        height: cardHeight,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.5,
+        shadowRadius: 2,
+        elevation: 5,
+      }}
+    >
       <Cover>
         <TouchableWithoutFeedback onPress={openCard}>
           <Image source={image} />

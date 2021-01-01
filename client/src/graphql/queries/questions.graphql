@@ -1,0 +1,8 @@
+query Questions($limit: Int!, $cursor: DateTime, $lessonId: Int!) {
+  questions(limit: $limit, cursor: $cursor, lessonId: $lessonId) {
+    questions {
+      ...QuestionFragment
+    }
+    hasMore
+  }
+}

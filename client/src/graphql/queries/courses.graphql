@@ -1,0 +1,34 @@
+query Courses(
+  $limit: Int!
+  $cursor: DateTime
+  $categoryId: Float
+  $isAsc: Boolean
+  $orderType: String
+  $search: String
+) {
+  courses(
+    limit: $limit
+    cursor: $cursor
+    categoryId: $categoryId
+    isAsc: $isAsc
+    orderType: $orderType
+    search: $search
+  ) {
+    courses {
+      id
+      title
+      subtitle
+      price
+      soldNumber
+      rateNumber
+      categoryId
+      imageUrl
+      category {
+        id
+        imageUrl
+        name
+      }
+    }
+    hasMore
+  }
+}

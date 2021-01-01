@@ -1,0 +1,8 @@
+query ReplyQuestions($limit: Int!, $cursor: DateTime, $questionId: Int!) {
+  replyQuestions(limit: $limit, cursor: $cursor, questionId: $questionId) {
+    hasMore
+    questions {
+      ...QuestionFragment
+    }
+  }
+}

@@ -10,18 +10,58 @@ import { ApolloServer } from "apollo-server-express";
 import { COOKIE_NAME, __prod__ } from "./constances";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./resolvers/user";
+import { UserAnswer } from "./entities/UserAnswer";
+import { Report } from "./entities/Report";
+import { Resource } from "./entities/Resource";
+import { Section } from "./entities/Section";
+import { Lesson } from "./entities/Lesson";
+import { Instructor } from "./entities/Instructor";
+import { FeedBack } from "./entities/FeedBack";
+import { Course } from "./entities/Course";
+import { Category } from "./entities/Category";
+import { AssignmentQuestion } from "./entities/AssignmentQuestion";
+import { Assignment } from "./entities/Assignment";
+import { InstructorResolver } from "./resolvers/instructor";
+import { Question } from "./entities/Question";
+import { StudentCourse } from "./entities/StudentCourse";
+import { CourseResolver } from "./resolvers/course";
+import { CategoryResolver } from "./resolvers/category";
+import { FeedBackResolver } from "./resolvers/feedBack";
+import { ReportResolver } from "./resolvers/report";
+import { LessonResolver } from "./resolvers/lesson";
+import { QuestionResolver } from "./resolvers/question";
+import { ResourceResolver } from "./resolvers/resource";
+import { AssignmentResolver } from "./resolvers/assignment";
 
 const main = async () => {
   const conn = await createConnection({
     type: "postgres",
     database: "ELearning",
+    host: "localhost",
+    port: 5432,
     username: "noir",
     password: "1",
     logging: true,
     synchronize: true,
-    migrations: [path.join(__dirname, ".migrations/*")],
-    entities: [User],
+    migrations: [path.join(__dirname, "./migrations/*")],
+    entities: [
+      Course,
+      Section,
+      User,
+      UserAnswer,
+      Report,
+      Resource,
+      Lesson,
+      Instructor,
+      Question,
+      StudentCourse,
+      FeedBack,
+      Category,
+      AssignmentQuestion,
+      Assignment,
+    ],
   });
+
   await conn.runMigrations();
 
   const app = express();
@@ -47,7 +87,18 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver],
+      resolvers: [
+        UserResolver,
+        InstructorResolver,
+        CourseResolver,
+        CategoryResolver,
+        FeedBackResolver,
+        ReportResolver,
+        LessonResolver,
+        QuestionResolver,
+        ResourceResolver,
+        AssignmentResolver,
+      ],
       validate: false,
     }),
     context: ({ req, res }) => ({
@@ -59,6 +110,7 @@ const main = async () => {
 
   apolloServer.applyMiddleware({
     app,
+    cors: true,
   });
 
   app.listen(4000, () => {

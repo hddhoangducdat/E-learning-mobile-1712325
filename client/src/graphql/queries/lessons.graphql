@@ -1,0 +1,8 @@
+query Lessons($sectionId: Float!) {
+  lessons(sectionId: $sectionId) {
+    id
+    name
+    content
+    times
+  }
+}
