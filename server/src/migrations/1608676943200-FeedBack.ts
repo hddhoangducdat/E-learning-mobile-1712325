@@ -1,9 +1,8 @@
-import {MigrationInterface, QueryRunner} from "typeorm";
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class FeedBack1608676943200 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
         insert into public.feed_back (rate, subject, content, "userId", "courseId", "createdAt") values (0, 'jcb', 'In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt. Nulla mollis molestie lorem. Quisque ut erat.', 25, 12, '2020-02-01 03:47:21');
 insert into public.feed_back (rate, subject, content, "userId", "courseId", "createdAt") values (2, 'jcb', 'Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat.', 49, 10, '2019-12-22 16:26:06');
 insert into public.feed_back (rate, subject, content, "userId", "courseId", "createdAt") values (10, 'jcb', 'Proin interdum mauris non ligula pellentesque ultrices. Phasellus id sapien in sapien iaculis congue. Vivamus metus arcu, adipiscing molestie, hendrerit at, vulputate vitae, nisl.', 110, 6, '2020-10-15 06:31:59');
@@ -1004,9 +1003,8 @@ insert into public.feed_back (rate, subject, content, "userId", "courseId", "cre
 insert into public.feed_back (rate, subject, content, "userId", "courseId", "createdAt") values (1, 'jcb', 'Donec quis orci eget orci vehicula condimentum. Curabitur in libero ut massa volutpat convallis.', 69, 25, '2020-03-01 14:27:16');
 insert into public.feed_back (rate, subject, content, "userId", "courseId", "createdAt") values (9, 'mastercard', 'Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum.', 77, 28, '2020-09-23 07:49:50');
 insert into public.feed_back (rate, subject, content, "userId", "courseId", "createdAt") values (3, 'jcb', 'Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat.', 72, 21, '2020-01-07 10:37:38');
-        `)
+        `);
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-    }
-
+  public async down(_: QueryRunner): Promise<void> {}
 }

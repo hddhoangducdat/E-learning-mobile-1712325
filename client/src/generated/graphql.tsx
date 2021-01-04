@@ -20,7 +20,7 @@ export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
   instructor: User;
-  isOwn?: Maybe<StudentCourse>;
+  isOwn: Scalars['Boolean'];
   course?: Maybe<Course>;
   courses: PaginatedCourse;
   categories: Array<Category>;
@@ -133,15 +133,6 @@ export type Instructor = {
   updatedAt: Scalars['DateTime'];
 };
 
-
-export type StudentCourse = {
-  __typename?: 'StudentCourse';
-  id: Scalars['Float'];
-  userId: Scalars['Float'];
-  courseId: Scalars['Float'];
-  createdAt: Scalars['DateTime'];
-  updatedAt: Scalars['DateTime'];
-};
 
 export type Course = {
   __typename?: 'Course';
@@ -326,7 +317,7 @@ export type Mutation = {
   changePassword: UserResponse;
   forgotPassword: Scalars['Boolean'];
   becomeOrUpdateInstructor: UserResponse;
-  purchase: PayCourseResponse;
+  purchase: Scalars['Boolean'];
   postQuestion: Question;
   postReplyQuestion: Question;
 };
@@ -401,12 +392,6 @@ export type UserInput = {
   password: Scalars['String'];
   email: Scalars['String'];
   phone: Scalars['String'];
-};
-
-export type PayCourseResponse = {
-  __typename?: 'PayCourseResponse';
-  bill?: Maybe<StudentCourse>;
-  errors?: Maybe<Array<FieldError>>;
 };
 
 export type ErrorFragmentFragment = (
@@ -544,16 +529,7 @@ export type PurchaseMutationVariables = Exact<{
 
 export type PurchaseMutation = (
   { __typename?: 'Mutation' }
-  & { purchase: (
-    { __typename?: 'PayCourseResponse' }
-    & { bill?: Maybe<(
-      { __typename?: 'StudentCourse' }
-      & Pick<StudentCourse, 'id' | 'userId' | 'courseId'>
-    )>, errors?: Maybe<Array<(
-      { __typename?: 'FieldError' }
-      & Pick<FieldError, 'field' | 'message'>
-    )>> }
-  ) }
+  & Pick<Mutation, 'purchase'>
 );
 
 export type RegisterMutationVariables = Exact<{
@@ -699,10 +675,7 @@ export type IsOwnQueryVariables = Exact<{
 
 export type IsOwnQuery = (
   { __typename?: 'Query' }
-  & { isOwn?: Maybe<(
-    { __typename?: 'StudentCourse' }
-    & Pick<StudentCourse, 'id' | 'userId' | 'courseId'>
-  )> }
+  & Pick<Query, 'isOwn'>
 );
 
 export type LessonQueryVariables = Exact<{
@@ -914,17 +887,7 @@ export function usePostReplyQuestionMutation() {
 };
 export const PurchaseDocument = gql`
     mutation Purchase($courseId: Float!) {
-  purchase(courseId: $courseId) {
-    bill {
-      id
-      userId
-      courseId
-    }
-    errors {
-      field
-      message
-    }
-  }
+  purchase(courseId: $courseId)
 }
     `;
 
@@ -1092,11 +1055,7 @@ export function useInstructorQuery(options: Omit<Urql.UseQueryArgs<InstructorQue
 };
 export const IsOwnDocument = gql`
     query IsOwn($courseId: Int!) {
-  isOwn(courseId: $courseId) {
-    id
-    userId
-    courseId
-  }
+  isOwn(courseId: $courseId)
 }
     `;
 

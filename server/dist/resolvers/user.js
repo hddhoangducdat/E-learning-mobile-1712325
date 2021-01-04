@@ -50,7 +50,7 @@ UserResponse = __decorate([
 let UserResolver = class UserResolver {
     email(user, { req }) {
         if (req.session.userId === user.id) {
-            return user.email;
+            return user.email.toLowerCase();
         }
         return "";
     }
@@ -68,7 +68,7 @@ let UserResolver = class UserResolver {
     updateUser(email, username, phone, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const errors = validateRegister_1.validateRegister({
-                email,
+                email: email.toLowerCase(),
                 phone,
                 username,
                 password: "dummyPassword",
@@ -96,7 +96,7 @@ let UserResolver = class UserResolver {
                 user = yield User_1.User.create({
                     username: options.username,
                     password: hashedPassword,
-                    email: options.email,
+                    email: options.email.toLowerCase(),
                     phone: options.phone,
                 }).save();
             }
@@ -121,7 +121,7 @@ let UserResolver = class UserResolver {
             const user = yield User_1.User.findOne(usernameOrEmail.includes("@")
                 ? {
                     where: {
-                        email: usernameOrEmail,
+                        email: usernameOrEmail.toLowerCase(),
                     },
                     relations: ["instructor"],
                 }
@@ -224,7 +224,7 @@ let UserResolver = class UserResolver {
     }
     forgotPassword(email, { redis }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield User_1.User.findOne({ where: { email } });
+            const user = yield User_1.User.findOne({ where: { email: email.toLowerCase() } });
             if (!user) {
                 return true;
             }

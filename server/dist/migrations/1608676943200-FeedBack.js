@@ -1017,9 +1017,8 @@ insert into public.feed_back (rate, subject, content, "userId", "courseId", "cre
         `);
         });
     }
-    down(queryRunner) {
-        return __awaiter(this, void 0, void 0, function* () {
-        });
+    down(_) {
+        return __awaiter(this, void 0, void 0, function* () { });
     }
 }
 exports.FeedBack1608676943200 = FeedBack1608676943200;

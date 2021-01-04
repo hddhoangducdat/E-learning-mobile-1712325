@@ -1,19 +1,16 @@
-import { AntDesign, EvilIcons, Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React, { useState } from "react";
 import CoursesScreen from "../screens/CoursesScreen";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import ProjectsScreen from "../screens/ProjectsScreen";
+import SearchScreen from "../screens/SearchScreen";
 import { AppParamList } from "../utils/params";
-import { Octicons } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
 import HomeNavigator from "./HomeNavigator";
 import { useSelector } from "react-redux";
 import { ReduxReducers } from "../../types";
 import { loadAsync } from "expo-font";
 import { useEffect } from "react";
-import styled from "styled-components/native";
-import Svg, { Path } from "react-native-svg";
+import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface TabsNavigatorProps {}
 
@@ -24,53 +21,40 @@ export const TabsNavigator: React.FC<TabsNavigatorProps> = ({}) => {
     (state: ReduxReducers) => state!.tabBarVisible
   );
 
-  useEffect(() => {
-    (async () => {
-      await loadAsync({
-        // Ionicons: require("ionicons"),
-      });
-    })();
-  });
-
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName = "project";
           switch (route.name) {
-            case "HomeTab":
-              iconName = "home";
-              return (
-                <MaterialCommunityIcons
-                  name="home-variant-outline"
-                  size={size}
-                  color={color}
-                />
-              );
+            case "Home":
+              return <FontAwesome5 name="home" size={20} color={color} />;
             case "Courses":
-              iconName = "graduation-cap";
-
-              return <Entypo name={iconName} size={size} color={color} />;
-            // setTabBarVisible(false);
-            // iconName = "home";
-            // return <Feather name={iconName} size={size} color={color} />;
+              return (
+                <MaterialIcons name="local-library" size={24} color={color} />
+              );
             default:
-              return <Octicons name={iconName} size={size} color={color} />;
+              return <FontAwesome name="search" size={20} color={color} />;
           }
         },
       })}
       tabBarOptions={{
         activeTintColor: "#4775f2",
         inactiveTintColor: "#b8bece",
+        style: {
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.5,
+          shadowRadius: 2,
+          elevation: 7,
+        },
       }}
     >
       <Tabs.Screen
         options={{ tabBarVisible: tabBarVisible ? true : false }}
-        name="HomeTab"
+        name="Home"
         component={HomeNavigator}
       />
-      <Tabs.Screen name="Projects" component={ProjectsScreen} />
-
+      <Tabs.Screen name="Search" component={SearchScreen} />
       <Tabs.Screen name="Courses" component={CoursesScreen} />
     </Tabs.Navigator>
   );

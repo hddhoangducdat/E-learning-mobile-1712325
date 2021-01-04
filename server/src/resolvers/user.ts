@@ -33,7 +33,7 @@ export class UserResolver {
   @FieldResolver(() => String)
   email(@Root() user: User, @Ctx() { req }: MyContext) {
     if (req.session.userId === user.id) {
-      return user.email;
+      return user.email.toLowerCase();
     }
     return "";
   }
@@ -63,7 +63,7 @@ export class UserResolver {
     @Ctx() { req }: MyContext
   ) {
     const errors = validateRegister({
-      email,
+      email: email.toLowerCase(),
       phone,
       username,
       password: "dummyPassword",
@@ -99,7 +99,7 @@ export class UserResolver {
       user = await User.create({
         username: options.username,
         password: hashedPassword,
-        email: options.email,
+        email: options.email.toLowerCase(),
         phone: options.phone,
       }).save();
     } catch (err) {
@@ -129,7 +129,7 @@ export class UserResolver {
       usernameOrEmail.includes("@")
         ? {
             where: {
-              email: usernameOrEmail,
+              email: usernameOrEmail.toLowerCase(),
             },
             relations: ["instructor"],
           }
@@ -254,7 +254,7 @@ export class UserResolver {
     @Arg("email") email: string,
     @Ctx() { redis }: MyContext
   ) {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email: email.toLowerCase() } });
     if (!user) {
       return true;
     }

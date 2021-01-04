@@ -7,6 +7,7 @@ import {
   fetchExchange,
   stringifyVariables,
 } from "urql";
+import gql from "graphql-tag";
 import {
   LoginMutation,
   MeQuery,
@@ -23,10 +24,17 @@ import {
   PostQuestionMutation,
   QuestionsQuery,
   QuestionsDocument,
+  PurchaseMutationVariables,
+  useIsOwnQuery,
   // RegisterMutation, LogoutMutation, VoteMutationVariables, DeletePostMutationVariables,
 } from "../generated/graphql";
 import { pipe, tap } from "wonka";
-import { cacheExchange, Resolver, Cache } from "@urql/exchange-graphcache";
+import {
+  cacheExchange,
+  Resolver,
+  Cache,
+  query,
+} from "@urql/exchange-graphcache";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
@@ -75,14 +83,6 @@ const cusorPagination = (query: string): Resolver => {
   };
 };
 
-function invalidateAllPosts(cache: Cache) {
-  const allFields = cache.inspectFields("Query");
-  const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
-  fieldInfos.forEach((fi) => {
-    cache.invalidate("Query", "posts", fi.arguments || {});
-  });
-}
-
 function invalidateAllQuestions(cache: Cache) {
   const allFields = cache.inspectFields("Query");
   const fieldInfos = allFields.filter((info) => info.fieldName === "questions");
@@ -99,13 +99,21 @@ function invalidateAllReplyQuestions(cache: Cache) {
   });
 }
 
+function invalidateIsOwn(cache: Cache) {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((info) => info.fieldName === "isOwn");
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "isOwn", fi.arguments || {});
+  });
+}
+
 export const createUrqlClient = () => {
   let cookie = "";
   // if (isServer()) {
   //   cookie = ctx?.req?.headers?.cookie;
   // }
   return createClient({
-    url: "http://192.168.7.113:4000/graphql",
+    url: "http://192.168.7.109:4000/graphql",
     fetchOptions: {
       credentials: "include",
       headers: cookie
@@ -136,20 +144,7 @@ export const createUrqlClient = () => {
             },
 
             purchase: (_result, _args, cache, _info) => {
-              betterUpdateQuery<PurchaseMutation, IsOwnQuery>(
-                cache,
-                { query: IsOwnDocument },
-                _result,
-                (result, query) => {
-                  if (result.purchase.errors) {
-                    return query;
-                  } else {
-                    return {
-                      isOwn: result.purchase.bill,
-                    };
-                  }
-                }
-              );
+              invalidateIsOwn(cache);
             },
 
             login: (_result, _args, cache, _info) => {
@@ -167,7 +162,6 @@ export const createUrqlClient = () => {
                   }
                 }
               );
-              invalidateAllPosts(cache);
             },
             register: (_result, _args, cache, _info) => {
               betterUpdateQuery<RegisterMutation, MeQuery>(

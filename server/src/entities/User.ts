@@ -66,7 +66,7 @@ export class User extends BaseEntity {
   isDelete: boolean;
 
   @Field()
-  @Column({ default: true })
+  @Column({ default: false })
   isActivated: boolean;
 
   @Field(() => Number)

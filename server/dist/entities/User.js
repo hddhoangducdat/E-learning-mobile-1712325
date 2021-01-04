@@ -78,7 +78,7 @@ __decorate([
 ], User.prototype, "isDelete", void 0);
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.Column({ default: true }),
+    typeorm_1.Column({ default: false }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isActivated", void 0);
 __decorate([

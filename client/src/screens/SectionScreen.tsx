@@ -4,11 +4,9 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
-  Linking,
   Animated,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import Markdown from "react-native-showdown";
 import { HomeStackNavProps } from "../utils/params";
 import { useDispatch } from "react-redux";
 import { TRIGGER_TAB_BAR } from "../../types";
@@ -26,7 +24,7 @@ import { Entypo } from "@expo/vector-icons";
 import Section from "../components/Section";
 import { timeCalc } from "../utils/timeCalc";
 import AuthForm from "../components/form/AuthForm";
-import { userIsAuth } from "../utils/userIsAuth";
+import { useRate } from "../utils/useRate";
 
 interface SectionScreenProps {}
 
@@ -43,6 +41,8 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
       courseId,
     },
   });
+
+  console.log("isOwn", isOwn.data?.isOwn);
 
   const [feedBacks] = useFeedBacksQuery({
     variables: {
@@ -81,23 +81,6 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
     StatusBar.setBarStyle("light-content", true);
   }, [1]);
 
-  const rate = (rateNumber: number) => {
-    let arr = [];
-    for (let i = 0; i < Math.floor(rateNumber); i++) {
-      arr.push("star");
-    }
-    if (rateNumber > Math.floor(rateNumber)) {
-      arr.push("star-half-empty");
-    }
-    while (arr.length < 5) {
-      arr.push("star-o");
-    }
-
-    return arr.map((star, t) => (
-      <FontAwesome key={t} name={star} size={15} color="#f2b20f" />
-    ));
-  };
-
   const [banner, setBanner] = useState(
     require(`../assets/images/background1.jpg`)
   );
@@ -128,7 +111,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
   const [me] = useMeQuery();
 
   const handlePurchase = () => {
-    if (!me.data) {
+    if (!me.data?.me) {
       setOpenAuthForm(true);
     } else if (!isOwn.data?.isOwn) {
       purchase({ courseId });
@@ -180,7 +163,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                 <Caption>{data?.course?.subtitle}</Caption>
               </View>
               <RateContainer>
-                {rate(data?.course?.rateNumber! / 2)}
+                {useRate(data?.course?.rateNumber! / 2)}
                 <Rate>{data?.course?.rateNumber! / 2}</Rate>
                 {isBestSeller ? (
                   <BestSellerImage
@@ -401,7 +384,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                 <Rate style={{ color: "#000" }}>
                   {data?.course?.rateNumber! / 2}
                 </Rate>
-                {rate(data?.course?.rateNumber! / 2)}
+                {useRate(data?.course?.rateNumber! / 2)}
               </RateContainer>
               {feedBacks.data?.feedBacks.feedBacks.map((feed) => {
                 return (
@@ -424,7 +407,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                           {feed.user.username}
                         </TextContain>
                         <TextContain style={{ color: "#777373" }}>
-                          {rate(feed.rate / 2)}
+                          {useRate(feed.rate / 2)}
                         </TextContain>
                         <TextContain>{feed.content}</TextContain>
                       </InstructorDetail>

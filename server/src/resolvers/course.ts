@@ -35,17 +35,21 @@ class PayCourseResponse {
 
 @Resolver(Course)
 export class CourseResolver {
-  @Query(() => StudentCourse, { nullable: true })
-  isOwn(
+  @Query(() => Boolean)
+  async isOwn(
     @Arg("courseId", () => Int) courseId: number,
     @Ctx() { req }: MyContext
-  ): Promise<StudentCourse | undefined> {
-    return StudentCourse.findOne({
+  ): Promise<Boolean> {
+    const studentCourse = await StudentCourse.findOne({
       where: {
         userId: req.session.userId,
         courseId,
       },
     });
+    if (studentCourse) {
+      return true;
+    }
+    return false;
   }
 
   @FieldResolver(() => Category)
@@ -83,16 +87,16 @@ export class CourseResolver {
     }
 
     if (search) {
-      const listSearch = search.split(" ");
-      let query = `(title LIKE '${"%" + search + "%"}'`;
+      const listSearch = search.toLowerCase().split(" ");
+      let query = `title LIKE ('${"%" + search + "%"}'`;
       if (listSearch.length !== 1) {
         listSearch.map((value) => {
           if (value.length > 2) {
-            query += ` OR title LIKE  '${"%" + value + "%"}'`;
+            query += ` OR title LIKE '${"%" + value + "%"}'`;
           }
         });
-        where.push(query + ")");
       }
+      where.push(query + ")");
     }
 
     if (categoryId) {
@@ -135,41 +139,21 @@ export class CourseResolver {
     };
   }
 
-  @Mutation(() => PayCourseResponse)
+  @Mutation(() => Boolean)
   async purchase(
     @Arg("courseId", () => Number) courseId: number,
     @Ctx() { req }: MyContext
   ) {
     if (req.session.userId) {
-      let studentCourse;
-      try {
-        studentCourse = await StudentCourse.create({
-          courseId,
-          userId: req.session.userId,
-        }).save();
-        // console.log(studentCourse);
-      } catch (err) {
-        console.log(err);
-        // return {
-        //   errors: [
-        //     {
-        //       field: "",
-        //     },
-        //   ],
-        // };
-      }
-      return {
-        bill: studentCourse,
-      };
-    } else {
-      return {
-        errors: [
-          {
-            field: "user",
-            message: "You haven't login yet",
-          },
-        ],
-      };
+      await getConnection().query(
+        `
+          insert into student_course ("userId", "courseId")
+          values ($1, $2)
+        `,
+        [req.session.userId, courseId]
+      );
+      return true;
     }
+    return false;
   }
 }

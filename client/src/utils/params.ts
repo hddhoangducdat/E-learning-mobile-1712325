@@ -2,9 +2,9 @@ import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 export type AppParamList = {
-  HomeTab: undefined;
+  Home: undefined;
+  Search: undefined;
   Courses: undefined;
-  Projects: undefined;
 };
 
 export type AppBottomTabProps<T extends keyof AppParamList> = {

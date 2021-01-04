@@ -56,11 +56,17 @@ PayCourseResponse = __decorate([
 ], PayCourseResponse);
 let CourseResolver = class CourseResolver {
     isOwn(courseId, { req }) {
-        return StudentCourse_1.StudentCourse.findOne({
-            where: {
-                userId: req.session.userId,
-                courseId,
-            },
+        return __awaiter(this, void 0, void 0, function* () {
+            const studentCourse = yield StudentCourse_1.StudentCourse.findOne({
+                where: {
+                    userId: req.session.userId,
+                    courseId,
+                },
+            });
+            if (studentCourse) {
+                return true;
+            }
+            return false;
         });
     }
     category(course) {
@@ -83,16 +89,16 @@ let CourseResolver = class CourseResolver {
                 where.push(`"createdAt" < $${replacements.length}`);
             }
             if (search) {
-                const listSearch = search.split(" ");
-                let query = `(title LIKE '${"%" + search + "%"}'`;
+                const listSearch = search.toLowerCase().split(" ");
+                let query = `title LIKE ('${"%" + search + "%"}'`;
                 if (listSearch.length !== 1) {
                     listSearch.map((value) => {
                         if (value.length > 2) {
-                            query += ` OR title LIKE  '${"%" + value + "%"}'`;
+                            query += ` OR title LIKE '${"%" + value + "%"}'`;
                         }
                     });
-                    where.push(query + ")");
                 }
+                where.push(query + ")");
             }
             if (categoryId) {
                 replacements.push(categoryId);
@@ -128,35 +134,18 @@ let CourseResolver = class CourseResolver {
     purchase(courseId, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (req.session.userId) {
-                let studentCourse;
-                try {
-                    studentCourse = yield StudentCourse_1.StudentCourse.create({
-                        courseId,
-                        userId: req.session.userId,
-                    }).save();
-                }
-                catch (err) {
-                    console.log(err);
-                }
-                return {
-                    bill: studentCourse,
-                };
+                yield typeorm_1.getConnection().query(`
+          insert into student_course ("userId", "courseId")
+          values ($1, $2)
+        `, [req.session.userId, courseId]);
+                return true;
             }
-            else {
-                return {
-                    errors: [
-                        {
-                            field: "user",
-                            message: "You haven't login yet",
-                        },
-                    ],
-                };
-            }
+            return false;
         });
     }
 };
 __decorate([
-    type_graphql_1.Query(() => StudentCourse_1.StudentCourse, { nullable: true }),
+    type_graphql_1.Query(() => Boolean),
     __param(0, type_graphql_1.Arg("courseId", () => type_graphql_1.Int)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
@@ -190,7 +179,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "courses", null);
 __decorate([
-    type_graphql_1.Mutation(() => PayCourseResponse),
+    type_graphql_1.Mutation(() => Boolean),
     __param(0, type_graphql_1.Arg("courseId", () => Number)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),

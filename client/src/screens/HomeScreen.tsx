@@ -24,6 +24,7 @@ import {
   useCoursesQuery,
 } from "../generated/graphql";
 import ReverseCourse from "../components/ReverseCourse";
+import PopUpNoti from "../components/PopUpNoti";
 
 const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
   const dispatch = useDispatch();
@@ -112,6 +113,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
         }}
       >
         <SafeAreaView>
+          <PopUpNoti />
           <ScrollView style={{ height: "100%" }}>
             <TitleBar>
               <TouchableOpacity
@@ -310,6 +312,7 @@ const HeaderContainer = styled.View`
 `;
 
 const RootView = styled.View`
+  position: relative;
   background: black;
   flex: 1;
 `;

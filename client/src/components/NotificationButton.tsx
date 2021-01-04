@@ -1,25 +1,39 @@
 import React from "react";
 import styled from "styled-components/native";
+import { FontAwesome } from "@expo/vector-icons";
 import { NotificationIcon } from "./Icon";
+import { useDispatch } from "react-redux";
+import { TRIGGER_NOTI } from "../../types";
 
-const NotificationButton = () => (
-  <Container>
-    <NotificationIcon />
-    <Bubble>
-      <Text>3</Text>
-    </Bubble>
-  </Container>
-);
+const NotificationButton = () => {
+  const dispatch = useDispatch();
+  return (
+    <Container
+      onPress={() => {
+        dispatch({
+          type: TRIGGER_NOTI,
+          payload: {
+            name: "email",
+            noti: "email has been sent",
+          },
+        });
+      }}
+    >
+      <FontAwesome name="warning" size={24} color="red" />
+      <Text>Activate account</Text>
+    </Container>
+  );
+};
 
 export default NotificationButton;
 
-const Container = styled.View`
+const Container = styled.TouchableOpacity`
   position: absolute;
   right: 5px;
-  width: 44px;
+  width: 70px;
   height: 44px;
-  /* justify-content: center; */
-  /* align-items: center; */
+  justify-content: center;
+  align-items: center;
 `;
 
 const Bubble = styled.View`
@@ -36,7 +50,8 @@ const Bubble = styled.View`
 `;
 
 const Text = styled.Text`
-  color: white;
+  color: #000;
+  text-align: center;
   font-size: 12px;
   font-weight: 700;
 `;
