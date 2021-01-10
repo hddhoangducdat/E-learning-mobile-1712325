@@ -32,6 +32,8 @@ export type Query = {
   replyQuestions: PaginatedQuestion;
   resources: Array<Resource>;
   assignments: Array<Assignment>;
+  getLanguage: Scalars['String'];
+  getTheme: Scalars['String'];
 };
 
 
@@ -315,18 +317,22 @@ export type Mutation = {
   login: UserResponse;
   logout: Scalars['Boolean'];
   changePassword: UserResponse;
+  activateAccount: UserResponse;
   forgotPassword: Scalars['Boolean'];
+  requestActivate: Scalars['Boolean'];
   becomeOrUpdateInstructor: UserResponse;
   purchase: Scalars['Boolean'];
+  track: TrackingResponse;
   postQuestion: Question;
   postReplyQuestion: Question;
+  changeLanguage: Scalars['String'];
+  changeTheme: Scalars['String'];
 };
 
 
 export type MutationUpdateUserArgs = {
-  phone: Scalars['String'];
-  username: Scalars['String'];
-  email: Scalars['String'];
+  phone?: Maybe<Scalars['String']>;
+  username?: Maybe<Scalars['String']>;
 };
 
 
@@ -347,7 +353,19 @@ export type MutationChangePasswordArgs = {
 };
 
 
+export type MutationActivateAccountArgs = {
+  token: Scalars['String'];
+};
+
+
 export type MutationForgotPasswordArgs = {
+  token: Scalars['String'];
+  email: Scalars['String'];
+};
+
+
+export type MutationRequestActivateArgs = {
+  token: Scalars['String'];
   email: Scalars['String'];
 };
 
@@ -363,6 +381,13 @@ export type MutationPurchaseArgs = {
 };
 
 
+export type MutationTrackArgs = {
+  name: Scalars['String'];
+  time: Scalars['Float'];
+  lessonId: Scalars['Float'];
+};
+
+
 export type MutationPostQuestionArgs = {
   content: Scalars['String'];
   lessonId: Scalars['Int'];
@@ -373,6 +398,16 @@ export type MutationPostReplyQuestionArgs = {
   content: Scalars['String'];
   repliedQuestionId: Scalars['Int'];
   lessonId: Scalars['Int'];
+};
+
+
+export type MutationChangeLanguageArgs = {
+  language: Scalars['String'];
+};
+
+
+export type MutationChangeThemeArgs = {
+  theme: Scalars['String'];
 };
 
 export type UserResponse = {
@@ -392,6 +427,13 @@ export type UserInput = {
   password: Scalars['String'];
   email: Scalars['String'];
   phone: Scalars['String'];
+};
+
+export type TrackingResponse = {
+  __typename?: 'TrackingResponse';
+  id: Scalars['Float'];
+  time: Scalars['Float'];
+  name: Scalars['String'];
 };
 
 export type ErrorFragmentFragment = (
@@ -447,6 +489,16 @@ export type BecomeOrUpdateInstructorMutation = (
   ) }
 );
 
+export type ChangeLanguageMutationVariables = Exact<{
+  language: Scalars['String'];
+}>;
+
+
+export type ChangeLanguageMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'changeLanguage'>
+);
+
 export type ChangePasswordMutationVariables = Exact<{
   token: Scalars['String'];
   newPassword: Scalars['String'];
@@ -461,8 +513,19 @@ export type ChangePasswordMutation = (
   ) }
 );
 
+export type ChangeThemeMutationVariables = Exact<{
+  theme: Scalars['String'];
+}>;
+
+
+export type ChangeThemeMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'changeTheme'>
+);
+
 export type ForgotPasswordMutationVariables = Exact<{
   email: Scalars['String'];
+  token: Scalars['String'];
 }>;
 
 
@@ -547,7 +610,6 @@ export type RegisterMutation = (
 
 export type UpdateUserMutationVariables = Exact<{
   username: Scalars['String'];
-  email: Scalars['String'];
   phone: Scalars['String'];
 }>;
 
@@ -649,6 +711,22 @@ export type FeedBacksQuery = (
       ) }
     )> }
   ) }
+);
+
+export type GetLanguageQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetLanguageQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'getLanguage'>
+);
+
+export type GetThemeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetThemeQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'getTheme'>
 );
 
 export type InstructorQueryVariables = Exact<{
@@ -819,6 +897,15 @@ export const BecomeOrUpdateInstructorDocument = gql`
 export function useBecomeOrUpdateInstructorMutation() {
   return Urql.useMutation<BecomeOrUpdateInstructorMutation, BecomeOrUpdateInstructorMutationVariables>(BecomeOrUpdateInstructorDocument);
 };
+export const ChangeLanguageDocument = gql`
+    mutation ChangeLanguage($language: String!) {
+  changeLanguage(language: $language)
+}
+    `;
+
+export function useChangeLanguageMutation() {
+  return Urql.useMutation<ChangeLanguageMutation, ChangeLanguageMutationVariables>(ChangeLanguageDocument);
+};
 export const ChangePasswordDocument = gql`
     mutation ChangePassword($token: String!, $newPassword: String!) {
   changePassword(token: $token, newPassword: $newPassword) {
@@ -830,9 +917,18 @@ export const ChangePasswordDocument = gql`
 export function useChangePasswordMutation() {
   return Urql.useMutation<ChangePasswordMutation, ChangePasswordMutationVariables>(ChangePasswordDocument);
 };
+export const ChangeThemeDocument = gql`
+    mutation ChangeTheme($theme: String!) {
+  changeTheme(theme: $theme)
+}
+    `;
+
+export function useChangeThemeMutation() {
+  return Urql.useMutation<ChangeThemeMutation, ChangeThemeMutationVariables>(ChangeThemeDocument);
+};
 export const ForgotPasswordDocument = gql`
-    mutation ForgotPassword($email: String!) {
-  forgotPassword(email: $email)
+    mutation ForgotPassword($email: String!, $token: String!) {
+  forgotPassword(email: $email, token: $token)
 }
     `;
 
@@ -906,8 +1002,8 @@ export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
 export const UpdateUserDocument = gql`
-    mutation UpdateUser($username: String!, $email: String!, $phone: String!) {
-  updateUser(username: $username, email: $email, phone: $phone)
+    mutation UpdateUser($username: String!, $phone: String!) {
+  updateUser(username: $username, phone: $phone)
 }
     `;
 
@@ -1033,6 +1129,24 @@ export const FeedBacksDocument = gql`
 
 export function useFeedBacksQuery(options: Omit<Urql.UseQueryArgs<FeedBacksQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<FeedBacksQuery>({ query: FeedBacksDocument, ...options });
+};
+export const GetLanguageDocument = gql`
+    query GetLanguage {
+  getLanguage
+}
+    `;
+
+export function useGetLanguageQuery(options: Omit<Urql.UseQueryArgs<GetLanguageQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetLanguageQuery>({ query: GetLanguageDocument, ...options });
+};
+export const GetThemeDocument = gql`
+    query GetTheme {
+  getTheme
+}
+    `;
+
+export function useGetThemeQuery(options: Omit<Urql.UseQueryArgs<GetThemeQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetThemeQuery>({ query: GetThemeDocument, ...options });
 };
 export const InstructorDocument = gql`
     query Instructor($instructorId: Float!) {

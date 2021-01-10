@@ -117,7 +117,10 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
           <ScrollView style={{ height: "100%" }}>
             <TitleBar>
               <TouchableOpacity
-                onPress={() => dispatch({ type: TRIGGER_MENU, payload: true })}
+                onPress={() => {
+                  dispatch({ type: TRIGGER_TAB_BAR, payload: false });
+                  dispatch({ type: TRIGGER_MENU, payload: true });
+                }}
                 style={{ position: "absolute", top: 0, left: 20 }}
               >
                 {data?.me ? (

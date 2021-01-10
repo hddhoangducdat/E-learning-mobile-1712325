@@ -52,7 +52,10 @@ const Menu = ({ me }: MenuProps) => {
         <Subtitle>{me?.me?.email}</Subtitle>
       </Cover>
       <TouchableOpacity
-        onPress={() => dispatch({ type: TRIGGER_MENU })}
+        onPress={() => {
+          dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          dispatch({ type: TRIGGER_MENU });
+        }}
         style={{
           position: "absolute",
           top: 120,
@@ -61,7 +64,15 @@ const Menu = ({ me }: MenuProps) => {
           zIndex: 1,
         }}
       >
-        <CloseView>
+        <CloseView
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.5,
+            shadowRadius: 2,
+            elevation: 5,
+          }}
+        >
           <AntDesign name="close" size={22} color="#5463fb" />
         </CloseView>
       </TouchableOpacity>
@@ -156,11 +167,13 @@ const items = [
     text: "settings",
   },
   {
-    icon: "ios-card",
-    title: "Courses",
-    text: "start course",
+    icon: "theme-light-dark",
+    title: "Theme",
   },
-  { icon: "ios-compass", title: "Instructor", text: "manage your course" },
+  {
+    icon: "language",
+    title: "Switch language",
+  },
   {
     icon: "ios-exit",
     title: "Log out",

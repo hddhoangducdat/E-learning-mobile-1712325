@@ -32,8 +32,12 @@ import { LessonResolver } from "./resolvers/lesson";
 import { QuestionResolver } from "./resolvers/question";
 import { ResourceResolver } from "./resolvers/resource";
 import { AssignmentResolver } from "./resolvers/assignment";
+import { v2 } from "@google-cloud/translate";
+import dotenv from "dotenv";
+import { SettingResolver } from "./resolvers/setting";
 
 const main = async () => {
+  dotenv.config();
   const conn = await createConnection({
     type: "postgres",
     database: "ELearning",
@@ -85,6 +89,13 @@ const main = async () => {
     })
   );
 
+  const CREDENTAILS = JSON.parse(process.env.CREDENTIALS);
+
+  const translate = new v2.Translate({
+    credentials: CREDENTAILS,
+    projectId: CREDENTAILS.project_id,
+  });
+
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [
@@ -98,6 +109,7 @@ const main = async () => {
         QuestionResolver,
         ResourceResolver,
         AssignmentResolver,
+        SettingResolver,
       ],
       validate: false,
     }),
@@ -105,6 +117,7 @@ const main = async () => {
       req,
       res,
       redis,
+      translate,
     }),
   });
 

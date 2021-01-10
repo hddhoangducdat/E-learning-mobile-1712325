@@ -12,13 +12,18 @@ import {
   Root,
 } from "type-graphql";
 import { MyContext } from "../types";
-import { validateRegister } from "../utils/validateRegister";
+import { validateRegister } from "../utils/validate";
 import { UserInput } from "./UserInput";
 import argon2 from "argon2";
-import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constances";
+import {
+  ACTIVATE_ACCOUNT_PREFIX,
+  COOKIE_NAME,
+  FORGET_PASSWORD_PREFIX,
+} from "../constances";
 import { v4 } from "uuid";
 import { FieldError } from "./FieldError";
 import { Instructor } from "../entities/Instructor";
+import { sendEmail } from "../utils/sendEmail";
 
 @ObjectType()
 class UserResponse {
@@ -57,25 +62,20 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   async updateUser(
-    @Arg("email") email: string,
-    @Arg("username") username: string,
-    @Arg("phone") phone: string,
-    @Ctx() { req }: MyContext
+    @Ctx() { req }: MyContext,
+    @Arg("username", { nullable: true }) username?: string,
+    @Arg("phone", { nullable: true }) phone?: string
   ) {
-    const errors = validateRegister({
-      email: email.toLowerCase(),
-      phone,
-      username,
-      password: "dummyPassword",
-    });
-    if (errors) {
-      // return errors;
+    if (phone?.length !== 10) {
       return false;
     }
+    if (username && username?.length <= 2) {
+      return false;
+    }
+
     await User.update(
       { id: req.session.userId },
       {
-        email,
         phone,
         username,
       }
@@ -235,7 +235,49 @@ export class UserResolver {
 
     await redis.del(key);
 
-    req.session.userId = user.id;
+    return { user };
+  }
+
+  @Mutation(() => UserResponse)
+  async activateAccount(
+    @Arg("token") token: string,
+    @Ctx() { redis, req }: MyContext
+  ) {
+    const key = ACTIVATE_ACCOUNT_PREFIX + token;
+    const userId = await redis.get(key);
+    if (!userId) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "token expired",
+          },
+        ],
+      };
+    }
+
+    const user = await User.findOne(parseInt(userId));
+
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "token",
+            message: "user no longer existed",
+          },
+        ],
+      };
+    }
+
+    await User.update(
+      { id: parseInt(userId) },
+      {
+        isActivated: true,
+      }
+    );
+
+    await redis.del(key);
+
     return { user };
   }
 
@@ -252,21 +294,44 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async forgotPassword(
     @Arg("email") email: string,
+    @Arg("token") token: string,
     @Ctx() { redis }: MyContext
   ) {
     const user = await User.findOne({ where: { email: email.toLowerCase() } });
     if (!user) {
       return true;
     }
-    const token = v4();
-    const html = `<a href="http://localhost:3000/change-password/${token}">reset password</a>`;
+    const html = `<div>Use this token to reset password: <h1>${token}</h1></div>`;
     await redis.set(
       FORGET_PASSWORD_PREFIX + token,
       user.id,
       "ex",
       1000 * 60 * 60
     );
-    // await sendEmail(email, html);
+    await sendEmail(email, html);
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async requestActivate(
+    @Arg("email") email: string,
+    @Arg("token") token: string,
+    @Ctx() { redis }: MyContext
+  ) {
+    const user = await User.findOne({ where: { email: email.toLowerCase() } });
+    if (!user) {
+      return true;
+    }
+    await redis.set(
+      ACTIVATE_ACCOUNT_PREFIX + token,
+      user.id,
+      "ex",
+      1000 * 60 * 60
+    );
+    await sendEmail(
+      email,
+      `<div>Activate your account with this token: <h1>${token}</h1></div>`
+    );
     return true;
   }
 

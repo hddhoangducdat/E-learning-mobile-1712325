@@ -16,6 +16,7 @@ import { getConnection } from "typeorm";
 import { Course } from "../entities/Course";
 import { FieldError } from "./FieldError";
 import { Category } from "../entities/Category";
+import { Section } from "../entities/Section";
 
 @ObjectType()
 class PaginatedCourse {
@@ -35,6 +36,75 @@ class PayCourseResponse {
 
 @Resolver(Course)
 export class CourseResolver {
+  @FieldResolver(() => String)
+  async title(@Root() course: Course, @Ctx() { req, translate }: MyContext) {
+    if (req.session.language === "vi") {
+      const response = await translate.translate(
+        course.title,
+        req.session.language
+      );
+      return response[0];
+    }
+    return course.title;
+  }
+
+  @FieldResolver(() => String)
+  async subtitle(@Root() course: Course, @Ctx() { req, translate }: MyContext) {
+    if (req.session.language === "vi") {
+      const response = await translate.translate(
+        course.subtitle,
+        req.session.language
+      );
+      return response[0];
+    }
+    return course.subtitle;
+  }
+
+  @FieldResolver(() => String)
+  async description(
+    @Root() course: Course,
+    @Ctx() { req, translate }: MyContext
+  ) {
+    if (req.session.language === "vi") {
+      const response = await translate.translate(
+        course.description,
+        req.session.language
+      );
+      return response[0];
+    }
+    return course.description;
+  }
+
+  @FieldResolver(() => String)
+  async requirement(
+    @Root() course: Course,
+    @Ctx() { req, translate }: MyContext
+  ) {
+    if (req.session.language === "vi") {
+      const response = await translate.translate(
+        course.requirement,
+        req.session.language
+      );
+      return response[0];
+    }
+    return course.requirement;
+  }
+
+  @FieldResolver(() => String)
+  async learnWhat(
+    @Root() course: Course,
+    @Ctx() { req, translate }: MyContext
+  ) {
+    if (req.session.language === "vi") {
+      const response = await translate.translate(
+        course.learnWhat,
+        req.session.language
+      );
+      return response[0];
+    }
+    return course.learnWhat;
+  }
+
   @Query(() => Boolean)
   async isOwn(
     @Arg("courseId", () => Int) courseId: number,

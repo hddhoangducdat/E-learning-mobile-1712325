@@ -25,6 +25,7 @@ import Section from "../components/Section";
 import { timeCalc } from "../utils/timeCalc";
 import AuthForm from "../components/form/AuthForm";
 import { useRate } from "../utils/useRate";
+import VideoRendering from "../components/VideoRendering";
 
 interface SectionScreenProps {}
 
@@ -41,8 +42,6 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
       courseId,
     },
   });
-
-  console.log("isOwn", isOwn.data?.isOwn);
 
   const [feedBacks] = useFeedBacksQuery({
     variables: {
@@ -118,8 +117,6 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
     } else {
     }
   };
-
-  // useEffect(() => {}, [isOwn.data?.isOwn.bill]);
 
   return (
     <Container>
@@ -209,14 +206,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
           </TouchableOpacity>
           <Content>
             <Marketing>
-              <WebView
-                style={{ width: 250, height: 150, backgroundColor: "black" }}
-                javaScriptEnabled={true}
-                domStorageEnabled={true}
-                source={{
-                  html: `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/v2LJb0fJhqk?list=RDWCCp0zbnR50" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>`,
-                }}
-              />
+              <VideoRendering videoUrl={data?.course?.promoVidUrl} />
               <TouchableOpacity onPress={handlePurchase}>
                 <PayButton
                   style={{

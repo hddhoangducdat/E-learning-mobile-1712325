@@ -46,7 +46,11 @@ const lesson_1 = require("./resolvers/lesson");
 const question_1 = require("./resolvers/question");
 const resource_1 = require("./resolvers/resource");
 const assignment_1 = require("./resolvers/assignment");
+const translate_1 = require("@google-cloud/translate");
+const dotenv_1 = __importDefault(require("dotenv"));
+const setting_1 = require("./resolvers/setting");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
+    dotenv_1.default.config();
     const conn = yield typeorm_1.createConnection({
         type: "postgres",
         database: "ELearning",
@@ -91,6 +95,11 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         },
         saveUninitialized: false,
     }));
+    const CREDENTAILS = JSON.parse(process.env.CREDENTIALS);
+    const translate = new translate_1.v2.Translate({
+        credentials: CREDENTAILS,
+        projectId: CREDENTAILS.project_id,
+    });
     const apolloServer = new apollo_server_express_1.ApolloServer({
         schema: yield type_graphql_1.buildSchema({
             resolvers: [
@@ -104,6 +113,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
                 question_1.QuestionResolver,
                 resource_1.ResourceResolver,
                 assignment_1.AssignmentResolver,
+                setting_1.SettingResolver,
             ],
             validate: false,
         }),
@@ -111,6 +121,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             req,
             res,
             redis,
+            translate,
         }),
     });
     apolloServer.applyMiddleware({

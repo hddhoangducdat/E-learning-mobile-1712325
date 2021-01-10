@@ -113,7 +113,7 @@ export const createUrqlClient = () => {
   //   cookie = ctx?.req?.headers?.cookie;
   // }
   return createClient({
-    url: "http://192.168.7.109:4000/graphql",
+    url: "http://192.168.1.61:4000/graphql",
     fetchOptions: {
       credentials: "include",
       headers: cookie

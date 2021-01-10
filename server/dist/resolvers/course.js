@@ -55,6 +55,51 @@ PayCourseResponse = __decorate([
     type_graphql_1.ObjectType()
 ], PayCourseResponse);
 let CourseResolver = class CourseResolver {
+    title(course, { req, translate }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.language === "vi") {
+                const response = yield translate.translate(course.title, req.session.language);
+                return response[0];
+            }
+            return course.title;
+        });
+    }
+    subtitle(course, { req, translate }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.language === "vi") {
+                const response = yield translate.translate(course.subtitle, req.session.language);
+                return response[0];
+            }
+            return course.subtitle;
+        });
+    }
+    description(course, { req, translate }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.language === "vi") {
+                const response = yield translate.translate(course.description, req.session.language);
+                return response[0];
+            }
+            return course.description;
+        });
+    }
+    requirement(course, { req, translate }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.language === "vi") {
+                const response = yield translate.translate(course.requirement, req.session.language);
+                return response[0];
+            }
+            return course.requirement;
+        });
+    }
+    learnWhat(course, { req, translate }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.language === "vi") {
+                const response = yield translate.translate(course.learnWhat, req.session.language);
+                return response[0];
+            }
+            return course.learnWhat;
+        });
+    }
     isOwn(courseId, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const studentCourse = yield StudentCourse_1.StudentCourse.findOne({
@@ -144,6 +189,44 @@ let CourseResolver = class CourseResolver {
         });
     }
 };
+__decorate([
+    type_graphql_1.FieldResolver(() => String),
+    __param(0, type_graphql_1.Root()), __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Course_1.Course, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "title", null);
+__decorate([
+    type_graphql_1.FieldResolver(() => String),
+    __param(0, type_graphql_1.Root()), __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Course_1.Course, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "subtitle", null);
+__decorate([
+    type_graphql_1.FieldResolver(() => String),
+    __param(0, type_graphql_1.Root()),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Course_1.Course, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "description", null);
+__decorate([
+    type_graphql_1.FieldResolver(() => String),
+    __param(0, type_graphql_1.Root()),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Course_1.Course, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "requirement", null);
+__decorate([
+    type_graphql_1.FieldResolver(() => String),
+    __param(0, type_graphql_1.Root()),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Course_1.Course, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "learnWhat", null);
 __decorate([
     type_graphql_1.Query(() => Boolean),
     __param(0, type_graphql_1.Arg("courseId", () => type_graphql_1.Int)),

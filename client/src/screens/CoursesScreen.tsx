@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components/native";
 // import { LinearGradient } from "expo";
 import CourseSection from "../components/CourseSection";
 import Courses from "../components/Courses";
-import { Dimensions } from "react-native";
+import { AsyncStorage, Dimensions } from "react-native";
+import { Video } from "expo-av";
 
 interface CoursesScreenProps {}
 
@@ -11,6 +12,20 @@ const navigationOptions = { title: "Courses", header: null };
 let screenWidth = Dimensions.get("window").width;
 
 const CoursesScreen = ({}) => {
+  const [downloaded, setDownloaded] = useState<any[]>([]);
+  useEffect(() => {
+    AsyncStorage.getAllKeys().then((keys) => {
+      setDownloaded(
+        keys.map(async (key) => {
+          const data = await AsyncStorage.getItem(key);
+          if (data) {
+            return data;
+          }
+        })
+      );
+    });
+  }, []);
+
   return (
     <Container>
       <ScrollView>
@@ -44,6 +59,26 @@ const CoursesScreen = ({}) => {
           </Author>
         </Hero>
         <Subtitle>Latest Courses</Subtitle>
+        {downloaded.map(({ fileUri }, id) => {
+          console.log(fileUri);
+          return (
+            <Video
+              key={id}
+              source={{
+                uri: fileUri,
+              }}
+              rate={1.0}
+              volume={1.0}
+              isMuted={false}
+              resizeMode="cover"
+              shouldPlay={false}
+              isLooping={false}
+              useNativeControls
+              style={{ width: 250, height: 150 }}
+            />
+          );
+        })}
+
         <Courses />
       </ScrollView>
     </Container>

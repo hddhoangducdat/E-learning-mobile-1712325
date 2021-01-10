@@ -13,6 +13,7 @@ import { ImageBackground } from "react-native";
 import Overview from "../components/Overview";
 import Forum from "../components/Forum";
 import AssignmentScreen from "./AssignmentScreen";
+import VideoRendering from "../components/VideoRendering";
 
 interface CoursesScreenProps {}
 
@@ -54,18 +55,7 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
             height: 200,
           }}
         >
-          <WebView
-            style={{
-              width: "100%",
-              height: 100,
-              backgroundColor: "black",
-            }}
-            javaScriptEnabled={true}
-            domStorageEnabled={true}
-            source={{
-              html: `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/v2LJb0fJhqk?list=RDWCCp0zbnR50" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>`,
-            }}
-          ></WebView>
+          <VideoRendering width={true} videoUrl={data?.lesson?.video} />
         </View>
         <ScrollViewNormal
           style={{
