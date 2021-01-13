@@ -16,11 +16,12 @@ exports.SettingResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 class SettingResolver {
     changeLanguage(language, { req }) {
+        console.log(req.session.language);
         req.session.language = language;
         return req.session.language;
     }
     getLanguage({ req }) {
-        return req.session.language ? req.session.language : "english";
+        return req.session.language ? req.session.language : "en";
     }
     changeTheme(theme, { req }) {
         req.session.theme = theme;

@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components/native";
 import { FontAwesome } from "@expo/vector-icons";
+import { useGetThemeQuery } from "../generated/graphql";
+import { themeModify } from "../utils/themeModify";
 
 export default function Card({
   logo,
@@ -12,10 +14,11 @@ export default function Card({
   isBestSeller,
   price,
 }: any) {
+  const [theme] = useGetThemeQuery();
   return (
     <Container
       style={{
-        shadowColor: "#000",
+        shadowColor: themeModify("#000", theme.data?.getTheme),
         shadowOffset: {
           width: 0,
           height: 3,
@@ -24,6 +27,7 @@ export default function Card({
         shadowRadius: 4.65,
 
         elevation: 7,
+        backgroundColor: themeModify("#ffff", theme.data?.getTheme),
       }}
     >
       {isBestSeller ? (
@@ -51,11 +55,25 @@ export default function Card({
               <FontAwesome name="star" size={15} color="#f2b20f" />
             )}
 
-            <Rate>{rate / 2}</Rate>
-            <Text>{"(" + participant}</Text>
-            <FontAwesome name="user-o" size={10} color="black" />
-            <Text>{")"}</Text>
-            <RightText>{price}</RightText>
+            <Rate style={{ color: themeModify("#000", theme.data?.getTheme) }}>
+              {rate / 2}
+            </Rate>
+            <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
+              {"(" + participant}
+            </Text>
+            <FontAwesome
+              name="user-o"
+              size={10}
+              color={themeModify("#000", theme.data?.getTheme)}
+            />
+            <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
+              {")"}
+            </Text>
+            <RightText
+              style={{ color: themeModify("#000", theme.data?.getTheme) }}
+            >
+              {price}
+            </RightText>
           </RateContainer>
         </Wrapper>
       </Content>

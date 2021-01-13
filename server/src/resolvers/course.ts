@@ -16,7 +16,6 @@ import { getConnection } from "typeorm";
 import { Course } from "../entities/Course";
 import { FieldError } from "./FieldError";
 import { Category } from "../entities/Category";
-import { Section } from "../entities/Section";
 
 @ObjectType()
 class PaginatedCourse {
@@ -24,14 +23,6 @@ class PaginatedCourse {
   courses: Course[];
   @Field()
   hasMore: boolean;
-}
-
-@ObjectType()
-class PayCourseResponse {
-  @Field(() => StudentCourse, { nullable: true })
-  bill?: StudentCourse;
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
 }
 
 @Resolver(Course)

@@ -2,6 +2,8 @@ import React from "react";
 import styled from "styled-components/native";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+import { themeModify } from "../utils/themeModify";
+import { useGetThemeQuery } from "../generated/graphql";
 
 export default function ReverseCourse({
   logo,
@@ -13,6 +15,7 @@ export default function ReverseCourse({
   isBestSeller,
   price,
 }: any) {
+  const [theme] = useGetThemeQuery();
   return (
     <Container>
       <Content>
@@ -28,11 +31,21 @@ export default function ReverseCourse({
               <FontAwesome name="star" size={15} color="#f2b20f" />
             )}
 
-            <Rate>{rate / 2}</Rate>
-            <Text>{"(" + participant}</Text>
+            <Rate style={{ color: themeModify("#000", theme.data?.getTheme) }}>
+              {rate / 2}
+            </Rate>
+            <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
+              {"(" + participant}
+            </Text>
             <FontAwesome name="user-o" size={10} color="black" />
-            <Text>{")"}</Text>
-            <RightText>{price}</RightText>
+            <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
+              {")"}
+            </Text>
+            <RightText
+              style={{ color: themeModify("#000", theme.data?.getTheme) }}
+            >
+              {price}
+            </RightText>
           </RateContainer>
         </Wrapper>
         <Logo

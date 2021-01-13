@@ -1,12 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components/native";
-import { Animated, Dimensions, TouchableOpacity } from "react-native";
+import {
+  Animated,
+  AsyncStorage,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import MenuItem from "./MenuItem";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxReducers, TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../types";
-import { MeQuery, useLogoutMutation } from "../generated/graphql";
+import {
+  MeQuery,
+  useChangeLanguageMutation,
+  useChangeThemeMutation,
+  useGetLanguageQuery,
+  useGetThemeQuery,
+  useLogoutMutation,
+} from "../generated/graphql";
 import AccountForm from "./Account";
+import { themeModify } from "../utils/themeModify";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -20,6 +33,10 @@ const Menu = ({ me }: MenuProps) => {
   const dispatch = useDispatch();
   const [, logout] = useLogoutMutation();
   const [openAccountForm, setOpenAccountForm] = useState(false);
+  const [theme] = useGetThemeQuery();
+  const [language] = useGetLanguageQuery();
+  const [, changeLanguage] = useChangeLanguageMutation();
+  const [, changeTheme] = useChangeThemeMutation();
 
   useEffect(() => {
     toggleMenu();
@@ -66,40 +83,75 @@ const Menu = ({ me }: MenuProps) => {
       >
         <CloseView
           style={{
-            shadowColor: "#000",
+            shadowColor: themeModify("#000", theme.data?.getTheme),
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.5,
             shadowRadius: 2,
             elevation: 5,
+            backgroundColor: themeModify("white", theme.data?.getTheme),
           }}
         >
           <AntDesign name="close" size={22} color="#5463fb" />
         </CloseView>
       </TouchableOpacity>
-      <Content>
-        {items.map((item, index) => {
-          return (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                switch (item.title) {
-                  case "Log out":
-                    dispatch({ type: TRIGGER_MENU });
-                    logout();
-                    break;
-
-                  case "Account":
-                    dispatch({ type: TRIGGER_TAB_BAR, payload: false });
-                    setOpenAccountForm(true);
-                    break;
-                  default:
-                }
-              }}
-            >
-              <MenuItem icon={item.icon} title={item.title} text={item.text} />
-            </TouchableOpacity>
-          );
-        })}
+      <Content
+        style={{
+          backgroundColor: themeModify("#f0f3f5", theme.data?.getTheme),
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => {
+            dispatch({ type: TRIGGER_TAB_BAR, payload: false });
+            setOpenAccountForm(true);
+          }}
+        >
+          <MenuItem
+            icon={items.account.icon}
+            title={items.account.title}
+            text={items.account.text}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={async () => {
+            const my_theme =
+              theme.data?.getTheme === "Light" ? "Dark" : "Light";
+            await AsyncStorage.setItem("theme", my_theme);
+            changeTheme({
+              theme: my_theme,
+            });
+          }}
+        >
+          <MenuItem
+            icon={items.theme.icon}
+            title={items.theme.title}
+            data={theme.data?.getTheme === "Dark" ? true : false}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            changeLanguage({
+              language: language.data?.getLanguage === "vi" ? "en" : "vi",
+            });
+          }}
+        >
+          <MenuItem
+            icon={items.language.icon}
+            title={items.language.title}
+            data={language.data?.getLanguage === "vi" ? true : false}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            dispatch({ type: TRIGGER_MENU });
+            logout();
+          }}
+        >
+          <MenuItem
+            icon={items.logout.icon}
+            title={items.logout.title}
+            text={items.logout.text}
+          />
+        </TouchableOpacity>
       </Content>
     </AnimatedContainer>
   );
@@ -129,7 +181,6 @@ const CloseView = styled.View`
   width: 44px;
   height: 44px;
   border-radius: 22px;
-  background: white;
   justify-content: center;
   align-items: center;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
@@ -156,27 +207,27 @@ const Cover = styled.View`
 
 const Content = styled.View`
   height: ${screenHeight};
-  background: #f0f3f5;
+
   padding: 50px;
 `;
 
-const items = [
-  {
+const items = {
+  account: {
     icon: "ios-cog",
     title: "Account",
     text: "settings",
   },
-  {
+  theme: {
     icon: "theme-light-dark",
     title: "Theme",
   },
-  {
+  language: {
     icon: "language",
     title: "Switch language",
   },
-  {
+  logout: {
     icon: "ios-exit",
     title: "Log out",
     text: "see you soon!",
   },
-];
+};

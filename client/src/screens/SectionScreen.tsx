@@ -18,6 +18,8 @@ import {
   useIsOwnQuery,
   useMeQuery,
   usePurchaseMutation,
+  useGetThemeQuery,
+  useGetLanguageQuery,
 } from "../generated/graphql";
 import { FontAwesome } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
@@ -26,10 +28,14 @@ import { timeCalc } from "../utils/timeCalc";
 import AuthForm from "../components/form/AuthForm";
 import { useRate } from "../utils/useRate";
 import VideoRendering from "../components/VideoRendering";
+import { languageModify } from "../utils/languageModify";
+import { themeModify } from "../utils/themeModify";
 
 interface SectionScreenProps {}
 
 const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
+  const [theme] = useGetThemeQuery();
+  const [language] = useGetLanguageQuery();
   const {
     courseId,
     categoryUrl,
@@ -133,7 +139,10 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
           {isOwn.data?.isOwn ? (
             <PayButtonText>Go to Course</PayButtonText>
           ) : (
-            <PayButtonText>Buy Now - {data?.course?.price}</PayButtonText>
+            <PayButtonText>
+              {languageModify("Buy Now", language.data?.getLanguage)} -{" "}
+              {data?.course?.price}
+            </PayButtonText>
           )}
         </TouchableOpacity>
       </AnimatedPayButton>
@@ -146,7 +155,11 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
           }
         }}
       >
-        <Container>
+        <Container
+          style={{
+            backgroundColor: themeModify("#f0f3f5", theme.data?.getTheme),
+          }}
+        >
           <StatusBar hidden />
           <Cover>
             <Image source={banner} />
@@ -226,7 +239,8 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                     <PayButtonText>Go to Course</PayButtonText>
                   ) : (
                     <PayButtonText>
-                      Buy Now - {data?.course?.price}
+                      {languageModify("Buy Now", language.data?.getLanguage)} -{" "}
+                      {data?.course?.price}
                     </PayButtonText>
                   )}
                 </PayButton>
@@ -240,10 +254,22 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                 shadowOpacity: 0.5,
                 shadowRadius: 2,
                 elevation: 3,
+                backgroundColor: themeModify("#ffff", theme.data?.getTheme),
               }}
             >
-              <WrapContainHeader>About this course</WrapContainHeader>
-              <TextContain>
+              <WrapContainHeader
+                style={{ color: themeModify("#000", theme.data?.getTheme) }}
+              >
+                {languageModify(
+                  "About this course",
+                  language.data?.getLanguage
+                )}
+              </WrapContainHeader>
+              <TextContain
+                style={{
+                  color: themeModify("#000", theme.data?.getTheme),
+                }}
+              >
                 {data?.course?.description.slice(
                   0,
                   seeMore.description ? data.course.description.length : 70
@@ -254,7 +280,9 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                   }}
                 >
                   <TextContain style={{ color: "blue" }}>
-                    {seeMore.description ? "" : " see more"}
+                    {seeMore.description
+                      ? ""
+                      : languageModify("see more", language.data?.getLanguage)}
                   </TextContain>
                 </TouchableOpacity>
               </TextContain>
@@ -267,10 +295,26 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                 shadowOpacity: 0.5,
                 shadowRadius: 2,
                 elevation: 3,
+                backgroundColor: themeModify("#ffff", theme.data?.getTheme),
               }}
             >
-              <WrapContainHeader>Skills you will gains</WrapContainHeader>
-              <TextContain>{data?.course?.learnWhat}</TextContain>
+              <WrapContainHeader
+                style={{
+                  color: themeModify("#000", theme.data?.getTheme),
+                }}
+              >
+                {languageModify(
+                  "Skills you will gains",
+                  language.data?.getLanguage
+                )}
+              </WrapContainHeader>
+              <TextContain
+                style={{
+                  color: themeModify("#000", theme.data?.getTheme),
+                }}
+              >
+                {data?.course?.learnWhat}
+              </TextContain>
             </WrapContain>
 
             <WrapContain
@@ -280,21 +324,38 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                 shadowOpacity: 0.5,
                 shadowRadius: 2,
                 elevation: 3,
+                backgroundColor: themeModify("#ffff", theme.data?.getTheme),
               }}
             >
-              <WrapContainHeader>Instructors</WrapContainHeader>
+              <WrapContainHeader
+                style={{
+                  color: themeModify("#000", theme.data?.getTheme),
+                }}
+              >
+                {languageModify("Instructors", language.data?.getLanguage)}
+              </WrapContainHeader>
               <Instructor>
                 <InstructorAva
                   source={{ uri: instructor.data?.instructor.avatar }}
                 />
                 <InstructorDetail>
-                  <TextContain style={{ fontWeight: "700", fontSize: 18 }}>
+                  <TextContain
+                    style={{
+                      color: themeModify("#000", theme.data?.getTheme),
+                      fontWeight: "700",
+                      fontSize: 18,
+                    }}
+                  >
                     {instructor.data?.instructor.username}
                   </TextContain>
                   <TextContain style={{ color: "#777373" }}>
                     {instructor.data?.instructor.instructor?.major}
                   </TextContain>
-                  <TextContain>
+                  <TextContain
+                    style={{
+                      color: themeModify("#000", theme.data?.getTheme),
+                    }}
+                  >
                     {instructor.data?.instructor.instructor?.intro.slice(
                       0,
                       seeMore.instructor
@@ -307,7 +368,12 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                       }}
                     >
                       <TextContain style={{ color: "blue" }}>
-                        {seeMore.instructor ? "" : " see more"}
+                        {seeMore.instructor
+                          ? ""
+                          : languageModify(
+                              "see more",
+                              language.data?.getLanguage
+                            )}
                       </TextContain>
                     </TouchableOpacity>
                   </TextContain>
@@ -322,10 +388,23 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                 shadowOpacity: 0.5,
                 shadowRadius: 2,
                 elevation: 3,
+                backgroundColor: themeModify("#ffff", theme.data?.getTheme),
               }}
             >
-              <WrapContainHeader>Requirement</WrapContainHeader>
-              <TextContain>{data?.course?.requirement}</TextContain>
+              <WrapContainHeader
+                style={{
+                  color: themeModify("#000", theme.data?.getTheme),
+                }}
+              >
+                {languageModify("Requirement", language.data?.getLanguage)}
+              </WrapContainHeader>
+              <TextContain
+                style={{
+                  color: themeModify("#000", theme.data?.getTheme),
+                }}
+              >
+                {data?.course?.requirement}
+              </TextContain>
             </WrapContain>
 
             <SectionContain>
@@ -333,9 +412,13 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                 style={{
                   marginTop: 20,
                   marginBottom: 20,
+                  color: themeModify("#000", theme.data?.getTheme),
                 }}
               >
-                What you will learn in this course
+                {languageModify(
+                  "What you will learn in this course",
+                  language.data?.getLanguage
+                )}
               </WrapContainHeader>
               {data?.course?.section.map((section, index) => {
                 return (
@@ -366,12 +449,15 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                 style={{
                   marginTop: 20,
                   marginBottom: 5,
+                  color: themeModify("#000", theme.data?.getTheme),
                 }}
               >
-                Top review
+                {languageModify("Top review", language.data?.getLanguage)}
               </WrapContainHeader>
               <RateContainer>
-                <Rate style={{ color: "#000" }}>
+                <Rate
+                  style={{ color: themeModify("#000", theme.data?.getTheme) }}
+                >
                   {data?.course?.rateNumber! / 2}
                 </Rate>
                 {useRate(data?.course?.rateNumber! / 2)}
@@ -386,20 +472,38 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                       shadowOpacity: 0.5,
                       shadowRadius: 2,
                       elevation: 3,
+                      backgroundColor: themeModify(
+                        "#ffff",
+                        theme.data?.getTheme
+                      ),
                     }}
                   >
                     <Instructor>
                       <InstructorAva source={{ uri: feed.user.avatar }} />
                       <InstructorDetail>
                         <TextContain
-                          style={{ fontWeight: "700", fontSize: 18 }}
+                          style={{
+                            fontWeight: "700",
+                            fontSize: 18,
+                            color: themeModify("#000", theme.data?.getTheme),
+                          }}
                         >
                           {feed.user.username}
                         </TextContain>
-                        <TextContain style={{ color: "#777373" }}>
+                        <TextContain
+                          style={{
+                            color: themeModify("#777373", theme.data?.getTheme),
+                          }}
+                        >
                           {useRate(feed.rate / 2)}
                         </TextContain>
-                        <TextContain>{feed.content}</TextContain>
+                        <TextContain
+                          style={{
+                            color: themeModify("#000", theme.data?.getTheme),
+                          }}
+                        >
+                          {feed.content}
+                        </TextContain>
                       </InstructorDetail>
                     </Instructor>
                   </WrapContain>
@@ -408,7 +512,14 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
               {feedBacks.data?.feedBacks.hasMore ? (
                 <TouchableOpacity style={{ width: "100%" }} onPress={() => {}}>
                   <FeedBackHasMore>
-                    <Text style={{ fontSize: 20 }}>See more</Text>
+                    <Text
+                      style={{
+                        color: themeModify("#fff", theme.data?.getTheme),
+                        fontSize: 20,
+                      }}
+                    >
+                      See more
+                    </Text>
                   </FeedBackHasMore>
                 </TouchableOpacity>
               ) : null}

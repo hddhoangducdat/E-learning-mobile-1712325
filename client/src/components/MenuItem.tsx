@@ -1,18 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+import { useGetThemeQuery } from "../generated/graphql";
+import { themeModify } from "../utils/themeModify";
 
 interface menuItem {
   icon: string;
   title: string;
   text?: string;
+  data?: boolean;
 }
 
 const MenuItem = (props: menuItem) => {
-  const [isEnabled, setIsEnabled] = useState(true);
+  const [isEnabled, setIsEnabled] = useState(false);
   const toggleSwitch = () => setIsEnabled(!isEnabled);
+  const [{ data }] = useGetThemeQuery();
+
+  useEffect(() => {
+    if (props.data !== undefined) setIsEnabled(props.data);
+  }, [props.data]);
+
   return (
     <Container>
       <IconView>
@@ -29,13 +38,33 @@ const MenuItem = (props: menuItem) => {
         )}
       </IconView>
       <Content>
-        <Title>{props.title}</Title>
+        <Title
+          style={{
+            color: themeModify("#3c4560", data?.getTheme),
+          }}
+        >
+          {props.title}
+        </Title>
         {props.icon === "language" || props.icon === "theme-light-dark" ? (
           <View>
             {props.icon === "language" ? (
-              <Text>{isEnabled ? "Vietnames" : "English"}</Text>
+              <Text
+                style={{
+                  color: themeModify("#3c4560", data?.getTheme),
+                  marginRight: 10,
+                }}
+              >
+                {isEnabled ? "Vietnames" : "English"}
+              </Text>
             ) : (
-              <Text>{isEnabled ? "dark" : "light"}</Text>
+              <Text
+                style={{
+                  color: themeModify("#3c4560", data?.getTheme),
+                  marginRight: 10,
+                }}
+              >
+                {isEnabled ? "dark" : "light"}
+              </Text>
             )}
 
             <Switch
@@ -47,7 +76,9 @@ const MenuItem = (props: menuItem) => {
             ></Switch>
           </View>
         ) : (
-          <Text>{props.text}</Text>
+          <Text style={{ color: themeModify("#3c4560", data?.getTheme) }}>
+            {props.text}
+          </Text>
         )}
       </Content>
     </Container>

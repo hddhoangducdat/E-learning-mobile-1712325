@@ -26,6 +26,13 @@ import {
   QuestionsDocument,
   PurchaseMutationVariables,
   useIsOwnQuery,
+  ChangeLanguageMutation,
+  GetLanguageQuery,
+  GetLanguageDocument,
+  ChangeThemeMutation,
+  GetThemeQuery,
+  GetThemeDocument,
+  useGetThemeQuery,
   // RegisterMutation, LogoutMutation, VoteMutationVariables, DeletePostMutationVariables,
 } from "../generated/graphql";
 import { pipe, tap } from "wonka";
@@ -113,7 +120,7 @@ export const createUrqlClient = () => {
   //   cookie = ctx?.req?.headers?.cookie;
   // }
   return createClient({
-    url: "http://192.168.1.61:4000/graphql",
+    url: "http://192.168.7.114:4000/graphql",
     fetchOptions: {
       credentials: "include",
       headers: cookie
@@ -135,6 +142,30 @@ export const createUrqlClient = () => {
         },
         updates: {
           Mutation: {
+            changeTheme: (_result, _args, cache, _info) => {
+              betterUpdateQuery<ChangeThemeMutation, GetThemeQuery>(
+                cache,
+                { query: GetThemeDocument },
+                _result,
+                (result, query) => {
+                  return {
+                    getTheme: result.changeTheme,
+                  };
+                }
+              );
+            },
+            changeLanguage: (_result, _args, cache, _info) => {
+              betterUpdateQuery<ChangeLanguageMutation, GetLanguageQuery>(
+                cache,
+                { query: GetLanguageDocument },
+                _result,
+                (result, query) => {
+                  return {
+                    getLanguage: result.changeLanguage,
+                  };
+                }
+              );
+            },
             postQuestion: (_result, _args, cache, _info) => {
               invalidateAllQuestions(cache);
             },
@@ -187,7 +218,6 @@ export const createUrqlClient = () => {
                 _result,
                 (result, query) => {
                   const {
-                    email,
                     phone,
                     username,
                   } = args as UpdateUserMutationVariables;
@@ -196,7 +226,6 @@ export const createUrqlClient = () => {
                     return {
                       me: {
                         ...me,
-                        email,
                         username,
                         phone,
                       } as User,

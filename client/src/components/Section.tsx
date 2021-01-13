@@ -2,11 +2,19 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useLessonsQuery } from "../generated/graphql";
+import {
+  useGetLanguageQuery,
+  useGetThemeQuery,
+  useLessonsQuery,
+} from "../generated/graphql";
 import { Animated } from "react-native";
 import { Entypo } from "@expo/vector-icons";
+import { languageModify } from "../utils/languageModify";
+import { themeModify } from "../utils/themeModify";
 
 const Section = (props: any) => {
+  const [theme] = useGetThemeQuery();
+  const [language] = useGetLanguageQuery();
   const [open, setOpen] = useState("close");
   const height = useRef(new Animated.Value(0)).current;
   const [{ data }] = useLessonsQuery({
@@ -58,8 +66,17 @@ const Section = (props: any) => {
         onPress={() => setOpen(open === "open" ? "close" : "open")}
       >
         <SectionWrap>
-          <Week>Week {" " + props.stt}</Week>
-          <Text>{props.section.name}</Text>
+          <Week>
+            {languageModify("Week", language.data?.getLanguage)}
+            {" " + props.stt}
+          </Week>
+          <Text
+            style={{
+              color: themeModify("#000", theme.data?.getTheme),
+            }}
+          >
+            {props.section.name}
+          </Text>
           {open === "close" ? (
             <Ionicons
               style={{
@@ -99,12 +116,34 @@ const Section = (props: any) => {
                 }
               >
                 <LessonWrap>
-                  <LessonOrder>{index + 1}</LessonOrder>
+                  <LessonOrder
+                    style={{
+                      color: themeModify("#000", theme.data?.getTheme),
+                    }}
+                  >
+                    {index + 1}
+                  </LessonOrder>
                   <LessonDetail>
-                    <LessonName>{lesson.name}</LessonName>
+                    <LessonName
+                      style={{
+                        color: themeModify("#000", theme.data?.getTheme),
+                      }}
+                    >
+                      {lesson.name}
+                    </LessonName>
                     <TagIntro>
-                      <Entypo name="back-in-time" size={10} color="black" />
-                      <Text style={{ fontSize: 10, marginLeft: 5 }}>
+                      <Entypo
+                        name="back-in-time"
+                        size={10}
+                        color={themeModify("#000", theme.data?.getTheme)}
+                      />
+                      <Text
+                        style={{
+                          color: themeModify("#000", theme.data?.getTheme),
+                          fontSize: 10,
+                          marginLeft: 5,
+                        }}
+                      >
                         {msToTime(lesson.times) + " hours"}
                       </Text>
                     </TagIntro>

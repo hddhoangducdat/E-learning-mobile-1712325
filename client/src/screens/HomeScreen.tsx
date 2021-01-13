@@ -22,11 +22,17 @@ import {
   useMeQuery,
   useCategoriesQuery,
   useCoursesQuery,
+  useGetLanguageQuery,
+  useGetThemeQuery,
 } from "../generated/graphql";
 import ReverseCourse from "../components/ReverseCourse";
 import PopUpNoti from "../components/PopUpNoti";
+import { languageModify } from "../utils/languageModify";
+import { themeModify } from "../utils/themeModify";
 
 const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
+  const [theme] = useGetThemeQuery();
+  const [language] = useGetLanguageQuery();
   const dispatch = useDispatch();
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
@@ -110,6 +116,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
         style={{
           transform: [{ scale }],
           opacity,
+          backgroundColor: themeModify("#f0f3f5", theme.data?.getTheme),
         }}
       >
         <SafeAreaView>
@@ -133,8 +140,16 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
               </TouchableOpacity>
               {data?.me ? (
                 <>
-                  <Title>Welcome back,</Title>
-                  <Name>{data.me.username}</Name>
+                  <Title style={{}}>
+                    {languageModify("Welcome back", language.data?.getLanguage)}
+                  </Title>
+                  <Name
+                    style={{
+                      color: themeModify("#3c4560", theme.data?.getTheme),
+                    }}
+                  >
+                    {data.me.username}
+                  </Name>
                 </>
               ) : (
                 <>
@@ -165,7 +180,12 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                 );
               })}
             </ScrollView>
-            <Subtitle>Most Popular Courses</Subtitle>
+            <Subtitle>
+              {languageModify(
+                "Most Popular Courses",
+                language.data?.getLanguage
+              )}
+            </Subtitle>
 
             <ScrollView
               horizontal={true}
@@ -216,7 +236,9 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                 <MaterialIcons name="navigate-next" size={50} color="white" />
               </MoreView>
             </ScrollView>
-            <Subtitle>Top rated courses</Subtitle>
+            <Subtitle>
+              {languageModify("Top rated courses", language.data?.getLanguage)}
+            </Subtitle>
             <ScrollView
               horizontal={true}
               style={{ paddingBottom: 30, height: 350 }}
@@ -263,9 +285,15 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
             </ScrollView>
 
             <HeaderContainer>
-              <Subtitle>Our new courses</Subtitle>
+              <Subtitle>
+                {languageModify("Our new courses", language.data?.getLanguage)}
+              </Subtitle>
               <TouchableOpacity>
-                <More>See all</More>
+                <More
+                  style={{ color: themeModify("#000", theme.data?.getTheme) }}
+                >
+                  {languageModify("See all", language.data?.getLanguage)}
+                </More>
               </TouchableOpacity>
             </HeaderContainer>
             {newestCourses.data?.courses.courses.map((course, index) => (
@@ -338,7 +366,6 @@ const Avatar = styled.Image`
 
 const Container = styled.View`
   flex: 1;
-  background-color: #f0f3f5;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 `;

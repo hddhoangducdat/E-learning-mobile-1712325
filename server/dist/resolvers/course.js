@@ -26,7 +26,6 @@ const StudentCourse_1 = require("../entities/StudentCourse");
 const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const Course_1 = require("../entities/Course");
-const FieldError_1 = require("./FieldError");
 const Category_1 = require("../entities/Category");
 let PaginatedCourse = class PaginatedCourse {
 };
@@ -41,19 +40,6 @@ __decorate([
 PaginatedCourse = __decorate([
     type_graphql_1.ObjectType()
 ], PaginatedCourse);
-let PayCourseResponse = class PayCourseResponse {
-};
-__decorate([
-    type_graphql_1.Field(() => StudentCourse_1.StudentCourse, { nullable: true }),
-    __metadata("design:type", StudentCourse_1.StudentCourse)
-], PayCourseResponse.prototype, "bill", void 0);
-__decorate([
-    type_graphql_1.Field(() => [FieldError_1.FieldError], { nullable: true }),
-    __metadata("design:type", Array)
-], PayCourseResponse.prototype, "errors", void 0);
-PayCourseResponse = __decorate([
-    type_graphql_1.ObjectType()
-], PayCourseResponse);
 let CourseResolver = class CourseResolver {
     title(course, { req, translate }) {
         return __awaiter(this, void 0, void 0, function* () {

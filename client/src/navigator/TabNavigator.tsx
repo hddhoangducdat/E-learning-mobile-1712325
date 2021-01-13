@@ -11,6 +11,8 @@ import { useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useGetLanguageQuery, useGetThemeQuery } from "../generated/graphql";
+import { themeModify } from "../utils/themeModify";
 
 interface TabsNavigatorProps {}
 
@@ -20,6 +22,8 @@ export const TabsNavigator: React.FC<TabsNavigatorProps> = ({}) => {
   const tabBarVisible: Boolean = useSelector(
     (state: ReduxReducers) => state!.tabBarVisible
   );
+  const [theme] = useGetThemeQuery();
+  const [language] = useGetLanguageQuery();
 
   return (
     <Tabs.Navigator
@@ -41,11 +45,12 @@ export const TabsNavigator: React.FC<TabsNavigatorProps> = ({}) => {
         activeTintColor: "#4775f2",
         inactiveTintColor: "#b8bece",
         style: {
-          shadowColor: "#000",
+          shadowColor: themeModify("#000", theme.data?.getTheme),
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.5,
           shadowRadius: 2,
           elevation: 7,
+          backgroundColor: themeModify("#ffff", theme.data?.getTheme),
         },
       }}
     >

@@ -4,13 +4,14 @@ import { MyContext } from "../types";
 export class SettingResolver {
   @Mutation(() => String)
   changeLanguage(@Arg("language") language: string, @Ctx() { req }: MyContext) {
+    console.log(req.session.language);
     req.session.language = language;
     return req.session.language;
   }
 
   @Query(() => String)
   getLanguage(@Ctx() { req }: MyContext) {
-    return req.session.language ? req.session.language : "english";
+    return req.session.language ? req.session.language : "en";
   }
 
   @Mutation(() => String)

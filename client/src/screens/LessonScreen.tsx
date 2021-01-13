@@ -7,19 +7,21 @@ import { Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { HomeStackNavProps } from "../utils/params";
-import { useLessonQuery } from "../generated/graphql";
+import { useGetLanguageQuery, useLessonQuery } from "../generated/graphql";
 import WebView from "react-native-webview";
 import { ImageBackground } from "react-native";
 import Overview from "../components/Overview";
 import Forum from "../components/Forum";
 import AssignmentScreen from "./AssignmentScreen";
 import VideoRendering from "../components/VideoRendering";
+import { languageModify } from "../utils/languageModify";
 
 interface CoursesScreenProps {}
 
 let screenWidth = Dimensions.get("window").width;
 
 const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
+  const [language] = useGetLanguageQuery();
   const { lessonId, categoryUrl, week, lessonStt }: any = route.params;
   const [{ data }] = useLessonQuery({
     variables: {
@@ -92,7 +94,9 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
                 }}
               >
                 <Tab style={{ marginTop: 8 }}>
-                  <TabText>{name}</TabText>
+                  <TabText>
+                    {languageModify(name, language.data?.getLanguage)}
+                  </TabText>
                 </Tab>
                 {active ? (
                   <Border
