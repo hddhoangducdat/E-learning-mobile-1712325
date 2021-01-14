@@ -1,3 +1,9 @@
 mutation Purchase($courseId: Float!) {
-  purchase(courseId: $courseId)
+  purchase(courseId: $courseId) {
+    id
+    title
+    subtitle
+    rateNumber
+    imageUrl
+  }
 }

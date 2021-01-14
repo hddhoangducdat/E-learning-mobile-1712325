@@ -4,15 +4,15 @@ import styled from "styled-components/native";
 import { ImageSourcePropType } from "react-native";
 
 interface CourseSectionProps {
-  image: ImageSourcePropType;
+  image: string;
   title: string;
-  progress: number;
+  id: number;
 }
 
-const CourseSection = ({ image, title, progress }: CourseSectionProps) => (
+const CourseSection = ({ id, image, title }: CourseSectionProps) => (
   <Container>
     <Mask>
-      <Image source={image} />
+      <Image source={{ uri: image }} />
       {/* <LinearGradient
         colors={["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.5)"]}
         style={{
@@ -34,8 +34,8 @@ const CourseSection = ({ image, title, progress }: CourseSectionProps) => (
         }}
       /> */}
       <Border />
-      <Text>{title}</Text>
     </Mask>
+    <Text>{title}</Text>
   </Container>
 );
 
@@ -65,8 +65,8 @@ const Image = styled.Image`
 
 const Text = styled.Text`
   font-size: 15px;
-  font-weight: 600;
-  color: white;
+  font-weight: 700;
+  color: black;
   margin: 16px;
 `;
 

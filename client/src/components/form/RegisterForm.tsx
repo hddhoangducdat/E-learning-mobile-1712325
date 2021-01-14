@@ -3,11 +3,13 @@ import React, { useState } from "react";
 import { Keyboard, TouchableOpacity } from "react-native";
 import { useDispatch } from "react-redux";
 import styled from "styled-components/native";
-import { TRIGGER_TAB_BAR } from "../../../types";
+import { TRIGGER_NOTI, TRIGGER_TAB_BAR } from "../../../types";
 import {
   usePurchaseMutation,
   useRegisterMutation,
 } from "../../generated/graphql";
+import { toErrorMap } from "../../utils/toErrorMap";
+import PopUpNoti from "../PopUpNoti";
 interface RegisterFormProps {
   isCourse?: number;
 }
@@ -37,6 +39,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ isCourse }) => {
   };
 
   const [, register] = useRegisterMutation();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const dispatch = useDispatch();
 
   return (
@@ -53,12 +56,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ isCourse }) => {
           },
         });
         if (response?.data) {
-          if (!isCourse) {
-            dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          if (response.data.register.errors) {
+            setErrors(toErrorMap(response.data.register.errors));
           } else {
-            purchase({
-              courseId: isCourse,
-            });
+            setErrors({});
+            dispatch({ type: TRIGGER_TAB_BAR, payload: false });
+            if (isCourse) {
+              purchase({
+                courseId: isCourse,
+              });
+            }
           }
         }
         // console.log(response.data);
@@ -75,30 +82,48 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ isCourse }) => {
             placeholder="Email"
             keyboardType="email-address"
             onFocus={focusEmail}
+            style={{ borderColor: errors["email"] ? "red" : "#3c4560" }}
           />
           <IconEmail source={iconEmail} />
+          {errors["email"] ? (
+            <ValidationText>{errors["email"]}</ValidationText>
+          ) : null}
+
           <TextInput
             onChangeText={handleChange("password")}
             value={values.password}
             placeholder="Password"
             secureTextEntry={true}
             onFocus={focusPassword}
+            style={{ borderColor: errors["password"] ? "red" : "#3c4560" }}
           />
           <IconPassword source={iconPassword} />
+          {errors["password"] ? (
+            <ValidationText>{errors["password"]}</ValidationText>
+          ) : null}
+
           <TextInput
             onChangeText={handleChange("username")}
             value={values.username}
             placeholder="Username"
             onFocus={focusEmail}
+            style={{ borderColor: errors["username"] ? "red" : "#3c4560" }}
           />
-          {/* <IconEmail source={iconEmail} /> */}
+          {errors["username"] ? (
+            <ValidationText>{errors["username"]}</ValidationText>
+          ) : null}
+
           <TextInput
             onChangeText={handleChange("phone")}
             value={values.phone}
             placeholder="Phone"
             onFocus={focusEmail}
+            style={{ borderColor: errors["phone"] ? "red" : "#3c4560" }}
           />
-          {/* <IconEmail source={iconEmail} /> */}
+          {errors["phone"] ? (
+            <ValidationText>{errors["phone"]}</ValidationText>
+          ) : null}
+
           <TouchableOpacity onPress={() => handleSubmit()}>
             <ButtonView>
               <ButtonText>Sign up</ButtonText>
@@ -111,6 +136,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ isCourse }) => {
 };
 
 export default RegisterForm;
+
+const ValidationText = styled.Text`
+  color: red;
+`;
 
 const IconEmail = styled.Image`
   width: 24px;
@@ -134,7 +163,6 @@ const TextInput = styled.TextInput`
   height: 44px;
   border-radius: 10px;
   font-size: 17px;
-  color: #3c4560;
   padding-left: 44px;
   margin-top: 20px;
 `;

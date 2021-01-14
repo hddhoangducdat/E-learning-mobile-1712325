@@ -17,7 +17,6 @@ import Logo from "../components/Logo";
 import Menu from "../components/Menu";
 import { HomeStackNavProps } from "../utils/params";
 import AuthForm from "../components/form/AuthForm";
-import NotificationButton from "../components/NotificationButton";
 import {
   useMeQuery,
   useCategoriesQuery,
@@ -29,6 +28,8 @@ import ReverseCourse from "../components/ReverseCourse";
 import PopUpNoti from "../components/PopUpNoti";
 import { languageModify } from "../utils/languageModify";
 import { themeModify } from "../utils/themeModify";
+import ActivateButton from "../components/ActivateButton";
+import ActivateForm from "../components/form/ActivateForm";
 
 const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
   const [theme] = useGetThemeQuery();
@@ -108,8 +109,11 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
     }
   };
 
+  const [activate, setActivate] = useState(false);
+
   return (
     <RootView>
+      <ActivateForm activate={activate} setActivate={setActivate} />
       <Menu me={data!} />
       {openAuthForm ? <AuthForm setOpenAuthForm={setOpenAuthForm} /> : null}
       <AnimatedContainer
@@ -157,14 +161,13 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                 </>
               )}
 
-              <NotificationButton />
+              <ActivateButton setActivate={setActivate} />
             </TitleBar>
             <ScrollView
               style={{
                 flexDirection: "row",
-                padding: 20,
-                paddingLeft: 12,
                 paddingTop: 30,
+                marginLeft: 15,
                 height: 115,
               }}
               horizontal={true}

@@ -5,6 +5,7 @@ import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import { useDispatch } from "react-redux";
 import { TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../../types";
+import ForgotPasswordForm from "./ForgotPasswordForm";
 interface AuthProps {
   setOpenAuthForm: React.Dispatch<React.SetStateAction<boolean>>;
   isCourse?: number;
@@ -12,10 +13,11 @@ interface AuthProps {
 
 const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm, isCourse }) => {
   const [form, setForm] = useState(true);
+  const [forgot, setForgot] = useState(false);
   const dispatch = useDispatch();
 
   const theme: DefaultTheme = {
-    form: form ? "400px" : "520px",
+    form: forgot ? "400px" : form ? "400px" : "520px",
   };
 
   return (
@@ -33,6 +35,7 @@ const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm, isCourse }) => {
         <Logo source={require("../../assets/images/logo-dc.png")} />
         <TouchableOpacity
           onPress={() => {
+            setForgot(false);
             setForm(!form);
           }}
         >
@@ -42,11 +45,20 @@ const AuthForm: React.FC<AuthProps> = ({ setOpenAuthForm, isCourse }) => {
             <Text>Already have an account ? SIGN IN here</Text>
           )}
         </TouchableOpacity>
-        {form ? (
+        {forgot ? (
+          <ForgotPasswordForm setForm={setForm} setForgot={setForgot} />
+        ) : form ? (
           <LoginForm isCourse={isCourse} />
         ) : (
           <RegisterForm isCourse={isCourse} />
         )}
+        <TouchableOpacity
+          onPress={() => {
+            setForgot(true);
+          }}
+        >
+          <Text>Forgot Password</Text>
+        </TouchableOpacity>
       </Modal>
     </Container>
   );
@@ -74,7 +86,7 @@ const Container = styled.View`
 
 const Modal = styled.View`
   width: 335px;
-  height: ${(props) => props.theme.form};
+  height: ${(props: any) => props.theme.form};
   border-radius: 20px;
   background: white;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);

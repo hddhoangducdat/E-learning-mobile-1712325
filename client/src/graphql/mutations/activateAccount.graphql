@@ -1,0 +1,5 @@
+mutation ActivateAccount($token: String!) {
+  activateAccount(token: $token) {
+    ...UserResponseFragment
+  }
+}

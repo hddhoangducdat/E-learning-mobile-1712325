@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components/native";
 import { TRIGGER_TAB_BAR } from "../../../types";
 import { useLoginMutation, usePurchaseMutation } from "../../generated/graphql";
+import { toErrorMap } from "../../utils/toErrorMap";
 interface LoginFormProps {
   isCourse?: number;
 }
@@ -32,6 +33,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ isCourse }) => {
   };
 
   const [, purchase] = usePurchaseMutation();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [, login] = useLoginMutation();
   const dispatch = useDispatch();
@@ -44,13 +46,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ isCourse }) => {
           usernameOrEmail: email,
           password: password,
         });
+
         if (response?.data) {
-          if (!isCourse) {
-            dispatch({ type: TRIGGER_TAB_BAR, payload: true });
+          if (response.data.login.errors) {
+            setErrors(toErrorMap(response.data.login.errors));
           } else {
-            purchase({
-              courseId: isCourse,
-            });
+            setErrors({});
+            dispatch({ type: TRIGGER_TAB_BAR, payload: false });
+            if (isCourse) {
+              purchase({
+                courseId: isCourse,
+              });
+            }
           }
         }
         // setOpenAuthForm((value) => {
@@ -63,19 +70,29 @@ const LoginForm: React.FC<LoginFormProps> = ({ isCourse }) => {
           <TextInput
             onChangeText={handleChange("email")}
             value={values.email}
-            placeholder="Username or Email"
+            placeholder="Email Adress"
             keyboardType="email-address"
             onFocus={focusEmail}
+            style={{ borderColor: errors["email"] ? "red" : "#3c4560" }}
           />
           <IconEmail source={iconEmail} />
+          {errors["email"] ? (
+            <ValidationText>{errors["email"]}</ValidationText>
+          ) : null}
+
           <TextInput
             onChangeText={handleChange("password")}
             value={values.password}
             placeholder="Password"
             secureTextEntry={true}
             onFocus={focusPassword}
+            style={{ borderColor: errors["password"] ? "red" : "#3c4560" }}
           />
           <IconPassword source={iconPassword} />
+          {errors["password"] ? (
+            <ValidationText>{errors["password"]}</ValidationText>
+          ) : null}
+
           <TouchableOpacity onPress={() => handleSubmit()}>
             <ButtonView>
               <ButtonText>Log in</ButtonText>
@@ -88,6 +105,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ isCourse }) => {
 };
 
 export default LoginForm;
+
+const ValidationText = styled.Text`
+  color: red;
+`;
 
 const IconEmail = styled.Image`
   width: 24px;

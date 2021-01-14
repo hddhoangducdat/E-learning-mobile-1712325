@@ -1,0 +1,3 @@
+mutation RequestActivate($email: String!, $token: String!) {
+  requestActivate(email: $email, token: $token)
+}

@@ -23,6 +23,7 @@ export type Query = {
   isOwn: Scalars['Boolean'];
   course?: Maybe<Course>;
   courses: PaginatedCourse;
+  myCourse?: Maybe<Array<Course>>;
   categories: Array<Category>;
   feedBacks: PaginatedFeedBack;
   reports: PaginatedReport;
@@ -321,7 +322,7 @@ export type Mutation = {
   forgotPassword: Scalars['Boolean'];
   requestActivate: Scalars['Boolean'];
   becomeOrUpdateInstructor: UserResponse;
-  purchase: Scalars['Boolean'];
+  purchase?: Maybe<Course>;
   track: TrackingResponse;
   postQuestion: Question;
   postReplyQuestion: Question;
@@ -457,7 +458,7 @@ export type QuestionFragmentFragment = (
 
 export type UserFragmentFragment = (
   { __typename?: 'User' }
-  & Pick<User, 'id' | 'username' | 'email' | 'avatar' | 'phone'>
+  & Pick<User, 'id' | 'username' | 'email' | 'avatar' | 'phone' | 'isActivated'>
   & { instructor?: Maybe<(
     { __typename?: 'Instructor' }
     & InstructorFragmentFragment
@@ -473,6 +474,19 @@ export type UserResponseFragmentFragment = (
     { __typename?: 'User' }
     & UserFragmentFragment
   )> }
+);
+
+export type ActivateAccountMutationVariables = Exact<{
+  token: Scalars['String'];
+}>;
+
+
+export type ActivateAccountMutation = (
+  { __typename?: 'Mutation' }
+  & { activateAccount: (
+    { __typename?: 'UserResponse' }
+    & UserResponseFragmentFragment
+  ) }
 );
 
 export type BecomeOrUpdateInstructorMutationVariables = Exact<{
@@ -592,7 +606,10 @@ export type PurchaseMutationVariables = Exact<{
 
 export type PurchaseMutation = (
   { __typename?: 'Mutation' }
-  & Pick<Mutation, 'purchase'>
+  & { purchase?: Maybe<(
+    { __typename?: 'Course' }
+    & Pick<Course, 'id' | 'title' | 'subtitle' | 'rateNumber' | 'imageUrl'>
+  )> }
 );
 
 export type RegisterMutationVariables = Exact<{
@@ -606,6 +623,17 @@ export type RegisterMutation = (
     { __typename?: 'UserResponse' }
     & UserResponseFragmentFragment
   ) }
+);
+
+export type RequestActivateMutationVariables = Exact<{
+  email: Scalars['String'];
+  token: Scalars['String'];
+}>;
+
+
+export type RequestActivateMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'requestActivate'>
 );
 
 export type UpdateUserMutationVariables = Exact<{
@@ -800,6 +828,17 @@ export type MeQuery = (
   )> }
 );
 
+export type MyCourseQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyCourseQuery = (
+  { __typename?: 'Query' }
+  & { myCourse?: Maybe<Array<(
+    { __typename?: 'Course' }
+    & Pick<Course, 'id' | 'title' | 'subtitle' | 'rateNumber' | 'imageUrl'>
+  )>> }
+);
+
 export type QuestionsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['DateTime']>;
@@ -853,6 +892,7 @@ export const UserFragmentFragmentDoc = gql`
   email
   avatar
   phone
+  isActivated
   instructor {
     ...InstructorFragment
   }
@@ -886,6 +926,17 @@ export const UserResponseFragmentFragmentDoc = gql`
 }
     ${ErrorFragmentFragmentDoc}
 ${UserFragmentFragmentDoc}`;
+export const ActivateAccountDocument = gql`
+    mutation ActivateAccount($token: String!) {
+  activateAccount(token: $token) {
+    ...UserResponseFragment
+  }
+}
+    ${UserResponseFragmentFragmentDoc}`;
+
+export function useActivateAccountMutation() {
+  return Urql.useMutation<ActivateAccountMutation, ActivateAccountMutationVariables>(ActivateAccountDocument);
+};
 export const BecomeOrUpdateInstructorDocument = gql`
     mutation BecomeOrUpdateInstructor($major: String!, $intro: String!) {
   becomeOrUpdateInstructor(major: $major, intro: $intro) {
@@ -983,7 +1034,13 @@ export function usePostReplyQuestionMutation() {
 };
 export const PurchaseDocument = gql`
     mutation Purchase($courseId: Float!) {
-  purchase(courseId: $courseId)
+  purchase(courseId: $courseId) {
+    id
+    title
+    subtitle
+    rateNumber
+    imageUrl
+  }
 }
     `;
 
@@ -1000,6 +1057,15 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const RequestActivateDocument = gql`
+    mutation RequestActivate($email: String!, $token: String!) {
+  requestActivate(email: $email, token: $token)
+}
+    `;
+
+export function useRequestActivateMutation() {
+  return Urql.useMutation<RequestActivateMutation, RequestActivateMutationVariables>(RequestActivateDocument);
 };
 export const UpdateUserDocument = gql`
     mutation UpdateUser($username: String!, $phone: String!) {
@@ -1225,6 +1291,21 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const MyCourseDocument = gql`
+    query MyCourse {
+  myCourse {
+    id
+    title
+    subtitle
+    rateNumber
+    imageUrl
+  }
+}
+    `;
+
+export function useMyCourseQuery(options: Omit<Urql.UseQueryArgs<MyCourseQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MyCourseQuery>({ query: MyCourseDocument, ...options });
 };
 export const QuestionsDocument = gql`
     query Questions($limit: Int!, $cursor: DateTime, $lessonId: Int!) {

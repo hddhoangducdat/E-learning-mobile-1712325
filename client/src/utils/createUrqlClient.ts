@@ -33,6 +33,7 @@ import {
   GetThemeQuery,
   GetThemeDocument,
   useGetThemeQuery,
+  ActivateAccountMutation,
   // RegisterMutation, LogoutMutation, VoteMutationVariables, DeletePostMutationVariables,
 } from "../generated/graphql";
 import { pipe, tap } from "wonka";
@@ -89,6 +90,14 @@ const cusorPagination = (query: string): Resolver => {
     };
   };
 };
+
+function invalidateMyCourse(cache: Cache) {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((info) => info.fieldName === "myCourse");
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "myCourse", fi.arguments || {});
+  });
+}
 
 function invalidateAllQuestions(cache: Cache) {
   const allFields = cache.inspectFields("Query");
@@ -175,7 +184,20 @@ export const createUrqlClient = () => {
             },
 
             purchase: (_result, _args, cache, _info) => {
-              invalidateIsOwn(cache);
+              betterUpdateQuery<PurchaseMutation, IsOwnQuery>(
+                cache,
+                { query: IsOwnDocument },
+                _result,
+                (result, query) => {
+                  if (result.purchase) {
+                    return { isOwn: true };
+                  } else
+                    return {
+                      isOwn: false,
+                    };
+                }
+              );
+              invalidateMyCourse(cache);
             },
 
             login: (_result, _args, cache, _info) => {
@@ -228,6 +250,27 @@ export const createUrqlClient = () => {
                         ...me,
                         username,
                         phone,
+                      } as User,
+                    };
+                  } else {
+                    return query;
+                  }
+                }
+              );
+            },
+
+            activateAccount: (_result, args, cache, _info) => {
+              betterUpdateQuery<ActivateAccountMutation, MeQuery>(
+                cache,
+                { query: MeDocument },
+                _result,
+                (result, query) => {
+                  if (result.activateAccount) {
+                    const me = query.me;
+                    return {
+                      me: {
+                        ...me,
+                        isActivated: true,
                       } as User,
                     };
                   } else {

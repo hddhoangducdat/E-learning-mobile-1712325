@@ -14,6 +14,7 @@ const Logo = (props: any) => {
         shadowRadius: 2,
         elevation: 5,
         backgroundColor: themeModify("#ffff", theme.data?.getTheme),
+        marginRight: 10,
       }}
     >
       <Image source={{ uri: props.image }} resizeMode="contain" />
@@ -25,12 +26,12 @@ const Logo = (props: any) => {
 };
 
 const Container = styled.View`
-  padding: 12px 16px 12px;
+  padding: 12px 16px 12px 16px;
   height: 60px;
   border-radius: 10px;
   flex-direction: row;
   align-items: center;
-  margin: 0 8px;
+  margin-left: 8px;
 `;
 
 const Image = styled.Image`

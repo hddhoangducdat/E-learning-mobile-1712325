@@ -64,4 +64,5 @@ export const languageModify = (text: string, language?: string): string => {
     }
     return result;
   }
+  return text;
 };

@@ -5,6 +5,7 @@ import CourseSection from "../components/CourseSection";
 import Courses from "../components/Courses";
 import { AsyncStorage, Dimensions } from "react-native";
 import { Video } from "expo-av";
+import { useMeQuery, useMyCourseQuery } from "../generated/graphql";
 
 interface CoursesScreenProps {}
 
@@ -12,6 +13,8 @@ const navigationOptions = { title: "Courses", header: null };
 let screenWidth = Dimensions.get("window").width;
 
 const CoursesScreen = ({}) => {
+  const [{ data }] = useMyCourseQuery();
+  const [me] = useMeQuery();
   const [downloaded, setDownloaded] = useState<any[]>([]);
   useEffect(() => {
     AsyncStorage.getAllKeys().then((keys) => {
@@ -26,6 +29,8 @@ const CoursesScreen = ({}) => {
     });
   }, []);
 
+  if (!me.data?.me) return null;
+
   return (
     <Container>
       <ScrollView>
@@ -35,27 +40,25 @@ const CoursesScreen = ({}) => {
             colors={["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.5)"]}
             style={{ position: "absolute", width: screenWidth, height: 460 }}
           /> */}
-          <Logo source={require("../assets/images/logo-react.png")} />
-          <Caption>12 Sections</Caption>
-          <Title>React Native for Designers</Title>
+          <Title style={{ marginTop: 50 }}>My Courses</Title>
           <Sections>
             <SectionScrollView
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             >
-              {sections.map((section, index) => (
+              {data?.myCourse!.map((course, index) => (
                 <CourseSection
                   key={index}
-                  title={section.title}
-                  image={section.image}
-                  progress={section.progress}
+                  id={course.id}
+                  title={course.title}
+                  image={course.imageUrl}
                 />
               ))}
             </SectionScrollView>
           </Sections>
           <Author>
-            <Avatar source={require("../assets/images/avatar.jpg")} />
-            <Name>Taught by Meng To</Name>
+            <Avatar source={{ uri: me.data?.me?.avatar }} />
+            <Name>{me.data.me.username}</Name>
           </Author>
         </Hero>
         <Subtitle>Latest Courses</Subtitle>
@@ -97,7 +100,7 @@ const ScrollView = styled.ScrollView`
 `;
 
 const Hero = styled.View`
-  height: 460px;
+  height: 340px;
   background: #3c4560;
 `;
 
@@ -106,7 +109,7 @@ const Background = styled.Image`
   top: 0;
   left: 0;
   width: ${screenWidth};
-  height: 460px;
+  height: 340px;
 `;
 
 const Logo = styled.Image`
