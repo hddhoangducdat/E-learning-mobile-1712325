@@ -71,31 +71,65 @@ let LessonResolver = class LessonResolver {
     trackLesson(lessonId, time, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (req.session.userId) {
-                let track;
-                try {
-                    track = yield TrackingLesson_1.TrackingLesson.create({
+                let track = yield TrackingLesson_1.TrackingLesson.findOne({
+                    where: {
                         userId: req.session.userId,
                         lessonId,
+                    },
+                });
+                if (track) {
+                    yield TrackingLesson_1.TrackingLesson.update({
+                        userId: req.session.userId,
+                        lessonId,
+                    }, {
                         time,
-                    }).save();
-                    req.session.lesson = lessonId;
+                    });
+                    track.time = time;
+                    return track;
                 }
-                catch (err) {
-                    return null;
+                else {
+                    try {
+                        track = yield TrackingLesson_1.TrackingLesson.create({
+                            userId: req.session.userId,
+                            lessonId,
+                            time,
+                        }).save();
+                        req.session.lesson = lessonId;
+                    }
+                    catch (err) {
+                        return null;
+                    }
+                    return track;
                 }
-                return track;
             }
             return null;
         });
     }
     latestLesson({ req }) {
-        return Lesson_1.Lesson.findOne(req.session.lessonId, {
-            relations: ["track"],
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.userId)
+                return null;
+            const lesson = yield typeorm_1.getConnection().query(`
+        select * from lesson l
+        left join track_lesson tl tl."lessonId" = l.id and tl."userId" = $1 and tl."lessonId" = $1
+      `, [req.session.userId]);
+            return lesson;
         });
+    }
+    getTrackLesson(lessonId, { req }) {
+        if (req.session.userId) {
+            return TrackingLesson_1.TrackingLesson.findOne({
+                where: {
+                    userId: req.session.userId,
+                    lessonId,
+                },
+            });
+        }
+        return null;
     }
     lesson(lessonId) {
         return Lesson_1.Lesson.findOne(lessonId, {
-            relations: ["resource", "track"],
+            relations: ["resource"],
         });
     }
 };
@@ -151,6 +185,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], LessonResolver.prototype, "latestLesson", null);
+__decorate([
+    type_graphql_1.Query(() => TrackingLesson_1.TrackingLesson, { nullable: true }),
+    __param(0, type_graphql_1.Arg("lessonId", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", void 0)
+], LessonResolver.prototype, "getTrackLesson", null);
 __decorate([
     type_graphql_1.Query(() => Lesson_1.Lesson, { nullable: true }),
     __param(0, type_graphql_1.Arg("lessonId", () => type_graphql_1.Int)),

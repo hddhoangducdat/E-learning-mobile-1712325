@@ -4,4 +4,5 @@ fragment LessonFragment on Lesson {
   content
   video
   captionName
+  times
 }

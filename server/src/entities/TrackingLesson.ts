@@ -1,5 +1,6 @@
 import {
   BaseEntity,
+  Column,
   CreateDateColumn,
   Entity,
   ManyToOne,
@@ -28,6 +29,7 @@ export class TrackingLesson extends BaseEntity {
   lesson: Lesson;
 
   @Field()
+  @Column()
   time: number;
 
   @Field(() => Date)

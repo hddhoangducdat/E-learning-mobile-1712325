@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components/native";
 // import { LinearGradient } from "expo";
 import CourseSection from "../components/CourseSection";
@@ -7,7 +7,13 @@ import { Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { HomeStackNavProps } from "../utils/params";
-import { useGetLanguageQuery, useLessonQuery } from "../generated/graphql";
+import {
+  useGetLanguageQuery,
+  useGetTrackLessonQuery,
+  useLessonQuery,
+  useTrackCourseMutation,
+  useTrackLessonMutation,
+} from "../generated/graphql";
 import WebView from "react-native-webview";
 import { ImageBackground } from "react-native";
 import Overview from "../components/Overview";
@@ -16,18 +22,43 @@ import AssignmentScreen from "./AssignmentScreen";
 import VideoRendering from "../components/VideoRendering";
 import { languageModify } from "../utils/languageModify";
 
-interface CoursesScreenProps {}
-
-let screenWidth = Dimensions.get("window").width;
-
 const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
   const [language] = useGetLanguageQuery();
-  const { lessonId, categoryUrl, week, lessonStt }: any = route.params;
+  const {
+    courseId,
+    lessonId,
+    categoryUrl,
+    week,
+    lessonStt,
+  }: any = route.params;
   const [{ data }] = useLessonQuery({
     variables: {
       lessonId,
     },
   });
+  const [, trackCourse] = useTrackCourseMutation();
+
+  const [track] = useGetTrackLessonQuery({
+    variables: {
+      lessonId,
+    },
+  });
+  const [, trackLesson] = useTrackLessonMutation();
+  const [time, setTime] = useState(0);
+
+  useEffect(() => {
+    if (track.data?.getTrackLesson) {
+      setTime(track.data.getTrackLesson.time);
+    }
+  }, [track.data?.getTrackLesson]);
+
+  useEffect(() => {
+    trackCourse({
+      courseId,
+      lessonId,
+    });
+  }, [1]);
+
   const [nav, setNav] = useState([
     {
       active: true,
@@ -57,7 +88,12 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
             height: 200,
           }}
         >
-          <VideoRendering width={true} videoUrl={data?.lesson?.video} />
+          <VideoRendering
+            time={track.data?.getTrackLesson?.time}
+            setTime={setTime}
+            width={true}
+            videoUrl={data?.lesson?.video}
+          />
         </View>
         <ScrollViewNormal
           style={{
@@ -68,7 +104,12 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
         >
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity
+            onPress={async () => {
+              await trackLesson({ lessonId, time });
+              navigation.goBack();
+            }}
+          >
             <Tab>
               <Ionicons
                 style={{ marginBottom: 10 }}
@@ -117,11 +158,6 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
             );
           })}
         </ScrollViewNormal>
-
-        {/* <Background
-              source={require("../assets/images/background12.jpg")}
-              resizeMode="repeat"
-            /> */}
 
         {nav.map((navbar) =>
           navbar.active ? (

@@ -56,7 +56,6 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         //   validate={() => {}}
         onSubmit={async ({ token, newPassword }) => {
           const response = await changePassword({ token, newPassword });
-          console.log(response.data?.changePassword);
           if (response.data?.changePassword.errors) {
             setErrors(toErrorMap(response.data.changePassword.errors));
           } else {

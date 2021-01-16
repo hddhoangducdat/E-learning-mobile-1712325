@@ -1,5 +1,9 @@
 query MyFavorite {
   myFavorite {
     ...CourseFragment
+    category {
+      imageUrl
+      name
+    }
   }
 }

@@ -86,27 +86,68 @@ export class LessonResolver {
     @Ctx() { req }: MyContext
   ): Promise<TrackingLesson | null> {
     if (req.session.userId) {
-      let track;
-      try {
-        track = await TrackingLesson.create({
+      let track = await TrackingLesson.findOne({
+        where: {
           userId: req.session.userId,
           lessonId,
-          time,
-        }).save();
-        req.session.lesson = lessonId;
-      } catch (err) {
-        return null;
+        },
+      });
+      if (track) {
+        await TrackingLesson.update(
+          {
+            userId: req.session.userId,
+            lessonId,
+          },
+          {
+            time,
+          }
+        );
+        track.time = time;
+        return track;
+      } else {
+        try {
+          track = await TrackingLesson.create({
+            userId: req.session.userId,
+            lessonId,
+            time,
+          }).save();
+          req.session.lesson = lessonId;
+        } catch (err) {
+          return null;
+        }
+        return track;
       }
-      return track;
     }
     return null;
   }
 
   @Query(() => Lesson, { nullable: true })
-  latestLesson(@Ctx() { req }: MyContext): Promise<Lesson | undefined> {
-    return Lesson.findOne(req.session.lessonId, {
-      relations: ["track"],
-    });
+  async latestLesson(@Ctx() { req }: MyContext) {
+    if (req.session.userId) return null;
+    const lesson = await getConnection().query(
+      `
+        select * from lesson l
+        left join track_lesson tl tl."lessonId" = l.id and tl."userId" = $1 and tl."lessonId" = $1
+      `,
+      [req.session.userId]
+    );
+    return lesson;
+  }
+
+  @Query(() => TrackingLesson, { nullable: true })
+  getTrackLesson(
+    @Arg("lessonId", () => Int) lessonId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    if (req.session.userId) {
+      return TrackingLesson.findOne({
+        where: {
+          userId: req.session.userId,
+          lessonId,
+        },
+      });
+    }
+    return null;
   }
 
   @Query(() => Lesson, { nullable: true })
@@ -114,7 +155,7 @@ export class LessonResolver {
     @Arg("lessonId", () => Int) lessonId: number
   ): Promise<Lesson | undefined> {
     return Lesson.findOne(lessonId, {
-      relations: ["resource", "track"],
+      relations: ["resource"],
     });
   }
 }

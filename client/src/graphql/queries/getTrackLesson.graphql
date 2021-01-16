@@ -1,0 +1,5 @@
+query GetTrackLesson($lessonId: Int!) {
+  getTrackLesson(lessonId: $lessonId) {
+    ...TrackingLessonFragment
+  }
+}

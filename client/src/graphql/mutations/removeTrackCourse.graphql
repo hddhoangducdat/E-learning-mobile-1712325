@@ -1,0 +1,3 @@
+mutation RemoveTrackCourse($courseId: Int!) {
+  removeTrackCourse(courseId: $courseId)
+}

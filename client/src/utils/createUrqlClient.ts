@@ -197,12 +197,21 @@ export const createUrqlClient = () => {
               invalidateAllReplyQuestions(cache);
             },
 
+            trackLesson: (_result, _args, cache, _info) => {
+              invalidWithArgument(cache, "getTrackLesson");
+            },
+
             purchase: (_result, _args, cache, _info) => {
               invalidateIsOwn(cache);
               invalidNoArgument(cache, "myCourse");
             },
 
             addToMyFavorite: (_result, _args, cache, _info) => {
+              invalidWithArgument(cache, "courses");
+              invalidNoArgument(cache, "myFavorite");
+            },
+
+            removeFromFavorite: (_result, _args, cache, _info) => {
               invalidWithArgument(cache, "courses");
               invalidNoArgument(cache, "myFavorite");
             },

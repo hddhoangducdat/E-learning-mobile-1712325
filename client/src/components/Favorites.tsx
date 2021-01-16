@@ -5,7 +5,6 @@ import Favorite from "./Favorite";
 
 const Favorites = () => {
   const [{ data }] = useMyFavoriteQuery();
-  console.log(data);
 
   return (
     <Container>

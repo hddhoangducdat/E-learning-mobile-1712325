@@ -5,9 +5,6 @@ query Lesson($lessonId: Int!) {
       id
       name
     }
-    track {
-      ...TrackingLessonFragment
-    }
     resource {
       id
       name

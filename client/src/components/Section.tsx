@@ -106,12 +106,14 @@ const Section = (props: any) => {
         {open === "open"
           ? data?.lessons.map((lesson, index) => (
               <TouchableOpacity
+                key={index}
                 onPress={() =>
                   props.navigation.push("Lesson", {
                     lessonId: lesson.id,
                     categoryUrl: props.categoryUrl,
                     week: props.stt,
                     lessonStt: index + 1,
+                    courseId: props.courseId,
                   })
                 }
               >
@@ -208,8 +210,6 @@ const LessonOrder = styled.Text`
 const LessonDetail = styled.View`
   flex-direction: column;
 `;
-
-const LessonContent = styled.Text``;
 
 const LessonWrap = styled.View`
   margin-left: 54px;

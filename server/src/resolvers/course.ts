@@ -122,8 +122,41 @@ export class CourseResolver {
 
   @Query(() => Course, { nullable: true })
   async course(@Arg("id", () => Int) id: number) {
-    let course = await Course.findOne(id, { relations: ["section", "track"] });
+    let course = await Course.findOne(id, { relations: ["section"] });
     return course;
+  }
+
+  @Query(() => TrackingCourse, { nullable: true })
+  async getTrackCourse(
+    @Arg("courseId", () => Int) courseId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    if (req.session.userId) {
+      const track = await TrackingCourse.findOne({
+        where: {
+          userId: req.session.userId,
+          courseId,
+        },
+      });
+      console.log(track);
+      return track;
+    }
+    return null;
+  }
+
+  @Mutation(() => Boolean)
+  async removeTrackCourse(
+    @Arg("courseId", () => Int) courseId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    if (req.session.userId) {
+      await TrackingCourse.delete({
+        userId: req.session.userId,
+        courseId,
+      });
+      return true;
+    }
+    return false;
   }
 
   @Query(() => PaginatedCourse)
@@ -222,21 +255,38 @@ export class CourseResolver {
   async trackCourse(
     @Arg("courseId", () => Number) courseId: number,
     @Arg("lessonId", () => Number) lessonId: number,
-
     @Ctx() { req }: MyContext
   ): Promise<TrackingCourse | null> {
     if (req.session.userId) {
-      let track;
-      try {
-        track = await TrackingCourse.create({
+      let track = await TrackingCourse.findOne({
+        where: {
           userId: req.session.userId,
-          courseId,
-          lessonId,
-        }).save();
-      } catch (err) {
-        return null;
+          courseId: courseId,
+        },
+      });
+      console.log(track);
+      if (track) {
+        await TrackingCourse.update(
+          { courseId, userId: req.session.userId },
+          {
+            lessonId,
+          }
+        );
+        track.lessonId = lessonId;
+        console.log(track);
+        return track;
+      } else {
+        try {
+          track = await TrackingCourse.create({
+            userId: req.session.userId,
+            courseId,
+            lessonId,
+          }).save();
+        } catch (err) {
+          return null;
+        }
+        return track;
       }
-      return track;
     }
     return null;
   }

@@ -21,6 +21,7 @@ import {
   useGetThemeQuery,
   useGetLanguageQuery,
   useCoursesQuery,
+  useGetTrackCourseQuery,
 } from "../generated/graphql";
 import { FontAwesome } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
@@ -32,6 +33,7 @@ import VideoRendering from "../components/VideoRendering";
 import { languageModify } from "../utils/languageModify";
 import { themeModify } from "../utils/themeModify";
 import Card from "../components/Card";
+import { FeedBack } from "../components/FeedBack";
 
 interface SectionScreenProps {}
 
@@ -57,13 +59,6 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
   const [isOwn] = useIsOwnQuery({
     variables: {
       courseId,
-    },
-  });
-
-  const [feedBacks] = useFeedBacksQuery({
-    variables: {
-      courseId,
-      limit: 5,
     },
   });
 
@@ -119,6 +114,27 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
       }).start();
     }
   }, [positionScrollView]);
+
+  const [track] = useGetTrackCourseQuery({
+    variables: {
+      courseId,
+    },
+  });
+
+  const [flag, setFlag] = useState(false);
+
+  useEffect(() => {
+    if (track.data?.getTrackCourse && !flag) {
+      setFlag(true);
+      navigation.push("Lesson", {
+        lessonId: track.data?.getTrackCourse?.lessonId,
+        categoryUrl,
+        week: 1,
+        lessonStt: 1,
+        courseId,
+      });
+    }
+  }, [track.data?.getTrackCourse]);
 
   const [openAuthForm, setOpenAuthForm] = useState(false);
 
@@ -441,6 +457,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                     stt={index + 1}
                     navigation={navigation}
                     categoryUrl={categoryUrl}
+                    courseId={courseId}
                   />
                 );
               })}
@@ -472,7 +489,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
               </WrapContainHeader>
               <ScrollView
                 horizontal={true}
-                style={{ paddingBottom: 30, height: 350 }}
+                style={{ paddingBottom: 30, height: 300 }}
                 showsHorizontalScrollIndicator={false}
               >
                 {!recommend.fetching
@@ -500,91 +517,11 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                   : null}
               </ScrollView>
             </SectionContain>
-            <SectionContain
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <WrapContainHeader
-                style={{
-                  marginTop: 20,
-                  marginBottom: 5,
-                  color: themeModify("#000", theme.data?.getTheme),
-                }}
-              >
-                {languageModify("Top review", language.data?.getLanguage)}
-              </WrapContainHeader>
-              <RateContainer>
-                <Rate
-                  style={{ color: themeModify("#000", theme.data?.getTheme) }}
-                >
-                  {data?.course?.rateNumber! / 2}
-                </Rate>
-                {useRate(data?.course?.rateNumber! / 2)}
-              </RateContainer>
-              {feedBacks.data?.feedBacks.feedBacks.map((feed) => {
-                return (
-                  <WrapContain
-                    key={feed.id}
-                    style={{
-                      shadowColor: "#000",
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.5,
-                      shadowRadius: 2,
-                      elevation: 3,
-                      backgroundColor: themeModify(
-                        "#ffff",
-                        theme.data?.getTheme
-                      ),
-                    }}
-                  >
-                    <Instructor>
-                      <InstructorAva source={{ uri: feed.user.avatar }} />
-                      <InstructorDetail>
-                        <TextContain
-                          style={{
-                            fontWeight: "700",
-                            fontSize: 18,
-                            color: themeModify("#000", theme.data?.getTheme),
-                          }}
-                        >
-                          {feed.user.username}
-                        </TextContain>
-                        <TextContain
-                          style={{
-                            color: themeModify("#777373", theme.data?.getTheme),
-                          }}
-                        >
-                          {useRate(feed.rate / 2)}
-                        </TextContain>
-                        <TextContain
-                          style={{
-                            color: themeModify("#000", theme.data?.getTheme),
-                          }}
-                        >
-                          {feed.content}
-                        </TextContain>
-                      </InstructorDetail>
-                    </Instructor>
-                  </WrapContain>
-                );
-              })}
-              {feedBacks.data?.feedBacks.hasMore ? (
-                <TouchableOpacity style={{ width: "100%" }} onPress={() => {}}>
-                  <FeedBackHasMore>
-                    <Text
-                      style={{
-                        color: themeModify("#fff", theme.data?.getTheme),
-                        fontSize: 20,
-                      }}
-                    >
-                      See more
-                    </Text>
-                  </FeedBackHasMore>
-                </TouchableOpacity>
-              ) : null}
-            </SectionContain>
+
+            <FeedBack
+              courseId={courseId}
+              courseRate={data?.course?.rateNumber}
+            />
           </Content>
         </Container>
       </ScrollView>

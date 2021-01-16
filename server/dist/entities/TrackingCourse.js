@@ -40,6 +40,7 @@ __decorate([
 ], TrackingCourse.prototype, "course", void 0);
 __decorate([
     type_graphql_1.Field(),
+    typeorm_1.Column(),
     __metadata("design:type", Number)
 ], TrackingCourse.prototype, "lessonId", void 0);
 __decorate([

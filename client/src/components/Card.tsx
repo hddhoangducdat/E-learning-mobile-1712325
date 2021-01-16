@@ -4,6 +4,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import {
   useAddToMyFavoriteMutation,
   useGetThemeQuery,
+  useRemoveFromFavoriteMutation,
 } from "../generated/graphql";
 import { themeModify } from "../utils/themeModify";
 import { AntDesign } from "@expo/vector-icons";
@@ -26,6 +27,7 @@ export default function Card({
 }: any) {
   const [theme] = useGetThemeQuery();
   const [, addToFavorite] = useAddToMyFavoriteMutation();
+  const [, removeFromFavorite] = useRemoveFromFavoriteMutation();
   return (
     <Container
       style={{
@@ -90,26 +92,31 @@ export default function Card({
 
         <MarginStatus />
 
-        <TouchableOpacity
-          style={{ flexDirection: "row", alignItems: "center" }}
-          onPress={() => {
-            addToFavorite({
-              courseId: id,
-            });
-          }}
-        >
-          {favorite ? (
-            <>
-              <AntDesign name="heart" size={12} color="#e30e5f" />
-              <Text style={{ color: "#e30e5f", marginLeft: 5 }}>remove</Text>
-            </>
-          ) : (
-            <>
-              <AntDesign name="hearto" size={12} color="#e30e5f" />
-              <Text style={{ color: "#e30e5f", marginLeft: 5 }}>add</Text>
-            </>
-          )}
-        </TouchableOpacity>
+        {favorite ? (
+          <TouchableOpacity
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={() => {
+              removeFromFavorite({
+                courseId: id,
+              });
+            }}
+          >
+            <AntDesign name="heart" size={12} color="#e30e5f" />
+            <Text style={{ color: "#e30e5f", marginLeft: 5 }}>remove</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={() => {
+              addToFavorite({
+                courseId: id,
+              });
+            }}
+          >
+            <AntDesign name="hearto" size={12} color="#e30e5f" />
+            <Text style={{ color: "#e30e5f", marginLeft: 5 }}>add</Text>
+          </TouchableOpacity>
+        )}
       </RateContainer>
     </Container>
   );
@@ -167,8 +174,8 @@ const Wrapper = styled.View`
 
 const Logo = styled.Image`
   margin-right: 8px;
-  width: 44px;
-  height: 44px;
+  width: 35px;
+  height: 35px;
 `;
 
 const Caption = styled.Text`

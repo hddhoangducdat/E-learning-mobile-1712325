@@ -1,0 +1,5 @@
+query GetTrackCourse($courseId: Int!) {
+  getTrackCourse(courseId: $courseId) {
+    ...TrackingCourseFragment
+  }
+}

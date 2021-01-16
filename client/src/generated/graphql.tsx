@@ -22,6 +22,7 @@ export type Query = {
   instructor: User;
   isOwn: Scalars['Boolean'];
   course?: Maybe<Course>;
+  getTrackCourse?: Maybe<TrackingCourse>;
   courses: PaginatedCourse;
   myCourse?: Maybe<Array<Course>>;
   categories: Array<Category>;
@@ -29,6 +30,7 @@ export type Query = {
   reports: PaginatedReport;
   lessons: Array<Lesson>;
   latestLesson?: Maybe<Lesson>;
+  getTrackLesson?: Maybe<TrackingLesson>;
   lesson?: Maybe<Lesson>;
   questions: PaginatedQuestion;
   replyQuestions: PaginatedQuestion;
@@ -52,6 +54,11 @@ export type QueryIsOwnArgs = {
 
 export type QueryCourseArgs = {
   id: Scalars['Int'];
+};
+
+
+export type QueryGetTrackCourseArgs = {
+  courseId: Scalars['Int'];
 };
 
 
@@ -81,6 +88,11 @@ export type QueryReportsArgs = {
 
 export type QueryLessonsArgs = {
   sectionId: Scalars['Float'];
+};
+
+
+export type QueryGetTrackLessonArgs = {
+  lessonId: Scalars['Int'];
 };
 
 
@@ -353,6 +365,7 @@ export type Mutation = {
   forgotPassword: Scalars['Boolean'];
   requestActivate: Scalars['Boolean'];
   becomeOrUpdateInstructor: UserResponse;
+  removeTrackCourse: Scalars['Boolean'];
   trackCourse?: Maybe<TrackingCourse>;
   purchase?: Maybe<Course>;
   trackLesson?: Maybe<TrackingLesson>;
@@ -408,6 +421,11 @@ export type MutationRequestActivateArgs = {
 export type MutationBecomeOrUpdateInstructorArgs = {
   intro: Scalars['String'];
   major: Scalars['String'];
+};
+
+
+export type MutationRemoveTrackCourseArgs = {
+  courseId: Scalars['Int'];
 };
 
 
@@ -486,7 +504,7 @@ export type CategoryFragmentFragment = (
 
 export type CourseFragmentFragment = (
   { __typename?: 'Course' }
-  & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'description' | 'requirement' | 'learnWhat' | 'soldNumber' | 'videoNumber' | 'rateNumber' | 'totalHours' | 'promoVidUrl' | 'formalityPoint' | 'contentPoint' | 'presentationPoint' | 'instructorId'>
+  & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'description' | 'requirement' | 'learnWhat' | 'soldNumber' | 'videoNumber' | 'rateNumber' | 'totalHours' | 'promoVidUrl' | 'formalityPoint' | 'contentPoint' | 'presentationPoint' | 'instructorId' | 'imageUrl'>
 );
 
 export type ErrorFragmentFragment = (
@@ -506,7 +524,7 @@ export type InstructorFragmentFragment = (
 
 export type LessonFragmentFragment = (
   { __typename?: 'Lesson' }
-  & Pick<Lesson, 'id' | 'name' | 'content' | 'video' | 'captionName'>
+  & Pick<Lesson, 'id' | 'name' | 'content' | 'video' | 'captionName' | 'times'>
 );
 
 export type QuestionFragmentFragment = (
@@ -720,6 +738,16 @@ export type RemoveFromFavoriteMutation = (
   & Pick<Mutation, 'removeFromFavorite'>
 );
 
+export type RemoveTrackCourseMutationVariables = Exact<{
+  courseId: Scalars['Int'];
+}>;
+
+
+export type RemoveTrackCourseMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'removeTrackCourse'>
+);
+
 export type RequestActivateMutationVariables = Exact<{
   email: Scalars['String'];
   token: Scalars['String'];
@@ -807,10 +835,7 @@ export type CourseQuery = (
   { __typename?: 'Query' }
   & { course?: Maybe<(
     { __typename?: 'Course' }
-    & { track: Array<(
-      { __typename?: 'TrackingCourse' }
-      & TrackingCourseFragmentFragment
-    )>, section: Array<(
+    & { section: Array<(
       { __typename?: 'Section' }
       & Pick<Section, 'id' | 'name'>
     )> }
@@ -886,6 +911,32 @@ export type GetThemeQuery = (
   & Pick<Query, 'getTheme'>
 );
 
+export type GetTrackCourseQueryVariables = Exact<{
+  courseId: Scalars['Int'];
+}>;
+
+
+export type GetTrackCourseQuery = (
+  { __typename?: 'Query' }
+  & { getTrackCourse?: Maybe<(
+    { __typename?: 'TrackingCourse' }
+    & TrackingCourseFragmentFragment
+  )> }
+);
+
+export type GetTrackLessonQueryVariables = Exact<{
+  lessonId: Scalars['Int'];
+}>;
+
+
+export type GetTrackLessonQuery = (
+  { __typename?: 'Query' }
+  & { getTrackLesson?: Maybe<(
+    { __typename?: 'TrackingLesson' }
+    & TrackingLessonFragmentFragment
+  )> }
+);
+
 export type InstructorQueryVariables = Exact<{
   instructorId: Scalars['Float'];
 }>;
@@ -920,10 +971,7 @@ export type LatestLessonQuery = (
   { __typename?: 'Query' }
   & { latestLesson?: Maybe<(
     { __typename?: 'Lesson' }
-    & { section: (
-      { __typename?: 'Section' }
-      & Pick<Section, 'id' | 'name'>
-    ), track: Array<(
+    & { track: Array<(
       { __typename?: 'TrackingLesson' }
       & TrackingLessonFragmentFragment
     )> }
@@ -943,10 +991,7 @@ export type LessonQuery = (
     & { section: (
       { __typename?: 'Section' }
       & Pick<Section, 'id' | 'name'>
-    ), track: Array<(
-      { __typename?: 'TrackingLesson' }
-      & TrackingLessonFragmentFragment
-    )>, resource: Array<(
+    ), resource: Array<(
       { __typename?: 'Resource' }
       & Pick<Resource, 'id' | 'name' | 'url' | 'type'>
     )> }
@@ -996,6 +1041,10 @@ export type MyFavoriteQuery = (
   { __typename?: 'Query' }
   & { myFavorite?: Maybe<Array<(
     { __typename?: 'Course' }
+    & { category: (
+      { __typename?: 'Category' }
+      & Pick<Category, 'imageUrl' | 'name'>
+    ) }
     & CourseFragmentFragment
   )>> }
 );
@@ -1063,6 +1112,7 @@ export const CourseFragmentFragmentDoc = gql`
   contentPoint
   presentationPoint
   instructorId
+  imageUrl
 }
     `;
 export const FavoriteFragmentFragmentDoc = gql`
@@ -1077,6 +1127,7 @@ export const LessonFragmentFragmentDoc = gql`
   content
   video
   captionName
+  times
 }
     `;
 export const InstructorFragmentFragmentDoc = gql`
@@ -1289,6 +1340,15 @@ export const RemoveFromFavoriteDocument = gql`
 export function useRemoveFromFavoriteMutation() {
   return Urql.useMutation<RemoveFromFavoriteMutation, RemoveFromFavoriteMutationVariables>(RemoveFromFavoriteDocument);
 };
+export const RemoveTrackCourseDocument = gql`
+    mutation RemoveTrackCourse($courseId: Int!) {
+  removeTrackCourse(courseId: $courseId)
+}
+    `;
+
+export function useRemoveTrackCourseMutation() {
+  return Urql.useMutation<RemoveTrackCourseMutation, RemoveTrackCourseMutationVariables>(RemoveTrackCourseDocument);
+};
 export const RequestActivateDocument = gql`
     mutation RequestActivate($email: String!, $token: String!) {
   requestActivate(email: $email, token: $token)
@@ -1366,17 +1426,13 @@ export const CourseDocument = gql`
     query Course($id: Int!) {
   course(id: $id) {
     ...CourseFragment
-    track {
-      ...TrackingCourseFragment
-    }
     section {
       id
       name
     }
   }
 }
-    ${CourseFragmentFragmentDoc}
-${TrackingCourseFragmentFragmentDoc}`;
+    ${CourseFragmentFragmentDoc}`;
 
 export function useCourseQuery(options: Omit<Urql.UseQueryArgs<CourseQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<CourseQuery>({ query: CourseDocument, ...options });
@@ -1453,6 +1509,28 @@ export const GetThemeDocument = gql`
 export function useGetThemeQuery(options: Omit<Urql.UseQueryArgs<GetThemeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetThemeQuery>({ query: GetThemeDocument, ...options });
 };
+export const GetTrackCourseDocument = gql`
+    query GetTrackCourse($courseId: Int!) {
+  getTrackCourse(courseId: $courseId) {
+    ...TrackingCourseFragment
+  }
+}
+    ${TrackingCourseFragmentFragmentDoc}`;
+
+export function useGetTrackCourseQuery(options: Omit<Urql.UseQueryArgs<GetTrackCourseQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetTrackCourseQuery>({ query: GetTrackCourseDocument, ...options });
+};
+export const GetTrackLessonDocument = gql`
+    query GetTrackLesson($lessonId: Int!) {
+  getTrackLesson(lessonId: $lessonId) {
+    ...TrackingLessonFragment
+  }
+}
+    ${TrackingLessonFragmentFragmentDoc}`;
+
+export function useGetTrackLessonQuery(options: Omit<Urql.UseQueryArgs<GetTrackLessonQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetTrackLessonQuery>({ query: GetTrackLessonDocument, ...options });
+};
 export const InstructorDocument = gql`
     query Instructor($instructorId: Float!) {
   instructor(instructorId: $instructorId) {
@@ -1485,10 +1563,6 @@ export const LatestLessonDocument = gql`
     query LatestLesson {
   latestLesson {
     ...LessonFragment
-    section {
-      id
-      name
-    }
     track {
       ...TrackingLessonFragment
     }
@@ -1508,9 +1582,6 @@ export const LessonDocument = gql`
       id
       name
     }
-    track {
-      ...TrackingLessonFragment
-    }
     resource {
       id
       name
@@ -1519,8 +1590,7 @@ export const LessonDocument = gql`
     }
   }
 }
-    ${LessonFragmentFragmentDoc}
-${TrackingLessonFragmentFragmentDoc}`;
+    ${LessonFragmentFragmentDoc}`;
 
 export function useLessonQuery(options: Omit<Urql.UseQueryArgs<LessonQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<LessonQuery>({ query: LessonDocument, ...options });
@@ -1562,6 +1632,10 @@ export const MyFavoriteDocument = gql`
     query MyFavorite {
   myFavorite {
     ...CourseFragment
+    category {
+      imageUrl
+      name
+    }
   }
 }
     ${CourseFragmentFragmentDoc}`;

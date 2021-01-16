@@ -4,7 +4,11 @@ import { Dimensions, ImageSourcePropType } from "react-native";
 import styled, { DefaultTheme } from "styled-components/native";
 import { getCourseWidth } from "../utils/getCourseWidth";
 import { themeModify } from "../utils/themeModify";
-import { useGetThemeQuery } from "../generated/graphql";
+import {
+  RemoveFromFavoriteDocument,
+  useGetThemeQuery,
+  useRemoveFromFavoriteMutation,
+} from "../generated/graphql";
 import { useRate } from "../utils/useRate";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -38,6 +42,7 @@ const Favorite = ({
   });
 
   const [themeColor] = useGetThemeQuery();
+  const [, remove] = useRemoveFromFavoriteMutation();
 
   const theme: DefaultTheme = {
     close: {
@@ -77,7 +82,11 @@ const Favorite = ({
 
           elevation: 7,
         }}
-        onPress={() => {}}
+        onPress={() => {
+          remove({
+            courseId: id,
+          });
+        }}
       >
         <Ionicons
           name="ios-close"

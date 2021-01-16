@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components/native";
 import WebView from "react-native-webview";
 import { videoUrlModify } from "../utils/videoUrlModify";
-import { Video } from "expo-av";
+import { AVPlaybackStatus, Video } from "expo-av";
 import { Feather } from "@expo/vector-icons";
 import {
   downloadAsync,
@@ -14,17 +14,22 @@ import { AsyncStorage } from "react-native";
 interface VideoRenderingProps {
   videoUrl?: string;
   width?: boolean;
+  setTime?: React.Dispatch<React.SetStateAction<number>>;
+  time?: number;
 }
 
 export default function VideoRendering({
   videoUrl,
   width,
+  setTime,
+  time,
 }: VideoRenderingProps) {
   if (!videoUrl) return null;
 
   if (videoUrl.includes("mp4")) {
     const [progress, setProgress] = useState<number>(0);
     const video = videoUrl;
+    const videoStatus = useRef<Video>();
 
     const downloadVideo = async () => {
       const callback = (downloadProgress: any) => {
@@ -69,13 +74,27 @@ export default function VideoRendering({
     return (
       <>
         <Video
+          ref={(component: Video) => {
+            videoStatus.current = component;
+            // if (time) {
+            //   component?.playFromPositionAsync(time);
+            // }
+          }}
           source={{
             uri: videoUrl,
+          }}
+          onLoad={() => {
+            if (time) {
+              videoStatus.current?.playFromPositionAsync(time);
+            }
           }}
           rate={1.0}
           volume={1.0}
           isMuted={false}
           resizeMode="cover"
+          onPlaybackStatusUpdate={(status: AVPlaybackStatus) => {
+            setTime(status?.positionMillis);
+          }}
           shouldPlay={false}
           isLooping={false}
           useNativeControls
@@ -83,7 +102,7 @@ export default function VideoRendering({
         />
         <DownloadButton onPress={() => downloadVideo()}>
           {progress !== 0 ? (
-            <Text style={{ color: "#fff" }}>{progress} %</Text>
+            <Text style={{ color: "#fff" }}>{Math.round(progress)} %</Text>
           ) : (
             <Feather name="download-cloud" size={24} color="white" />
           )}

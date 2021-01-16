@@ -1,9 +1,6 @@
 query Course($id: Int!) {
   course(id: $id) {
     ...CourseFragment
-    track {
-      ...TrackingCourseFragment
-    }
     section {
       id
       name

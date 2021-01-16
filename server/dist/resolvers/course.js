@@ -107,8 +107,35 @@ let CourseResolver = class CourseResolver {
     }
     course(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            let course = yield Course_1.Course.findOne(id, { relations: ["section", "track"] });
+            let course = yield Course_1.Course.findOne(id, { relations: ["section"] });
             return course;
+        });
+    }
+    getTrackCourse(courseId, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.userId) {
+                const track = yield TrackingCourse_1.TrackingCourse.findOne({
+                    where: {
+                        userId: req.session.userId,
+                        courseId,
+                    },
+                });
+                console.log(track);
+                return track;
+            }
+            return null;
+        });
+    }
+    removeTrackCourse(courseId, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.userId) {
+                yield TrackingCourse_1.TrackingCourse.delete({
+                    userId: req.session.userId,
+                    courseId,
+                });
+                return true;
+            }
+            return false;
         });
     }
     courses(limit, cursor, categoryId, isAsc, orderType, search, { req }) {
@@ -177,18 +204,34 @@ let CourseResolver = class CourseResolver {
     trackCourse(courseId, lessonId, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (req.session.userId) {
-                let track;
-                try {
-                    track = yield TrackingCourse_1.TrackingCourse.create({
+                let track = yield TrackingCourse_1.TrackingCourse.findOne({
+                    where: {
                         userId: req.session.userId,
-                        courseId,
+                        courseId: courseId,
+                    },
+                });
+                console.log(track);
+                if (track) {
+                    yield TrackingCourse_1.TrackingCourse.update({ courseId, userId: req.session.userId }, {
                         lessonId,
-                    }).save();
+                    });
+                    track.lessonId = lessonId;
+                    console.log(track);
+                    return track;
                 }
-                catch (err) {
-                    return null;
+                else {
+                    try {
+                        track = yield TrackingCourse_1.TrackingCourse.create({
+                            userId: req.session.userId,
+                            courseId,
+                            lessonId,
+                        }).save();
+                    }
+                    catch (err) {
+                        return null;
+                    }
+                    return track;
                 }
-                return track;
             }
             return null;
         });
@@ -286,6 +329,22 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "course", null);
+__decorate([
+    type_graphql_1.Query(() => TrackingCourse_1.TrackingCourse, { nullable: true }),
+    __param(0, type_graphql_1.Arg("courseId", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "getTrackCourse", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("courseId", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "removeTrackCourse", null);
 __decorate([
     type_graphql_1.Query(() => PaginatedCourse),
     __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),

@@ -1,4 +1,4 @@
-mport React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   SafeAreaView,
@@ -244,7 +244,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
             <Subtitle>
               {languageModify("Top rated courses", language.data?.getLanguage)}
             </Subtitle>
-            <crollView
+            <ScrollView
               horizontal={true}
               style={{ paddingBottom: 30, height: 300 }}
               showsHorizontalScrollIndicator={false}
