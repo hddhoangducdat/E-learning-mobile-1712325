@@ -1,0 +1,5 @@
+fragment TrackingLessonFragment on TrackingLesson {
+  userId
+  lessonId
+  time
+}

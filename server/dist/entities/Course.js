@@ -18,6 +18,8 @@ const Instructor_1 = require("./Instructor");
 const Category_1 = require("./Category");
 const StudentCourse_1 = require("./StudentCourse");
 const FeedBack_1 = require("./FeedBack");
+const Favorite_1 = require("./Favorite");
+const TrackingCourse_1 = require("./TrackingCourse");
 var Status;
 (function (Status) {
     Status["PENDING"] = "PENDING";
@@ -143,9 +145,19 @@ __decorate([
     __metadata("design:type", Category_1.Category)
 ], Course.prototype, "category", void 0);
 __decorate([
+    type_graphql_1.Field(() => [TrackingCourse_1.TrackingCourse]),
+    typeorm_1.ManyToOne(() => TrackingCourse_1.TrackingCourse, (track) => track.course),
+    __metadata("design:type", Array)
+], Course.prototype, "track", void 0);
+__decorate([
     typeorm_1.OneToMany(() => StudentCourse_1.StudentCourse, (student) => student.course),
     __metadata("design:type", Array)
 ], Course.prototype, "students", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    typeorm_1.OneToMany(() => Favorite_1.Favorite, (favorite) => favorite.course),
+    __metadata("design:type", Favorite_1.Favorite)
+], Course.prototype, "favorite", void 0);
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column(),

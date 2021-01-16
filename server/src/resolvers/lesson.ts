@@ -15,16 +15,7 @@ import { getConnection } from "typeorm";
 import { Lesson } from "../entities/Lesson";
 import { Section } from "../entities/Section";
 import { MyContext } from "../types";
-
-@ObjectType()
-class TrackingResponse {
-  @Field(() => Number)
-  id: Number;
-  @Field(() => Number)
-  time: Number;
-  @Field(() => String)
-  name: String;
-}
+import { TrackingLesson } from "../entities/TrackingLesson";
 
 @Resolver(Lesson)
 export class LessonResolver {
@@ -88,23 +79,34 @@ export class LessonResolver {
     return Section.findOne(lesson.sectionId);
   }
 
-  @Mutation(() => TrackingResponse)
-  track(
-    @Arg("lessonId") lessonId: number,
-    @Arg("time") time: number,
-    @Arg("name") name: string,
+  @Mutation(() => TrackingLesson, { nullable: true })
+  async trackLesson(
+    @Arg("lessonId", () => Number) lessonId: number,
+    @Arg("time", () => Number) time: number,
     @Ctx() { req }: MyContext
-  ): TrackingResponse {
-    req.session.track = {
-      id: lessonId,
-      time,
-      name,
-    };
-    return {
-      id: lessonId,
-      name,
-      time,
-    };
+  ): Promise<TrackingLesson | null> {
+    if (req.session.userId) {
+      let track;
+      try {
+        track = await TrackingLesson.create({
+          userId: req.session.userId,
+          lessonId,
+          time,
+        }).save();
+        req.session.lesson = lessonId;
+      } catch (err) {
+        return null;
+      }
+      return track;
+    }
+    return null;
+  }
+
+  @Query(() => Lesson, { nullable: true })
+  latestLesson(@Ctx() { req }: MyContext): Promise<Lesson | undefined> {
+    return Lesson.findOne(req.session.lessonId, {
+      relations: ["track"],
+    });
   }
 
   @Query(() => Lesson, { nullable: true })
@@ -112,7 +114,7 @@ export class LessonResolver {
     @Arg("lessonId", () => Int) lessonId: number
   ): Promise<Lesson | undefined> {
     return Lesson.findOne(lessonId, {
-      relations: ["resource"],
+      relations: ["resource", "track"],
     });
   }
 }

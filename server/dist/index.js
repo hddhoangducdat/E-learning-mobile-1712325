@@ -49,6 +49,10 @@ const assignment_1 = require("./resolvers/assignment");
 const translate_1 = require("@google-cloud/translate");
 const dotenv_1 = __importDefault(require("dotenv"));
 const setting_1 = require("./resolvers/setting");
+const Favorite_1 = require("./entities/Favorite");
+const favorite_1 = require("./resolvers/favorite");
+const TrackingLesson_1 = require("./entities/TrackingLesson");
+const TrackingCourse_1 = require("./entities/TrackingCourse");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     dotenv_1.default.config();
     const conn = yield typeorm_1.createConnection({
@@ -76,6 +80,9 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             Category_1.Category,
             AssignmentQuestion_1.AssignmentQuestion,
             Assignment_1.Assignment,
+            Favorite_1.Favorite,
+            TrackingLesson_1.TrackingLesson,
+            TrackingCourse_1.TrackingCourse,
         ],
     });
     yield conn.runMigrations();
@@ -114,6 +121,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
                 resource_1.ResourceResolver,
                 assignment_1.AssignmentResolver,
                 setting_1.SettingResolver,
+                favorite_1.FavoriteResolver,
             ],
             validate: false,
         }),

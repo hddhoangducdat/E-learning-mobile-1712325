@@ -1,0 +1,5 @@
+mutation TrackLesson($lessonId: Float!, $time: Float!) {
+  trackLesson(lessonId: $lessonId, time: $time) {
+    ...TrackingLessonFragment
+  }
+}

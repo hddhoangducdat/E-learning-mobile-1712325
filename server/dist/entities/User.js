@@ -18,6 +18,9 @@ const UserAnswer_1 = require("./UserAnswer");
 const Question_1 = require("./Question");
 const Report_1 = require("./Report");
 const FeedBack_1 = require("./FeedBack");
+const Favorite_1 = require("./Favorite");
+const TrackingLesson_1 = require("./TrackingLesson");
+const TrackingCourse_1 = require("./TrackingCourse");
 var UserType;
 (function (UserType) {
     UserType["STUDENT"] = "STUDENT";
@@ -105,6 +108,14 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "result", void 0);
 __decorate([
+    typeorm_1.OneToMany(() => TrackingLesson_1.TrackingLesson, (track) => track.user),
+    __metadata("design:type", Array)
+], User.prototype, "lessonTrack", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => TrackingCourse_1.TrackingCourse, (track) => track.user),
+    __metadata("design:type", Array)
+], User.prototype, "courseTrack", void 0);
+__decorate([
     typeorm_1.OneToMany(() => Question_1.Question, (question) => question.user),
     __metadata("design:type", Array)
 ], User.prototype, "questions", void 0);
@@ -112,6 +123,10 @@ __decorate([
     typeorm_1.OneToMany(() => Report_1.Report, (report) => report.user),
     __metadata("design:type", Array)
 ], User.prototype, "reports", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Favorite_1.Favorite, (favorite) => favorite.user),
+    __metadata("design:type", Array)
+], User.prototype, "favorite", void 0);
 __decorate([
     type_graphql_1.Field(() => Date),
     typeorm_1.CreateDateColumn(),

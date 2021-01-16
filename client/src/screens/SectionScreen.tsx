@@ -20,6 +20,7 @@ import {
   usePurchaseMutation,
   useGetThemeQuery,
   useGetLanguageQuery,
+  useCoursesQuery,
 } from "../generated/graphql";
 import { FontAwesome } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
@@ -30,6 +31,7 @@ import { useRate } from "../utils/useRate";
 import VideoRendering from "../components/VideoRendering";
 import { languageModify } from "../utils/languageModify";
 import { themeModify } from "../utils/themeModify";
+import Card from "../components/Card";
 
 interface SectionScreenProps {}
 
@@ -41,7 +43,16 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
     categoryUrl,
     isBestSeller,
     categoryName,
+    categoryId,
   }: any = route.params;
+
+  const [recommend] = useCoursesQuery({
+    variables: {
+      limit: 4,
+      categoryId,
+      orderType: "BEST_SELLER",
+    },
+  });
 
   const [isOwn] = useIsOwnQuery({
     variables: {
@@ -219,7 +230,9 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
           </TouchableOpacity>
           <Content>
             <Marketing>
-              <VideoRendering videoUrl={data?.course?.promoVidUrl} />
+              <View style={{ height: 100 }}>
+                <VideoRendering videoUrl={data?.course?.promoVidUrl} />
+              </View>
               <TouchableOpacity onPress={handlePurchase}>
                 <PayButton
                   style={{
@@ -438,6 +451,54 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                   borderTopRightRadius: 2,
                 }}
               />
+            </SectionContain>
+            <SectionContain
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <WrapContainHeader
+                style={{
+                  marginTop: 20,
+                  marginBottom: 5,
+                  color: themeModify("#000", theme.data?.getTheme),
+                }}
+              >
+                {languageModify(
+                  "Student also learn",
+                  language.data?.getLanguage
+                )}
+              </WrapContainHeader>
+              <ScrollView
+                horizontal={true}
+                style={{ paddingBottom: 30, height: 350 }}
+                showsHorizontalScrollIndicator={false}
+              >
+                {!recommend.fetching
+                  ? recommend.data?.courses.courses.map((card, index) => {
+                      if (card.id === courseId) return null;
+                      return (
+                        <Card
+                          key={index}
+                          id={card.id}
+                          categoryId={card.category.id}
+                          navigation={navigation}
+                          categoryName={card.category.name}
+                          image={card.imageUrl}
+                          caption={card.title}
+                          logo={card.category.imageUrl}
+                          subtitle={card.subtitle}
+                          rate={card.rateNumber}
+                          participant={card.soldNumber}
+                          price={card.price}
+                          favorite={card.favorite.userId !== -1 ? true : false}
+                          isBestSeller={false}
+                        />
+                      );
+                    })
+                  : null}
+              </ScrollView>
             </SectionContain>
             <SectionContain
               style={{

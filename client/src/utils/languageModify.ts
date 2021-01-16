@@ -53,6 +53,9 @@ export const languageModify = (text: string, language?: string): string => {
       case "Forum":
         result = "Forum";
         break;
+      case "Student also learn":
+        result = "Khóa học tương tự";
+        break;
 
       case "Assignments":
         result = "Bài tập";

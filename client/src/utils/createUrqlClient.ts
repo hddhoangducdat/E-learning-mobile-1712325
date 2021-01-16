@@ -34,6 +34,8 @@ import {
   GetThemeDocument,
   useGetThemeQuery,
   ActivateAccountMutation,
+  MyCourseQuery,
+  MyCourseDocument,
   // RegisterMutation, LogoutMutation, VoteMutationVariables, DeletePostMutationVariables,
 } from "../generated/graphql";
 import { pipe, tap } from "wonka";
@@ -91,11 +93,21 @@ const cusorPagination = (query: string): Resolver => {
   };
 };
 
-function invalidateMyCourse(cache: Cache) {
+function invalidNoArgument(cache: Cache, fieldName: string) {
   const allFields = cache.inspectFields("Query");
-  const fieldInfos = allFields.filter((info) => info.fieldName === "myCourse");
+  const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+
   fieldInfos.forEach((fi) => {
-    cache.invalidate("Query", "myCourse", fi.arguments || {});
+    cache.invalidate("Query", fieldName);
+  });
+}
+
+function invalidWithArgument(cache: Cache, fieldName: string) {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((info) => info.fieldName === fieldName);
+
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", fieldName, fi.arguments || {});
   });
 }
 
@@ -118,6 +130,7 @@ function invalidateAllReplyQuestions(cache: Cache) {
 function invalidateIsOwn(cache: Cache) {
   const allFields = cache.inspectFields("Query");
   const fieldInfos = allFields.filter((info) => info.fieldName === "isOwn");
+
   fieldInfos.forEach((fi) => {
     cache.invalidate("Query", "isOwn", fi.arguments || {});
   });
@@ -142,12 +155,12 @@ export const createUrqlClient = () => {
       dedupExchange,
       cacheExchange({
         keys: {
-          PaginatedPosts: () => null,
+          PaginatedFeedBack: () => null,
         },
         resolvers: {
-          Query: {
-            questions: cusorPagination("questions"),
-          },
+          // Query: {
+          //   questions: cusorPagination("questions"),
+          // },
         },
         updates: {
           Mutation: {
@@ -175,6 +188,7 @@ export const createUrqlClient = () => {
                 }
               );
             },
+
             postQuestion: (_result, _args, cache, _info) => {
               invalidateAllQuestions(cache);
             },
@@ -184,20 +198,13 @@ export const createUrqlClient = () => {
             },
 
             purchase: (_result, _args, cache, _info) => {
-              betterUpdateQuery<PurchaseMutation, IsOwnQuery>(
-                cache,
-                { query: IsOwnDocument },
-                _result,
-                (result, query) => {
-                  if (result.purchase) {
-                    return { isOwn: true };
-                  } else
-                    return {
-                      isOwn: false,
-                    };
-                }
-              );
-              invalidateMyCourse(cache);
+              invalidateIsOwn(cache);
+              invalidNoArgument(cache, "myCourse");
+            },
+
+            addToMyFavorite: (_result, _args, cache, _info) => {
+              invalidWithArgument(cache, "courses");
+              invalidNoArgument(cache, "myFavorite");
             },
 
             login: (_result, _args, cache, _info) => {

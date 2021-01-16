@@ -5,6 +5,7 @@ export type AppParamList = {
   Home: undefined;
   Search: undefined;
   Courses: undefined;
+  Favorite: undefined;
 };
 
 export type AppBottomTabProps<T extends keyof AppParamList> = {
@@ -13,6 +14,8 @@ export type AppBottomTabProps<T extends keyof AppParamList> = {
 };
 
 export type HomeParamList = {
+  Search: undefined;
+  Courses: undefined;
   Section: undefined;
   Home: undefined;
   Lesson: undefined;

@@ -1,59 +1,142 @@
 import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components/native";
+import styled, { DefaultTheme } from "styled-components/native";
 import { EvilIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import { Keyboard } from "react-native";
+import { Keyboard, ScrollView, TouchableOpacity } from "react-native";
 import SearchContent from "../components/SearchContent";
+import { useCategoriesQuery, useGetThemeQuery } from "../generated/graphql";
+import { themeModify } from "../utils/themeModify";
+import { AppBottomTabProps, HomeStackNavProps } from "../utils/params";
+import Logo from "../components/Logo";
+import { toParamsMap } from "../utils/toParamMap";
 
-interface ProjectsScreenProps {}
+interface ProjectsScreenProps {
+  screen: AppBottomTabProps<"Search">;
+}
 
-const SearchScreen: React.FC<ProjectsScreenProps> = ({}) => {
+const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
+  const [listParams, setListParams] = useState<Record<string, object>>({});
   const [search, setSearch] = useState("");
-  const [isSubmit, setIsSubmit] = useState("");
+  const [isSubmit, setIsSubmit] = useState<undefined | string>();
+  const [color] = useGetThemeQuery();
+  const theme: DefaultTheme = {
+    input: {
+      background: themeModify("#fffefc", color.data?.getTheme),
+      color: themeModify("#5d5d5d", color.data?.getTheme),
+    },
+    container: {
+      background: themeModify("#ffff", color.data?.getTheme),
+    },
+  };
+  const [cate] = useCategoriesQuery();
+
+  useEffect(() => {
+    if (route?.params) {
+      setListParams(toParamsMap(route.params));
+    }
+  }, [route.params, isSubmit]);
 
   return (
-    <Container>
-      <View style={{ zIndex: 1 }}>
+    <Container theme={theme}>
+      <View style={{ zIndex: -1 }}>
         <SearchInput
           style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.5,
-            shadowRadius: 2,
-            elevation: 5,
+            shadowColor: themeModify("#000", theme.data?.getTheme),
+            shadowOffset: {
+              width: 0,
+              height: 3,
+            },
+            shadowOpacity: 0.29,
+            shadowRadius: 4.65,
+
+            elevation: 7,
           }}
-          placeholder="Search"
-          onChangeText={(result: any) => setSearch(result)}
-          defaultValue={search}
-          onSubmitEditing={() => setIsSubmit(search)}
-        />
+          theme={theme}
+          onChangeText={(text: any) => setSearch(text)}
+          value={search}
+          placeholder="Search courses"
+          onSubmitEditing={() => {
+            if (search === "") setIsSubmit(undefined);
+            else setIsSubmit(search);
+            console.log(isSubmit);
+          }}
+        ></SearchInput>
       </View>
-      <Button style={{ position: "absolute", top: 40, left: 10, zIndex: 100 }}>
-        <EvilIcons name="search" size={34} color="black" />
-      </Button>
+      <SearchIcon>
+        <EvilIcons
+          name="search"
+          size={30}
+          color={themeModify("#000", color.data?.getTheme)}
+        />
+      </SearchIcon>
       {search === "" ? null : (
-        <Button
-          onPress={() => {
-            Keyboard.dismiss();
-            setSearch("");
-          }}
-          style={{ position: "absolute", top: 43, right: 14, zIndex: 100 }}
-        >
-          <AntDesign name="close" size={24} color="#999999" />
-        </Button>
+        <CloseIcon onPress={() => setSearch("")}>
+          <AntDesign
+            name="close"
+            size={25}
+            color={themeModify("#000", color.data?.getTheme)}
+          />
+        </CloseIcon>
       )}
-      {isSubmit === "" ? null : <SearchContent search={isSubmit} />}
+      <ScrollView>
+        <ScrollView
+          style={{
+            flexDirection: "row",
+            paddingTop: 30,
+            marginLeft: 15,
+            height: 115,
+          }}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+        >
+          {cate.data?.categories.map((category) => {
+            return (
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("Search", {
+                    categoryId: category.id,
+                  } as any);
+                }}
+              >
+                <Logo
+                  key={category.id}
+                  image={category.imageUrl}
+                  text={category.name}
+                />
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+        <SearchContent
+          search={isSubmit}
+          categoryId={listParams["categoryId"]}
+        />
+      </ScrollView>
     </Container>
   );
 };
 
 export default SearchScreen;
 
+const SearchIcon = styled.TouchableOpacity`
+  top: 43;
+  left: 10;
+  width: 50px;
+  height: 50px;
+  position: absolute;
+`;
+
+const CloseIcon = styled.TouchableOpacity`
+  top: 43;
+  right: 10;
+  position: absolute;
+`;
+
 const Container = styled.View`
   flex: 1;
   width: 100%;
   height: 100%;
-  background: #fff;
+  background: ${(props: any) => props.theme.container.background};
 `;
 
 const SearchInput = styled.TextInput`
@@ -62,8 +145,8 @@ const SearchInput = styled.TextInput`
   font-size: 18px;
   /* max-height: 150px; */
   width: 100%;
-  background-color: #fff;
-  color: #5d5d5d;
+  background-color: ${(props: any) => props.theme.input.background};
+  color: ${(props: any) => props.theme.input.color};
 `;
 
 const Button = styled.TouchableOpacity``;

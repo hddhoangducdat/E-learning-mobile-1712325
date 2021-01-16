@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+mport React, { useEffect, useRef, useState } from "react";
 import {
   ScrollView,
   SafeAreaView,
@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components/native";
 import { ReduxReducers, TRIGGER_MENU, TRIGGER_TAB_BAR } from "../../types";
 import Card from "../components/Card";
-import Course from "../components/Course";
+import Course from "../components/Favorite";
 import Logo from "../components/Logo";
 import Menu from "../components/Menu";
 import { HomeStackNavProps } from "../utils/params";
@@ -175,11 +175,19 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
             >
               {cate.data?.categories.map((category) => {
                 return (
-                  <Logo
-                    key={category.id}
-                    image={category.imageUrl}
-                    text={category.name}
-                  />
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("Search", {
+                        categoryId: category.id,
+                      } as any);
+                    }}
+                  >
+                    <Logo
+                      key={category.id}
+                      image={category.imageUrl}
+                      text={category.name}
+                    />
+                  </TouchableOpacity>
                 );
               })}
             </ScrollView>
@@ -192,24 +200,18 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
 
             <ScrollView
               horizontal={true}
-              style={{ paddingBottom: 30, height: 350 }}
+              style={{ paddingBottom: 30, height: 300 }}
               showsHorizontalScrollIndicator={false}
             >
-              {bestSeller.data?.courses.courses.map((card, index) => {
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      navigation.push("Section", {
-                        courseId: card.id,
-                        categoryUrl: card.category.imageUrl,
-                        categoryName: card.category.name,
-                        isBestSeller: true,
-                      } as any);
-                    }}
-                  >
-                    {bestSeller.fetching ? null : (
+              {!bestSeller.fetching
+                ? bestSeller.data?.courses.courses.map((card, index) => {
+                    return (
                       <Card
+                        key={index}
+                        id={card.id}
+                        categoryId={card.category.id}
+                        navigation={navigation}
+                        categoryName={card.category.name}
                         image={card.imageUrl}
                         caption={card.title}
                         logo={card.category.imageUrl}
@@ -217,12 +219,12 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                         rate={card.rateNumber}
                         participant={card.soldNumber}
                         price={card.price}
+                        favorite={card.favorite.userId !== -1 ? true : false}
                         isBestSeller={true}
                       />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+                    );
+                  })
+                : null}
               <MoreView
                 style={{
                   shadowColor: "#000",
@@ -242,21 +244,20 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
             <Subtitle>
               {languageModify("Top rated courses", language.data?.getLanguage)}
             </Subtitle>
-            <ScrollView
+            <crollView
               horizontal={true}
-              style={{ paddingBottom: 30, height: 350 }}
+              style={{ paddingBottom: 30, height: 300 }}
               showsHorizontalScrollIndicator={false}
             >
-              {topRated.data?.courses.courses.map((card, index) => {
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      navigation.push("Section");
-                    }}
-                  >
-                    {topRated.fetching ? null : (
+              {!topRated.fetching
+                ? topRated.data?.courses.courses.map((card, index) => {
+                    return (
                       <Card
+                        key={index}
+                        id={card.id}
+                        categoryId={card.category.id}
+                        navigation={navigation}
+                        categoryName={card.category.name}
                         image={card.imageUrl}
                         caption={card.title}
                         logo={card.category.imageUrl}
@@ -264,12 +265,12 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                         rate={card.rateNumber}
                         participant={card.soldNumber}
                         price={card.price}
+                        favorite={card.favorite.userId !== -1 ? true : false}
                         isBestSeller={false}
                       />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+                    );
+                  })
+                : null}
               <TopRatedMoreView
                 style={{
                   shadowColor: "#000",

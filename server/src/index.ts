@@ -35,6 +35,10 @@ import { AssignmentResolver } from "./resolvers/assignment";
 import { v2 } from "@google-cloud/translate";
 import dotenv from "dotenv";
 import { SettingResolver } from "./resolvers/setting";
+import { Favorite } from "./entities/Favorite";
+import { FavoriteResolver } from "./resolvers/favorite";
+import { TrackingLesson } from "./entities/TrackingLesson";
+import { TrackingCourse } from "./entities/TrackingCourse";
 
 const main = async () => {
   dotenv.config();
@@ -63,6 +67,9 @@ const main = async () => {
       Category,
       AssignmentQuestion,
       Assignment,
+      Favorite,
+      TrackingLesson,
+      TrackingCourse,
     ],
   });
 
@@ -110,6 +117,7 @@ const main = async () => {
         ResourceResolver,
         AssignmentResolver,
         SettingResolver,
+        FavoriteResolver,
       ],
       validate: false,
     }),

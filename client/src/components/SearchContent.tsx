@@ -9,14 +9,19 @@ import ReverseCourse from "./ReverseCourse";
 import SearchCourse from "./SearchCourse";
 
 interface SearchContentProps {
-  search: string;
+  search?: string;
+  categoryId?: number;
 }
 
-const SearchContent: React.FC<SearchContentProps> = ({ search }) => {
+const SearchContent: React.FC<SearchContentProps> = ({
+  search,
+  categoryId,
+}) => {
   const [{ data }] = useCoursesQuery({
     variables: {
       limit: 15,
-      search,
+      search: search,
+      categoryId,
     },
   });
 
@@ -32,6 +37,7 @@ const SearchContent: React.FC<SearchContentProps> = ({ search }) => {
           rate={course.rateNumber}
           participant={course.soldNumber}
           price={course.price}
+          category={course.category.name}
           isBestSeller={false}
         />
       ))}

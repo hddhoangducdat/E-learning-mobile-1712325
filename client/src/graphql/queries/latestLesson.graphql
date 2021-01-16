@@ -1,0 +1,12 @@
+query LatestLesson {
+  latestLesson {
+    ...LessonFragment
+    section {
+      id
+      name
+    }
+    track {
+      ...TrackingLessonFragment
+    }
+  }
+}

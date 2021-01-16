@@ -1,4 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { AntDesign } from "@expo/vector-icons";
 import React, { useState } from "react";
 import CoursesScreen from "../screens/CoursesScreen";
 import SearchScreen from "../screens/SearchScreen";
@@ -13,6 +14,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useGetLanguageQuery, useGetThemeQuery } from "../generated/graphql";
 import { themeModify } from "../utils/themeModify";
+import FavoriteScreen from "../screens/FavoriteScreen";
 
 interface TabsNavigatorProps {}
 
@@ -36,6 +38,8 @@ export const TabsNavigator: React.FC<TabsNavigatorProps> = ({}) => {
               return (
                 <MaterialIcons name="local-library" size={24} color={color} />
               );
+            case "Favorite":
+              return <AntDesign name="heart" size={20} color={color} />;
             default:
               return <FontAwesome name="search" size={20} color={color} />;
           }
@@ -61,6 +65,7 @@ export const TabsNavigator: React.FC<TabsNavigatorProps> = ({}) => {
       />
       <Tabs.Screen name="Search" component={SearchScreen} />
       <Tabs.Screen name="Courses" component={CoursesScreen} />
+      <Tabs.Screen name="Favorite" component={FavoriteScreen} />
     </Tabs.Navigator>
   );
 };

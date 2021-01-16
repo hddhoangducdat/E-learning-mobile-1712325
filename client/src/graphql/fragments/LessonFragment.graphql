@@ -1,0 +1,7 @@
+fragment LessonFragment on Lesson {
+  id
+  name
+  content
+  video
+  captionName
+}

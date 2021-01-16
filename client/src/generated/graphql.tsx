@@ -28,6 +28,7 @@ export type Query = {
   feedBacks: PaginatedFeedBack;
   reports: PaginatedReport;
   lessons: Array<Lesson>;
+  latestLesson?: Maybe<Lesson>;
   lesson?: Maybe<Lesson>;
   questions: PaginatedQuestion;
   replyQuestions: PaginatedQuestion;
@@ -35,6 +36,7 @@ export type Query = {
   assignments: Array<Assignment>;
   getLanguage: Scalars['String'];
   getTheme: Scalars['String'];
+  myFavorite?: Maybe<Array<Course>>;
 };
 
 
@@ -160,6 +162,8 @@ export type Course = {
   isHidden: Scalars['Boolean'];
   categoryId: Scalars['Float'];
   category: Category;
+  track: Array<TrackingCourse>;
+  favorite: Favorite;
   instructorId: Scalars['Float'];
   section: Array<Section>;
   createdAt: Scalars['DateTime'];
@@ -173,6 +177,23 @@ export type Category = {
   imageUrl: Scalars['String'];
   course: Array<Course>;
   isDeleted: Scalars['Boolean'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+};
+
+export type TrackingCourse = {
+  __typename?: 'TrackingCourse';
+  userId: Scalars['Float'];
+  courseId: Scalars['Float'];
+  lessonId: Scalars['Float'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+};
+
+export type Favorite = {
+  __typename?: 'Favorite';
+  userId: Scalars['Float'];
+  courseId: Scalars['Float'];
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
 };
@@ -239,6 +260,7 @@ export type Lesson = {
   resource: Array<Resource>;
   assignment: Array<Assignment>;
   questions: Array<Question>;
+  track: Array<TrackingLesson>;
   sectionId: Scalars['Float'];
   numberOrder: Scalars['Float'];
   name: Scalars['String'];
@@ -305,6 +327,15 @@ export type Question = {
   user: User;
 };
 
+export type TrackingLesson = {
+  __typename?: 'TrackingLesson';
+  userId: Scalars['Float'];
+  lessonId: Scalars['Float'];
+  time: Scalars['Float'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+};
+
 export type PaginatedQuestion = {
   __typename?: 'PaginatedQuestion';
   questions: Array<Question>;
@@ -322,12 +353,15 @@ export type Mutation = {
   forgotPassword: Scalars['Boolean'];
   requestActivate: Scalars['Boolean'];
   becomeOrUpdateInstructor: UserResponse;
+  trackCourse?: Maybe<TrackingCourse>;
   purchase?: Maybe<Course>;
-  track: TrackingResponse;
+  trackLesson?: Maybe<TrackingLesson>;
   postQuestion: Question;
   postReplyQuestion: Question;
   changeLanguage: Scalars['String'];
   changeTheme: Scalars['String'];
+  addToMyFavorite?: Maybe<Course>;
+  removeFromFavorite: Scalars['Boolean'];
 };
 
 
@@ -377,13 +411,18 @@ export type MutationBecomeOrUpdateInstructorArgs = {
 };
 
 
+export type MutationTrackCourseArgs = {
+  lessonId: Scalars['Float'];
+  courseId: Scalars['Float'];
+};
+
+
 export type MutationPurchaseArgs = {
   courseId: Scalars['Float'];
 };
 
 
-export type MutationTrackArgs = {
-  name: Scalars['String'];
+export type MutationTrackLessonArgs = {
   time: Scalars['Float'];
   lessonId: Scalars['Float'];
 };
@@ -411,6 +450,16 @@ export type MutationChangeThemeArgs = {
   theme: Scalars['String'];
 };
 
+
+export type MutationAddToMyFavoriteArgs = {
+  courseId: Scalars['Float'];
+};
+
+
+export type MutationRemoveFromFavoriteArgs = {
+  courseId: Scalars['Float'];
+};
+
 export type UserResponse = {
   __typename?: 'UserResponse';
   errors?: Maybe<Array<FieldError>>;
@@ -430,21 +479,34 @@ export type UserInput = {
   phone: Scalars['String'];
 };
 
-export type TrackingResponse = {
-  __typename?: 'TrackingResponse';
-  id: Scalars['Float'];
-  time: Scalars['Float'];
-  name: Scalars['String'];
-};
+export type CategoryFragmentFragment = (
+  { __typename?: 'Category' }
+  & Pick<Category, 'id' | 'imageUrl' | 'name'>
+);
+
+export type CourseFragmentFragment = (
+  { __typename?: 'Course' }
+  & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'description' | 'requirement' | 'learnWhat' | 'soldNumber' | 'videoNumber' | 'rateNumber' | 'totalHours' | 'promoVidUrl' | 'formalityPoint' | 'contentPoint' | 'presentationPoint' | 'instructorId'>
+);
 
 export type ErrorFragmentFragment = (
   { __typename?: 'FieldError' }
   & Pick<FieldError, 'field' | 'message'>
 );
 
+export type FavoriteFragmentFragment = (
+  { __typename?: 'Favorite' }
+  & Pick<Favorite, 'userId'>
+);
+
 export type InstructorFragmentFragment = (
   { __typename?: 'Instructor' }
   & Pick<Instructor, 'id' | 'major' | 'intro' | 'skills'>
+);
+
+export type LessonFragmentFragment = (
+  { __typename?: 'Lesson' }
+  & Pick<Lesson, 'id' | 'name' | 'content' | 'video' | 'captionName'>
 );
 
 export type QuestionFragmentFragment = (
@@ -454,6 +516,16 @@ export type QuestionFragmentFragment = (
     { __typename?: 'User' }
     & UserFragmentFragment
   ) }
+);
+
+export type TrackingCourseFragmentFragment = (
+  { __typename?: 'TrackingCourse' }
+  & Pick<TrackingCourse, 'userId' | 'lessonId'>
+);
+
+export type TrackingLessonFragmentFragment = (
+  { __typename?: 'TrackingLesson' }
+  & Pick<TrackingLesson, 'userId' | 'lessonId' | 'time'>
 );
 
 export type UserFragmentFragment = (
@@ -487,6 +559,19 @@ export type ActivateAccountMutation = (
     { __typename?: 'UserResponse' }
     & UserResponseFragmentFragment
   ) }
+);
+
+export type AddToMyFavoriteMutationVariables = Exact<{
+  courseId: Scalars['Float'];
+}>;
+
+
+export type AddToMyFavoriteMutation = (
+  { __typename?: 'Mutation' }
+  & { addToMyFavorite?: Maybe<(
+    { __typename?: 'Course' }
+    & CourseFragmentFragment
+  )> }
 );
 
 export type BecomeOrUpdateInstructorMutationVariables = Exact<{
@@ -608,7 +693,7 @@ export type PurchaseMutation = (
   { __typename?: 'Mutation' }
   & { purchase?: Maybe<(
     { __typename?: 'Course' }
-    & Pick<Course, 'id' | 'title' | 'subtitle' | 'rateNumber' | 'imageUrl'>
+    & CourseFragmentFragment
   )> }
 );
 
@@ -625,6 +710,16 @@ export type RegisterMutation = (
   ) }
 );
 
+export type RemoveFromFavoriteMutationVariables = Exact<{
+  courseId: Scalars['Float'];
+}>;
+
+
+export type RemoveFromFavoriteMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'removeFromFavorite'>
+);
+
 export type RequestActivateMutationVariables = Exact<{
   email: Scalars['String'];
   token: Scalars['String'];
@@ -634,6 +729,34 @@ export type RequestActivateMutationVariables = Exact<{
 export type RequestActivateMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'requestActivate'>
+);
+
+export type TrackCourseMutationVariables = Exact<{
+  lessonId: Scalars['Float'];
+  courseId: Scalars['Float'];
+}>;
+
+
+export type TrackCourseMutation = (
+  { __typename?: 'Mutation' }
+  & { trackCourse?: Maybe<(
+    { __typename?: 'TrackingCourse' }
+    & TrackingCourseFragmentFragment
+  )> }
+);
+
+export type TrackLessonMutationVariables = Exact<{
+  lessonId: Scalars['Float'];
+  time: Scalars['Float'];
+}>;
+
+
+export type TrackLessonMutation = (
+  { __typename?: 'Mutation' }
+  & { trackLesson?: Maybe<(
+    { __typename?: 'TrackingLesson' }
+    & TrackingLessonFragmentFragment
+  )> }
 );
 
 export type UpdateUserMutationVariables = Exact<{
@@ -684,11 +807,14 @@ export type CourseQuery = (
   { __typename?: 'Query' }
   & { course?: Maybe<(
     { __typename?: 'Course' }
-    & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'description' | 'requirement' | 'learnWhat' | 'soldNumber' | 'videoNumber' | 'rateNumber' | 'totalHours' | 'promoVidUrl' | 'formalityPoint' | 'contentPoint' | 'presentationPoint' | 'instructorId'>
-    & { section: Array<(
+    & { track: Array<(
+      { __typename?: 'TrackingCourse' }
+      & TrackingCourseFragmentFragment
+    )>, section: Array<(
       { __typename?: 'Section' }
       & Pick<Section, 'id' | 'name'>
     )> }
+    & CourseFragmentFragment
   )> }
 );
 
@@ -709,11 +835,14 @@ export type CoursesQuery = (
     & Pick<PaginatedCourse, 'hasMore'>
     & { courses: Array<(
       { __typename?: 'Course' }
-      & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'soldNumber' | 'rateNumber' | 'categoryId' | 'imageUrl'>
       & { category: (
         { __typename?: 'Category' }
         & Pick<Category, 'id' | 'imageUrl' | 'name'>
+      ), favorite: (
+        { __typename?: 'Favorite' }
+        & FavoriteFragmentFragment
       ) }
+      & CourseFragmentFragment
     )> }
   ) }
 );
@@ -784,6 +913,24 @@ export type IsOwnQuery = (
   & Pick<Query, 'isOwn'>
 );
 
+export type LatestLessonQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LatestLessonQuery = (
+  { __typename?: 'Query' }
+  & { latestLesson?: Maybe<(
+    { __typename?: 'Lesson' }
+    & { section: (
+      { __typename?: 'Section' }
+      & Pick<Section, 'id' | 'name'>
+    ), track: Array<(
+      { __typename?: 'TrackingLesson' }
+      & TrackingLessonFragmentFragment
+    )> }
+    & LessonFragmentFragment
+  )> }
+);
+
 export type LessonQueryVariables = Exact<{
   lessonId: Scalars['Int'];
 }>;
@@ -793,14 +940,17 @@ export type LessonQuery = (
   { __typename?: 'Query' }
   & { lesson?: Maybe<(
     { __typename?: 'Lesson' }
-    & Pick<Lesson, 'id' | 'name' | 'content' | 'video' | 'captionName'>
-    & { resource: Array<(
-      { __typename?: 'Resource' }
-      & Pick<Resource, 'id' | 'name' | 'url' | 'type'>
-    )>, section: (
+    & { section: (
       { __typename?: 'Section' }
       & Pick<Section, 'id' | 'name'>
-    ) }
+    ), track: Array<(
+      { __typename?: 'TrackingLesson' }
+      & TrackingLessonFragmentFragment
+    )>, resource: Array<(
+      { __typename?: 'Resource' }
+      & Pick<Resource, 'id' | 'name' | 'url' | 'type'>
+    )> }
+    & LessonFragmentFragment
   )> }
 );
 
@@ -813,7 +963,7 @@ export type LessonsQuery = (
   { __typename?: 'Query' }
   & { lessons: Array<(
     { __typename?: 'Lesson' }
-    & Pick<Lesson, 'id' | 'name' | 'content' | 'times'>
+    & LessonFragmentFragment
   )> }
 );
 
@@ -835,7 +985,18 @@ export type MyCourseQuery = (
   { __typename?: 'Query' }
   & { myCourse?: Maybe<Array<(
     { __typename?: 'Course' }
-    & Pick<Course, 'id' | 'title' | 'subtitle' | 'rateNumber' | 'imageUrl'>
+    & CourseFragmentFragment
+  )>> }
+);
+
+export type MyFavoriteQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyFavoriteQuery = (
+  { __typename?: 'Query' }
+  & { myFavorite?: Maybe<Array<(
+    { __typename?: 'Course' }
+    & CourseFragmentFragment
   )>> }
 );
 
@@ -877,6 +1038,47 @@ export type ReplyQuestionsQuery = (
   ) }
 );
 
+export const CategoryFragmentFragmentDoc = gql`
+    fragment CategoryFragment on Category {
+  id
+  imageUrl
+  name
+}
+    `;
+export const CourseFragmentFragmentDoc = gql`
+    fragment CourseFragment on Course {
+  id
+  title
+  subtitle
+  price
+  description
+  requirement
+  learnWhat
+  soldNumber
+  videoNumber
+  rateNumber
+  totalHours
+  promoVidUrl
+  formalityPoint
+  contentPoint
+  presentationPoint
+  instructorId
+}
+    `;
+export const FavoriteFragmentFragmentDoc = gql`
+    fragment FavoriteFragment on Favorite {
+  userId
+}
+    `;
+export const LessonFragmentFragmentDoc = gql`
+    fragment LessonFragment on Lesson {
+  id
+  name
+  content
+  video
+  captionName
+}
+    `;
 export const InstructorFragmentFragmentDoc = gql`
     fragment InstructorFragment on Instructor {
   id
@@ -909,6 +1111,19 @@ export const QuestionFragmentFragmentDoc = gql`
   }
 }
     ${UserFragmentFragmentDoc}`;
+export const TrackingCourseFragmentFragmentDoc = gql`
+    fragment TrackingCourseFragment on TrackingCourse {
+  userId
+  lessonId
+}
+    `;
+export const TrackingLessonFragmentFragmentDoc = gql`
+    fragment TrackingLessonFragment on TrackingLesson {
+  userId
+  lessonId
+  time
+}
+    `;
 export const ErrorFragmentFragmentDoc = gql`
     fragment ErrorFragment on FieldError {
   field
@@ -936,6 +1151,17 @@ export const ActivateAccountDocument = gql`
 
 export function useActivateAccountMutation() {
   return Urql.useMutation<ActivateAccountMutation, ActivateAccountMutationVariables>(ActivateAccountDocument);
+};
+export const AddToMyFavoriteDocument = gql`
+    mutation AddToMyFavorite($courseId: Float!) {
+  addToMyFavorite(courseId: $courseId) {
+    ...CourseFragment
+  }
+}
+    ${CourseFragmentFragmentDoc}`;
+
+export function useAddToMyFavoriteMutation() {
+  return Urql.useMutation<AddToMyFavoriteMutation, AddToMyFavoriteMutationVariables>(AddToMyFavoriteDocument);
 };
 export const BecomeOrUpdateInstructorDocument = gql`
     mutation BecomeOrUpdateInstructor($major: String!, $intro: String!) {
@@ -1035,14 +1261,10 @@ export function usePostReplyQuestionMutation() {
 export const PurchaseDocument = gql`
     mutation Purchase($courseId: Float!) {
   purchase(courseId: $courseId) {
-    id
-    title
-    subtitle
-    rateNumber
-    imageUrl
+    ...CourseFragment
   }
 }
-    `;
+    ${CourseFragmentFragmentDoc}`;
 
 export function usePurchaseMutation() {
   return Urql.useMutation<PurchaseMutation, PurchaseMutationVariables>(PurchaseDocument);
@@ -1058,6 +1280,15 @@ export const RegisterDocument = gql`
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
 };
+export const RemoveFromFavoriteDocument = gql`
+    mutation RemoveFromFavorite($courseId: Float!) {
+  removeFromFavorite(courseId: $courseId)
+}
+    `;
+
+export function useRemoveFromFavoriteMutation() {
+  return Urql.useMutation<RemoveFromFavoriteMutation, RemoveFromFavoriteMutationVariables>(RemoveFromFavoriteDocument);
+};
 export const RequestActivateDocument = gql`
     mutation RequestActivate($email: String!, $token: String!) {
   requestActivate(email: $email, token: $token)
@@ -1066,6 +1297,28 @@ export const RequestActivateDocument = gql`
 
 export function useRequestActivateMutation() {
   return Urql.useMutation<RequestActivateMutation, RequestActivateMutationVariables>(RequestActivateDocument);
+};
+export const TrackCourseDocument = gql`
+    mutation TrackCourse($lessonId: Float!, $courseId: Float!) {
+  trackCourse(lessonId: $lessonId, courseId: $courseId) {
+    ...TrackingCourseFragment
+  }
+}
+    ${TrackingCourseFragmentFragmentDoc}`;
+
+export function useTrackCourseMutation() {
+  return Urql.useMutation<TrackCourseMutation, TrackCourseMutationVariables>(TrackCourseDocument);
+};
+export const TrackLessonDocument = gql`
+    mutation TrackLesson($lessonId: Float!, $time: Float!) {
+  trackLesson(lessonId: $lessonId, time: $time) {
+    ...TrackingLessonFragment
+  }
+}
+    ${TrackingLessonFragmentFragmentDoc}`;
+
+export function useTrackLessonMutation() {
+  return Urql.useMutation<TrackLessonMutation, TrackLessonMutationVariables>(TrackLessonDocument);
 };
 export const UpdateUserDocument = gql`
     mutation UpdateUser($username: String!, $phone: String!) {
@@ -1112,29 +1365,18 @@ export function useCategoriesQuery(options: Omit<Urql.UseQueryArgs<CategoriesQue
 export const CourseDocument = gql`
     query Course($id: Int!) {
   course(id: $id) {
-    id
-    title
-    subtitle
-    price
-    description
-    requirement
-    learnWhat
-    soldNumber
-    videoNumber
-    rateNumber
-    totalHours
-    promoVidUrl
-    formalityPoint
-    contentPoint
-    presentationPoint
-    instructorId
+    ...CourseFragment
+    track {
+      ...TrackingCourseFragment
+    }
     section {
       id
       name
     }
   }
 }
-    `;
+    ${CourseFragmentFragmentDoc}
+${TrackingCourseFragmentFragmentDoc}`;
 
 export function useCourseQuery(options: Omit<Urql.UseQueryArgs<CourseQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<CourseQuery>({ query: CourseDocument, ...options });
@@ -1150,24 +1392,21 @@ export const CoursesDocument = gql`
     search: $search
   ) {
     courses {
-      id
-      title
-      subtitle
-      price
-      soldNumber
-      rateNumber
-      categoryId
-      imageUrl
+      ...CourseFragment
       category {
         id
         imageUrl
         name
       }
+      favorite {
+        ...FavoriteFragment
+      }
     }
     hasMore
   }
 }
-    `;
+    ${CourseFragmentFragmentDoc}
+${FavoriteFragmentFragmentDoc}`;
 
 export function useCoursesQuery(options: Omit<Urql.UseQueryArgs<CoursesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<CoursesQuery>({ query: CoursesDocument, ...options });
@@ -1242,27 +1481,46 @@ export const IsOwnDocument = gql`
 export function useIsOwnQuery(options: Omit<Urql.UseQueryArgs<IsOwnQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<IsOwnQuery>({ query: IsOwnDocument, ...options });
 };
+export const LatestLessonDocument = gql`
+    query LatestLesson {
+  latestLesson {
+    ...LessonFragment
+    section {
+      id
+      name
+    }
+    track {
+      ...TrackingLessonFragment
+    }
+  }
+}
+    ${LessonFragmentFragmentDoc}
+${TrackingLessonFragmentFragmentDoc}`;
+
+export function useLatestLessonQuery(options: Omit<Urql.UseQueryArgs<LatestLessonQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<LatestLessonQuery>({ query: LatestLessonDocument, ...options });
+};
 export const LessonDocument = gql`
     query Lesson($lessonId: Int!) {
   lesson(lessonId: $lessonId) {
-    id
+    ...LessonFragment
+    section {
+      id
+      name
+    }
+    track {
+      ...TrackingLessonFragment
+    }
     resource {
       id
       name
       url
       type
     }
-    section {
-      id
-      name
-    }
-    name
-    content
-    video
-    captionName
   }
 }
-    `;
+    ${LessonFragmentFragmentDoc}
+${TrackingLessonFragmentFragmentDoc}`;
 
 export function useLessonQuery(options: Omit<Urql.UseQueryArgs<LessonQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<LessonQuery>({ query: LessonDocument, ...options });
@@ -1270,13 +1528,10 @@ export function useLessonQuery(options: Omit<Urql.UseQueryArgs<LessonQueryVariab
 export const LessonsDocument = gql`
     query Lessons($sectionId: Float!) {
   lessons(sectionId: $sectionId) {
-    id
-    name
-    content
-    times
+    ...LessonFragment
   }
 }
-    `;
+    ${LessonFragmentFragmentDoc}`;
 
 export function useLessonsQuery(options: Omit<Urql.UseQueryArgs<LessonsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<LessonsQuery>({ query: LessonsDocument, ...options });
@@ -1295,17 +1550,24 @@ export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'q
 export const MyCourseDocument = gql`
     query MyCourse {
   myCourse {
-    id
-    title
-    subtitle
-    rateNumber
-    imageUrl
+    ...CourseFragment
   }
 }
-    `;
+    ${CourseFragmentFragmentDoc}`;
 
 export function useMyCourseQuery(options: Omit<Urql.UseQueryArgs<MyCourseQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MyCourseQuery>({ query: MyCourseDocument, ...options });
+};
+export const MyFavoriteDocument = gql`
+    query MyFavorite {
+  myFavorite {
+    ...CourseFragment
+  }
+}
+    ${CourseFragmentFragmentDoc}`;
+
+export function useMyFavoriteQuery(options: Omit<Urql.UseQueryArgs<MyFavoriteQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MyFavoriteQuery>({ query: MyFavoriteDocument, ...options });
 };
 export const QuestionsDocument = gql`
     query Questions($limit: Int!, $cursor: DateTime, $lessonId: Int!) {

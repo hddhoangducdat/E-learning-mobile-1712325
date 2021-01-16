@@ -26,23 +26,7 @@ const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const Lesson_1 = require("../entities/Lesson");
 const Section_1 = require("../entities/Section");
-let TrackingResponse = class TrackingResponse {
-};
-__decorate([
-    type_graphql_1.Field(() => Number),
-    __metadata("design:type", Number)
-], TrackingResponse.prototype, "id", void 0);
-__decorate([
-    type_graphql_1.Field(() => Number),
-    __metadata("design:type", Number)
-], TrackingResponse.prototype, "time", void 0);
-__decorate([
-    type_graphql_1.Field(() => String),
-    __metadata("design:type", String)
-], TrackingResponse.prototype, "name", void 0);
-TrackingResponse = __decorate([
-    type_graphql_1.ObjectType()
-], TrackingResponse);
+const TrackingLesson_1 = require("../entities/TrackingLesson");
 let LessonResolver = class LessonResolver {
     name(lesson, { req, translate }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -84,21 +68,34 @@ let LessonResolver = class LessonResolver {
     section(lesson) {
         return Section_1.Section.findOne(lesson.sectionId);
     }
-    track(lessonId, time, name, { req }) {
-        req.session.track = {
-            id: lessonId,
-            time,
-            name,
-        };
-        return {
-            id: lessonId,
-            name,
-            time,
-        };
+    trackLesson(lessonId, time, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.userId) {
+                let track;
+                try {
+                    track = yield TrackingLesson_1.TrackingLesson.create({
+                        userId: req.session.userId,
+                        lessonId,
+                        time,
+                    }).save();
+                    req.session.lesson = lessonId;
+                }
+                catch (err) {
+                    return null;
+                }
+                return track;
+            }
+            return null;
+        });
+    }
+    latestLesson({ req }) {
+        return Lesson_1.Lesson.findOne(req.session.lessonId, {
+            relations: ["track"],
+        });
     }
     lesson(lessonId) {
         return Lesson_1.Lesson.findOne(lessonId, {
-            relations: ["resource"],
+            relations: ["resource", "track"],
         });
     }
 };
@@ -139,15 +136,21 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], LessonResolver.prototype, "section", null);
 __decorate([
-    type_graphql_1.Mutation(() => TrackingResponse),
-    __param(0, type_graphql_1.Arg("lessonId")),
-    __param(1, type_graphql_1.Arg("time")),
-    __param(2, type_graphql_1.Arg("name")),
-    __param(3, type_graphql_1.Ctx()),
+    type_graphql_1.Mutation(() => TrackingLesson_1.TrackingLesson, { nullable: true }),
+    __param(0, type_graphql_1.Arg("lessonId", () => Number)),
+    __param(1, type_graphql_1.Arg("time", () => Number)),
+    __param(2, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number, String, Object]),
-    __metadata("design:returntype", TrackingResponse)
-], LessonResolver.prototype, "track", null);
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], LessonResolver.prototype, "trackLesson", null);
+__decorate([
+    type_graphql_1.Query(() => Lesson_1.Lesson, { nullable: true }),
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], LessonResolver.prototype, "latestLesson", null);
 __decorate([
     type_graphql_1.Query(() => Lesson_1.Lesson, { nullable: true }),
     __param(0, type_graphql_1.Arg("lessonId", () => type_graphql_1.Int)),

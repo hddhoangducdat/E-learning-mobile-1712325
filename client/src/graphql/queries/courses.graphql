@@ -15,18 +15,14 @@ query Courses(
     search: $search
   ) {
     courses {
-      id
-      title
-      subtitle
-      price
-      soldNumber
-      rateNumber
-      categoryId
-      imageUrl
+      ...CourseFragment
       category {
         id
         imageUrl
         name
+      }
+      favorite {
+        ...FavoriteFragment
       }
     }
     hasMore

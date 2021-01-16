@@ -37,7 +37,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], PaginatedFeedBack.prototype, "hasMore", void 0);
 PaginatedFeedBack = __decorate([
-    type_graphql_1.ObjectType()
+    type_graphql_1.ObjectType({ isAbstract: true })
 ], PaginatedFeedBack);
 let FeedBackResolver = class FeedBackResolver {
     user(feedBack) {

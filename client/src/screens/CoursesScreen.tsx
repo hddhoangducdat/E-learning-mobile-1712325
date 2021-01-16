@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components/native";
 // import { LinearGradient } from "expo";
 import CourseSection from "../components/CourseSection";
-import Courses from "../components/Courses";
+import Courses from "../components/Favorites";
 import { AsyncStorage, Dimensions } from "react-native";
 import { Video } from "expo-av";
 import { useMeQuery, useMyCourseQuery } from "../generated/graphql";
@@ -46,14 +46,16 @@ const CoursesScreen = ({}) => {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             >
-              {data?.myCourse!.map((course, index) => (
-                <CourseSection
-                  key={index}
-                  id={course.id}
-                  title={course.title}
-                  image={course.imageUrl}
-                />
-              ))}
+              {data?.myCourse
+                ? data?.myCourse.map((course, index) => (
+                    <CourseSection
+                      key={index}
+                      id={course.id}
+                      title={course.title}
+                      image={course.imageUrl}
+                    />
+                  ))
+                : null}
             </SectionScrollView>
           </Sections>
           <Author>
@@ -61,28 +63,27 @@ const CoursesScreen = ({}) => {
             <Name>{me.data.me.username}</Name>
           </Author>
         </Hero>
-        <Subtitle>Latest Courses</Subtitle>
-        {downloaded.map(({ fileUri }, id) => {
-          console.log(fileUri);
-          return (
-            <Video
-              key={id}
-              source={{
-                uri: fileUri,
-              }}
-              rate={1.0}
-              volume={1.0}
-              isMuted={false}
-              resizeMode="cover"
-              shouldPlay={false}
-              isLooping={false}
-              useNativeControls
-              style={{ width: 250, height: 150 }}
-            />
-          );
-        })}
-
-        <Courses />
+        <Subtitle>Donwloaded Courses</Subtitle>
+        <View>
+          {downloaded.map(({ fileUri }, id) => {
+            return (
+              <Video
+                key={id}
+                source={{
+                  uri: fileUri,
+                }}
+                rate={1.0}
+                volume={1.0}
+                isMuted={false}
+                resizeMode="cover"
+                shouldPlay={false}
+                isLooping={false}
+                useNativeControls
+                style={{ width: 250, height: 150 }}
+              />
+            );
+          })}
+        </View>
       </ScrollView>
     </Container>
   );
@@ -90,8 +91,13 @@ const CoursesScreen = ({}) => {
 
 export default CoursesScreen;
 
+const View = styled.View`
+  align-items: center;
+  justify-content: center;
+`;
+
 const Container = styled.View`
-  background: #f0f3f5;
+  background: #f0f5ff;
 `;
 
 const ScrollView = styled.ScrollView`

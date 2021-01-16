@@ -1,9 +1,5 @@
 query MyCourse {
   myCourse {
-    id
-    title
-    subtitle
-    rateNumber
-    imageUrl
+    ...CourseFragment
   }
 }

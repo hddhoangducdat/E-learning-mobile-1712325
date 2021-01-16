@@ -16,6 +16,9 @@ import { UserAnswer } from "./UserAnswer";
 import { Question } from "./Question";
 import { Report } from "./Report";
 import { FeedBack } from "./FeedBack";
+import { Favorite } from "./Favorite";
+import { TrackingLesson } from "./TrackingLesson";
+import { TrackingCourse } from "./TrackingCourse";
 
 export enum UserType {
   STUDENT = "STUDENT",
@@ -87,11 +90,20 @@ export class User extends BaseEntity {
   @OneToMany(() => UserAnswer, (userAnswer) => userAnswer.user)
   result: UserAnswer[];
 
+  @OneToMany(() => TrackingLesson, (track) => track.user)
+  lessonTrack: TrackingLesson[];
+
+  @OneToMany(() => TrackingCourse, (track) => track.user)
+  courseTrack: TrackingCourse[];
+
   @OneToMany(() => Question, (question) => question.user)
   questions: Question[];
 
   @OneToMany(() => Report, (report) => report.user)
   reports: Report[];
+
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorite: Favorite[];
 
   @Field(() => Date)
   @CreateDateColumn()

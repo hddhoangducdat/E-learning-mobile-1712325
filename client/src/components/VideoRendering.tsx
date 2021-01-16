@@ -21,11 +21,10 @@ export default function VideoRendering({
   width,
 }: VideoRenderingProps) {
   if (!videoUrl) return null;
-  const token = videoUrl.split(".");
 
-  if (token[token.length] !== "mp4") {
+  if (videoUrl.includes("mp4")) {
     const [progress, setProgress] = useState<number>(0);
-    const video = "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4";
+    const video = videoUrl;
 
     const downloadVideo = async () => {
       const callback = (downloadProgress: any) => {
@@ -36,14 +35,14 @@ export default function VideoRendering({
       };
 
       const downloadResumable = createDownloadResumable(
-        "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
+        videoUrl,
         documentDirectory + video.split("/")[video.split("/").length - 1],
         {},
         callback
       );
 
       try {
-        const { uri } = await downloadResumable.downloadAsync();
+        const { uri }: any = await downloadResumable.downloadAsync();
         console.log("Finished downloading to ", uri);
       } catch (e) {
         console.error(e);
@@ -61,7 +60,7 @@ export default function VideoRendering({
       }
 
       try {
-        const { uri } = await downloadResumable.resumeAsync();
+        const { uri }: any = await downloadResumable.resumeAsync();
         console.log("Finished downloading to ", uri);
       } catch (e) {
         console.error(e);
@@ -71,7 +70,7 @@ export default function VideoRendering({
       <>
         <Video
           source={{
-            uri: "http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4",
+            uri: videoUrl,
           }}
           rate={1.0}
           volume={1.0}

@@ -16,6 +16,7 @@ const Section_1 = require("./Section");
 const Resource_1 = require("./Resource");
 const Assignment_1 = require("./Assignment");
 const Question_1 = require("./Question");
+const TrackingLesson_1 = require("./TrackingLesson");
 let Lesson = class Lesson extends typeorm_1.BaseEntity {
     constructor() {
         super(...arguments);
@@ -42,6 +43,11 @@ __decorate([
     typeorm_1.OneToMany(() => Question_1.Question, (forumQ) => forumQ.lesson),
     __metadata("design:type", Array)
 ], Lesson.prototype, "questions", void 0);
+__decorate([
+    type_graphql_1.Field(() => [TrackingLesson_1.TrackingLesson]),
+    typeorm_1.OneToMany(() => TrackingLesson_1.TrackingLesson, (track) => track.lesson),
+    __metadata("design:type", Array)
+], Lesson.prototype, "track", void 0);
 __decorate([
     type_graphql_1.Field(),
     typeorm_1.Column(),

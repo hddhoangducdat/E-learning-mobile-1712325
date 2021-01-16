@@ -1,0 +1,3 @@
+mutation RemoveFromFavorite($courseId: Float!) {
+  removeFromFavorite(courseId: $courseId)
+}

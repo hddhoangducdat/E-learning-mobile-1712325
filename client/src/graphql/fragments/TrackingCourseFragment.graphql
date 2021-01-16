@@ -1,0 +1,4 @@
+fragment TrackingCourseFragment on TrackingCourse {
+  userId
+  lessonId
+}

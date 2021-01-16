@@ -1,0 +1,18 @@
+fragment CourseFragment on Course {
+  id
+  title
+  subtitle
+  price
+  description
+  requirement
+  learnWhat
+  soldNumber
+  videoNumber
+  rateNumber
+  totalHours
+  promoVidUrl
+  formalityPoint
+  contentPoint
+  presentationPoint
+  instructorId
+}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components/native";
 // import { LinearGradient } from "expo";
 import CourseSection from "../components/CourseSection";
-import Courses from "../components/Courses";
+import Courses from "../components/Favorites";
 import { Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";

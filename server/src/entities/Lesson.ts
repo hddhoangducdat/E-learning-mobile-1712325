@@ -13,6 +13,7 @@ import { Section } from "./Section";
 import { Resource } from "./Resource";
 import { Assignment } from "./Assignment";
 import { Question } from "./Question";
+import { TrackingLesson } from "./TrackingLesson";
 
 @ObjectType()
 @Entity()
@@ -32,6 +33,10 @@ export class Lesson extends BaseEntity {
   @Field(() => [Question])
   @OneToMany(() => Question, (forumQ) => forumQ.lesson)
   questions: Question[];
+
+  @Field(() => [TrackingLesson])
+  @OneToMany(() => TrackingLesson, (track) => track.lesson)
+  track: TrackingLesson[];
 
   @Field()
   @Column()

@@ -1,8 +1,13 @@
 import React from "react";
 import styled from "styled-components/native";
 import { FontAwesome } from "@expo/vector-icons";
-import { useGetThemeQuery } from "../generated/graphql";
+import {
+  useAddToMyFavoriteMutation,
+  useGetThemeQuery,
+} from "../generated/graphql";
 import { themeModify } from "../utils/themeModify";
+import { AntDesign } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function Card({
   logo,
@@ -13,8 +18,14 @@ export default function Card({
   participant,
   isBestSeller,
   price,
+  navigation,
+  id,
+  categoryId,
+  categoryName,
+  favorite,
 }: any) {
   const [theme] = useGetThemeQuery();
+  const [, addToFavorite] = useAddToMyFavoriteMutation();
   return (
     <Container
       style={{
@@ -34,55 +45,83 @@ export default function Card({
         <BestSeller source={require("../assets/images/best_seller.png")} />
       ) : null}
 
-      <Cover>
-        <Image source={{ uri: image }} resizeMode="cover" />
-      </Cover>
-      <Content>
-        <Logo
-          source={{
-            uri: logo,
-          }}
-        />
-        <Wrapper>
-          <Caption>{caption.slice(0, 23)}</Caption>
-          <Subtitle>{subtitle}</Subtitle>
-          <RateContainer>
-            {rate / 2 <= 1 ? (
-              <FontAwesome name="star-o" size={15} color="#f2b20f" />
-            ) : rate / 2 <= 3 ? (
-              <FontAwesome name="star-half-empty" size={15} color="#f2b20f" />
-            ) : (
-              <FontAwesome name="star" size={15} color="#f2b20f" />
-            )}
+      <TouchableOpacity
+        onPress={() => {
+          navigation.push("Section", {
+            courseId: id,
+            categoryUrl: logo,
+            categoryId,
+            categoryName,
+            isBestSeller,
+          } as any);
+        }}
+      >
+        <Cover>
+          <Image source={{ uri: image }} resizeMode="cover" />
+        </Cover>
+        <Content>
+          <Logo
+            source={{
+              uri: logo,
+            }}
+          />
+          <Wrapper>
+            <Caption>{caption.slice(0, 23)}</Caption>
+            <Subtitle>{subtitle}</Subtitle>
+          </Wrapper>
+        </Content>
+      </TouchableOpacity>
+      <RateContainer>
+        {rate / 2 <= 1 ? (
+          <FontAwesome name="star-o" size={12} color="#f2b20f" />
+        ) : rate / 2 <= 3 ? (
+          <FontAwesome name="star-half-empty" size={12} color="#f2b20f" />
+        ) : (
+          <FontAwesome name="star" size={12} color="#f2b20f" />
+        )}
+        <Rate style={{ color: "#f2b20f" }}>{rate / 2}</Rate>
+        <MarginStatus />
 
-            <Rate style={{ color: themeModify("#000", theme.data?.getTheme) }}>
-              {rate / 2}
-            </Rate>
-            <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
-              {"(" + participant}
-            </Text>
-            <FontAwesome
-              name="user-o"
-              size={10}
-              color={themeModify("#000", theme.data?.getTheme)}
-            />
-            <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
-              {")"}
-            </Text>
-            <RightText
-              style={{ color: themeModify("#000", theme.data?.getTheme) }}
-            >
-              {price}
-            </RightText>
-          </RateContainer>
-        </Wrapper>
-      </Content>
+        <FontAwesome name="user-o" size={10} color={"#009a59"} />
+        <Text style={{ color: "#009a59" }}>{participant}</Text>
+        <MarginStatus />
+
+        <RightText>{price}</RightText>
+
+        <MarginStatus />
+
+        <TouchableOpacity
+          style={{ flexDirection: "row", alignItems: "center" }}
+          onPress={() => {
+            addToFavorite({
+              courseId: id,
+            });
+          }}
+        >
+          {favorite ? (
+            <>
+              <AntDesign name="heart" size={12} color="#e30e5f" />
+              <Text style={{ color: "#e30e5f", marginLeft: 5 }}>remove</Text>
+            </>
+          ) : (
+            <>
+              <AntDesign name="hearto" size={12} color="#e30e5f" />
+              <Text style={{ color: "#e30e5f", marginLeft: 5 }}>add</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </RateContainer>
     </Container>
   );
 }
 
+const MarginStatus = styled.View`
+  width: 30px;
+`;
+
 const RightText = styled.Text`
-  margin-left: 60px;
+  color: #1a9dee;
+  font-size: 12px;
 `;
 
 const BestSeller = styled.Image`
@@ -95,16 +134,21 @@ const BestSeller = styled.Image`
 `;
 
 const Text = styled.Text`
-  margin-right: 2px;
+  font-size: 12px;
+  margin-left: 3px;
 `;
 
 const RateContainer = styled.View`
   flex-direction: row;
+  justify-content: center;
   align-items: center;
+  height: 30px;
+  width: 100%;
+  padding: 10px;
 `;
 
 const Rate = styled.Text`
-  font-size: 15px;
+  font-size: 12px;
   color: #000;
   margin: 0 5px;
 `;
@@ -114,7 +158,7 @@ const Content = styled.View`
   padding-left: 20px;
   flex-direction: row;
   align-items: center;
-  height: 80px;
+  height: 60px;
 `;
 
 const Wrapper = styled.View`
@@ -129,14 +173,14 @@ const Logo = styled.Image`
 
 const Caption = styled.Text`
   color: #3c4560;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
 `;
 
 const Subtitle = styled.Text`
   color: #b8bece;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 12px;
   text-transform: uppercase;
   margin-top: 4px;
 `;
@@ -144,8 +188,8 @@ const Subtitle = styled.Text`
 const Container = styled.View`
   position: relative;
   background-color: white;
-  width: 315px;
-  height: 290px;
+  width: 280px;
+  height: 245px;
   border-radius: 14px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
   margin-left: 20px;
@@ -157,7 +201,7 @@ const Cover = styled.View`
   background-color: #423d3d;
   align-items: center;
   width: 100%;
-  height: 200px;
+  height: 150px;
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
   overflow: hidden;

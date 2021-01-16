@@ -27,6 +27,7 @@ const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const Course_1 = require("../entities/Course");
 const Category_1 = require("../entities/Category");
+const TrackingCourse_1 = require("../entities/TrackingCourse");
 let PaginatedCourse = class PaginatedCourse {
 };
 __decorate([
@@ -38,7 +39,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], PaginatedCourse.prototype, "hasMore", void 0);
 PaginatedCourse = __decorate([
-    type_graphql_1.ObjectType()
+    type_graphql_1.ObjectType({ isAbstract: true })
 ], PaginatedCourse);
 let CourseResolver = class CourseResolver {
     title(course, { req, translate }) {
@@ -94,6 +95,7 @@ let CourseResolver = class CourseResolver {
                     courseId,
                 },
             });
+            console.log(studentCourse);
             if (studentCourse) {
                 return true;
             }
@@ -105,11 +107,11 @@ let CourseResolver = class CourseResolver {
     }
     course(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            let course = yield Course_1.Course.findOne(id, { relations: ["section"] });
+            let course = yield Course_1.Course.findOne(id, { relations: ["section", "track"] });
             return course;
         });
     }
-    courses(limit, cursor, categoryId, isAsc, orderType, search) {
+    courses(limit, cursor, categoryId, isAsc, orderType, search, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(20, limit);
             const realLimitPlusOne = realLimit + 1;
@@ -117,15 +119,15 @@ let CourseResolver = class CourseResolver {
             let where = [];
             if (cursor) {
                 replacements.push(cursor);
-                where.push(`"createdAt" < $${replacements.length}`);
+                where.push(`c."createdAt" < $${replacements.length}`);
             }
             if (search) {
                 const listSearch = search.toLowerCase().split(" ");
-                let query = `title LIKE ('${"%" + search + "%"}'`;
+                let query = `title c.LIKE ('${"%" + search + "%"}'`;
                 if (listSearch.length !== 1) {
                     listSearch.map((value) => {
                         if (value.length > 2) {
-                            query += ` OR title LIKE '${"%" + value + "%"}'`;
+                            query += ` OR c.title LIKE '${"%" + value + "%"}'`;
                         }
                     });
                 }
@@ -133,7 +135,7 @@ let CourseResolver = class CourseResolver {
             }
             if (categoryId) {
                 replacements.push(categoryId);
-                where.push(`"categoryId" = $${replacements.length}`);
+                where.push(`c."categoryId" = $${replacements.length}`);
             }
             let order;
             switch (orderType) {
@@ -151,15 +153,44 @@ let CourseResolver = class CourseResolver {
                 query += index === 0 ? value : " AND " + value;
             });
             const courses = yield typeorm_1.getConnection().query(`
-        select * from course
+        select * from course c
+        ${req.session.userId
+                ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
+                    req.session.userId
+                : ""}
         ${query.length === 0 ? "" : "where " + query}
-        order by "${order}" ${isAsc ? "ASC" : "DESC"}
+        order by c."${order}" ${isAsc ? "ASC" : "DESC"}
         limit $1
       `, replacements);
             return {
-                courses: courses.slice(0, realLimit),
+                courses: courses
+                    .map((course) => {
+                    return Object.assign(Object.assign({}, course), { favorite: {
+                            userId: course.userId ? course.userId : -1,
+                        } });
+                })
+                    .slice(0, realLimit),
                 hasMore: courses.length === realLimitPlusOne,
             };
+        });
+    }
+    trackCourse(courseId, lessonId, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.userId) {
+                let track;
+                try {
+                    track = yield TrackingCourse_1.TrackingCourse.create({
+                        userId: req.session.userId,
+                        courseId,
+                        lessonId,
+                    }).save();
+                }
+                catch (err) {
+                    return null;
+                }
+                return track;
+            }
+            return null;
         });
     }
     purchase(courseId, { req }) {
@@ -169,9 +200,29 @@ let CourseResolver = class CourseResolver {
           insert into student_course ("userId", "courseId")
           values ($1, $2)
         `, [req.session.userId, courseId]);
-                return true;
+                const course = yield Course_1.Course.find({
+                    where: {
+                        id: courseId,
+                    },
+                });
+                console.log(course);
+                return course[0];
             }
-            return false;
+            else
+                return null;
+        });
+    }
+    myCourse({ req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.userId) {
+                const courses = yield typeorm_1.getConnection().query(`
+          select * from course c
+          inner join student_course sc on sc."courseId" = c.id
+          where sc."userId" = $1
+        `, [req.session.userId]);
+                return courses;
+            }
+            return null;
         });
     }
 };
@@ -243,18 +294,35 @@ __decorate([
     __param(3, type_graphql_1.Arg("isAsc", () => Boolean, { nullable: true })),
     __param(4, type_graphql_1.Arg("orderType", () => String, { nullable: true })),
     __param(5, type_graphql_1.Arg("search", () => String, { nullable: true })),
+    __param(6, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Object, Object, Object, Object, Object]),
+    __metadata("design:paramtypes", [Number, Object, Object, Object, Object, Object, Object]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "courses", null);
 __decorate([
-    type_graphql_1.Mutation(() => Boolean),
+    type_graphql_1.Mutation(() => TrackingCourse_1.TrackingCourse, { nullable: true }),
+    __param(0, type_graphql_1.Arg("courseId", () => Number)),
+    __param(1, type_graphql_1.Arg("lessonId", () => Number)),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "trackCourse", null);
+__decorate([
+    type_graphql_1.Mutation(() => Course_1.Course, { nullable: true }),
     __param(0, type_graphql_1.Arg("courseId", () => Number)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "purchase", null);
+__decorate([
+    type_graphql_1.Query(() => [Course_1.Course], { nullable: true }),
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "myCourse", null);
 CourseResolver = __decorate([
     type_graphql_1.Resolver(Course_1.Course)
 ], CourseResolver);

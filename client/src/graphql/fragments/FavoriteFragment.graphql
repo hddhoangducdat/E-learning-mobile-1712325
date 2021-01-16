@@ -1,0 +1,3 @@
+fragment FavoriteFragment on Favorite {
+  userId
+}

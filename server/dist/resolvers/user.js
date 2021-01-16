@@ -131,8 +131,8 @@ let UserResolver = class UserResolver {
                 return {
                     errors: [
                         {
-                            field: "usernameOrEmail",
-                            message: "that username/email doesn't exist",
+                            field: "email",
+                            message: "that email doesn't exist",
                         },
                     ],
                 };

@@ -12,7 +12,7 @@ import {
 import { getConnection } from "typeorm";
 import { User } from "../entities/User";
 
-@ObjectType()
+@ObjectType({ isAbstract: true })
 class PaginatedFeedBack {
   @Field(() => [FeedBack])
   feedBacks: FeedBack[];

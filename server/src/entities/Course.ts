@@ -15,6 +15,8 @@ import { Instructor } from "./Instructor";
 import { Category } from "./Category";
 import { StudentCourse } from "./StudentCourse";
 import { FeedBack } from "./FeedBack";
+import { Favorite } from "./Favorite";
+import { TrackingCourse } from "./TrackingCourse";
 
 enum Status {
   PENDING = "PENDING",
@@ -117,8 +119,16 @@ export class Course extends BaseEntity {
   @ManyToOne(() => Category, (category) => category.course)
   category: Category;
 
+  @Field(() => [TrackingCourse])
+  @ManyToOne(() => TrackingCourse, (track) => track.course)
+  track: TrackingCourse[];
+
   @OneToMany(() => StudentCourse, (student) => student.course)
   students: StudentCourse[];
+
+  @Field()
+  @OneToMany(() => Favorite, (favorite) => favorite.course)
+  favorite: Favorite;
 
   @Field()
   @Column()

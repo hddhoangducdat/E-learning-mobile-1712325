@@ -27,6 +27,15 @@ export const themeModify = (color: string, theme?: string): string => {
       case "#ffff":
         result = "#2d2d2d";
         break;
+      case "#5d5d5d":
+        result = "#fff";
+        break;
+      case "#3c4560":
+        result = "#596791";
+        break;
+      case "#969696":
+        result = "#fff";
+        break;
 
       default:
         result = color;
