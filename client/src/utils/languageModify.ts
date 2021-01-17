@@ -3,6 +3,9 @@ export const languageModify = (text: string, language?: string): string => {
   else if (language === "vi") {
     let result: string;
     switch (text) {
+      case "Recommend for you":
+        result = "Gợi ý cho bạn";
+        break;
       case "Getting started":
         result = "Tạo tài khoản";
         break;

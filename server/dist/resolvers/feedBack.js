@@ -43,6 +43,23 @@ let FeedBackResolver = class FeedBackResolver {
     user(feedBack) {
         return User_1.User.findOne(feedBack.userId);
     }
+    writeFeedBack(content, rate, courseId, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (req.session.userId) {
+                try {
+                    yield typeorm_1.getConnection().query(`
+          insert into feed_back ("courseId", rate, "userId", content)
+          values ($1, $2, $3, $4)
+        `, [courseId, rate, req.session.userId, content]);
+                }
+                catch (err) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        });
+    }
     feedBacks(limit, cursor, courseId) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(5, limit);
@@ -74,6 +91,16 @@ __decorate([
     __metadata("design:paramtypes", [FeedBack_1.FeedBack]),
     __metadata("design:returntype", void 0)
 ], FeedBackResolver.prototype, "user", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("content", () => String)),
+    __param(1, type_graphql_1.Arg("rate", () => type_graphql_1.Int)),
+    __param(2, type_graphql_1.Arg("courseId", () => type_graphql_1.Int)),
+    __param(3, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, Number, Object]),
+    __metadata("design:returntype", Promise)
+], FeedBackResolver.prototype, "writeFeedBack", null);
 __decorate([
     type_graphql_1.Query(() => PaginatedFeedBack),
     __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),

@@ -1,0 +1,3 @@
+mutation RemoveHistory($search: String!) {
+  removeHistory(search: $search)
+}

@@ -5,6 +5,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useRate } from "../utils/useRate";
 import { useGetThemeQuery } from "../generated/graphql";
 import { themeModify } from "../utils/themeModify";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function SearchCourse({
   logo,
@@ -16,6 +17,7 @@ export default function SearchCourse({
   isBestSeller,
   price,
   category,
+  navigation,
 }: any) {
   const [color] = useGetThemeQuery();
   const theme: DefaultTheme = {

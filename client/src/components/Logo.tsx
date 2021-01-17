@@ -17,7 +17,9 @@ const Logo = (props: any) => {
         marginRight: 10,
       }}
     >
-      <Image source={{ uri: props.image }} resizeMode="contain" />
+      {props.image ? (
+        <Image source={{ uri: props.image }} resizeMode="contain" />
+      ) : null}
       <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
         {props.text}
       </Text>

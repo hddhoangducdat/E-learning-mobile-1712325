@@ -51,6 +51,34 @@ let CourseResolver = class CourseResolver {
             return course.title;
         });
     }
+    getHistory({ req }) {
+        if (req.session.history && req.session.userId) {
+            return req.session.history;
+        }
+        return [];
+    }
+    saveHistory(search, { req }) {
+        try {
+            if (!req.session.history)
+                req.session.history = [];
+            if (req.session.history && !req.session.history.includes(search)) {
+                if (req.session.history.length === 5)
+                    req.session.history.shift();
+                req.session.history.push(search);
+            }
+            else {
+                req.session.history = [search];
+            }
+        }
+        catch (err) { }
+        return true;
+    }
+    removeHistory(search, { req }) {
+        if (!req.session.history)
+            req.session.history = [];
+        req.session.history = req.session.history.filter((text) => text !== search);
+        return true;
+    }
     subtitle(course, { req, translate }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (req.session.language === "vi") {
@@ -95,7 +123,6 @@ let CourseResolver = class CourseResolver {
                     courseId,
                 },
             });
-            console.log(studentCourse);
             if (studentCourse) {
                 return true;
             }
@@ -138,6 +165,39 @@ let CourseResolver = class CourseResolver {
             return false;
         });
     }
+    recommend({ req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let str = "";
+            if (req.session.history) {
+                req.session.history.forEach((h, i) => {
+                    if (i === 0)
+                        str += `c.title LIKE '%${h}%'`;
+                    else
+                        str += `or c.title LIKE '%${h}%'`;
+                });
+            }
+            const courses = yield typeorm_1.getConnection().query(`
+        select c.id, c.title, c.subtitle, c.price, c.description,
+        c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
+        c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId",
+        f."userId"      
+        from course c
+        ${req.session.userId
+                ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
+                    req.session.userId
+                : ""}
+        ${req.session.history ? "where " + str : ""}
+        order by c."soldNumber" DESC
+        limit 15
+      `);
+            return courses.map((course, index) => {
+                return Object.assign(Object.assign({}, course), { favorite: {
+                        userId: course.userId ? course.userId : -1,
+                    } });
+            });
+        });
+    }
     courses(limit, cursor, categoryId, isAsc, orderType, search, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const realLimit = Math.min(20, limit);
@@ -150,7 +210,7 @@ let CourseResolver = class CourseResolver {
             }
             if (search) {
                 const listSearch = search.toLowerCase().split(" ");
-                let query = `title c.LIKE ('${"%" + search + "%"}'`;
+                let query = `c.title LIKE '${"%" + search + "%"}'`;
                 if (listSearch.length !== 1) {
                     listSearch.map((value) => {
                         if (value.length > 2) {
@@ -158,7 +218,7 @@ let CourseResolver = class CourseResolver {
                         }
                     });
                 }
-                where.push(query + ")");
+                where.push(query);
             }
             if (categoryId) {
                 replacements.push(categoryId);
@@ -180,7 +240,12 @@ let CourseResolver = class CourseResolver {
                 query += index === 0 ? value : " AND " + value;
             });
             const courses = yield typeorm_1.getConnection().query(`
-        select * from course c
+        select c.id, c.title, c.subtitle, c.price, c.description,
+        c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
+        c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId",
+        f."userId"      
+        from course c
         ${req.session.userId
                 ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
                     req.session.userId
@@ -210,13 +275,11 @@ let CourseResolver = class CourseResolver {
                         courseId: courseId,
                     },
                 });
-                console.log(track);
                 if (track) {
                     yield TrackingCourse_1.TrackingCourse.update({ courseId, userId: req.session.userId }, {
                         lessonId,
                     });
                     track.lessonId = lessonId;
-                    console.log(track);
                     return track;
                 }
                 else {
@@ -276,6 +339,29 @@ __decorate([
     __metadata("design:paramtypes", [Course_1.Course, Object]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "title", null);
+__decorate([
+    type_graphql_1.Query(() => [String]),
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], CourseResolver.prototype, "getHistory", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("search", () => String)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], CourseResolver.prototype, "saveHistory", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean),
+    __param(0, type_graphql_1.Arg("search", () => String)),
+    __param(1, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], CourseResolver.prototype, "removeHistory", null);
 __decorate([
     type_graphql_1.FieldResolver(() => String),
     __param(0, type_graphql_1.Root()), __param(1, type_graphql_1.Ctx()),
@@ -345,6 +431,13 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "removeTrackCourse", null);
+__decorate([
+    type_graphql_1.Query(() => [Course_1.Course]),
+    __param(0, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "recommend", null);
 __decorate([
     type_graphql_1.Query(() => PaginatedCourse),
     __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),

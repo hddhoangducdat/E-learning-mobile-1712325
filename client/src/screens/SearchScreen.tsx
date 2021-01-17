@@ -4,15 +4,18 @@ import { EvilIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Keyboard, ScrollView, TouchableOpacity } from "react-native";
 import SearchContent from "../components/SearchContent";
-import { useCategoriesQuery, useGetThemeQuery } from "../generated/graphql";
+import {
+  useCategoriesQuery,
+  useGetHistoryQuery,
+  useGetThemeQuery,
+  useSaveHistoryMutation,
+  useRemoveHistoryMutation,
+} from "../generated/graphql";
 import { themeModify } from "../utils/themeModify";
 import { AppBottomTabProps, HomeStackNavProps } from "../utils/params";
 import Logo from "../components/Logo";
 import { toParamsMap } from "../utils/toParamMap";
-
-interface ProjectsScreenProps {
-  screen: AppBottomTabProps<"Search">;
-}
+import { FontAwesome } from "@expo/vector-icons";
 
 const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
   const [listParams, setListParams] = useState<Record<string, object>>({});
@@ -27,8 +30,15 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
     container: {
       background: themeModify("#ffff", color.data?.getTheme),
     },
+    history: {
+      background: themeModify("#ffff", color.data?.getTheme),
+      color: themeModify("#000", color.data?.getTheme),
+    },
   };
   const [cate] = useCategoriesQuery();
+  const [history] = useGetHistoryQuery();
+  const [, saveHistory] = useSaveHistoryMutation();
+  const [, removeHistory] = useRemoveHistoryMutation();
 
   useEffect(() => {
     if (route?.params) {
@@ -51,17 +61,60 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
 
             elevation: 7,
           }}
+          placeholderTextColor="#fffefc"
           theme={theme}
           onChangeText={(text: any) => setSearch(text)}
           value={search}
           placeholder="Search courses"
           onSubmitEditing={() => {
             if (search === "") setIsSubmit(undefined);
-            else setIsSubmit(search);
-            console.log(isSubmit);
+            else {
+              saveHistory({ search });
+              setIsSubmit(search);
+              setSearch("");
+            }
           }}
         ></SearchInput>
       </View>
+      {search.trim() === "" ? null : (
+        <History
+          style={{
+            shadowColor: themeModify("#000", theme.data?.getTheme),
+            shadowOffset: {
+              width: 0,
+              height: 3,
+            },
+            shadowOpacity: 0.29,
+            shadowRadius: 4.65,
+
+            elevation: 7,
+            borderRadius: 10,
+          }}
+        >
+          {history.data?.getHistory.map((text: string) => {
+            return (
+              <>
+                <HistoryItem
+                  onPress={() => {
+                    setSearch("");
+                    setIsSubmit(text);
+                  }}
+                  theme={theme}
+                >
+                  <HistoryText theme={theme}>{text}</HistoryText>
+                  <TouchableOpacity
+                    style={{ position: "absolute", right: 10, top: 8 }}
+                    onPress={() => removeHistory({ search: text })}
+                  >
+                    <FontAwesome name="eraser" size={20} color="#ad9a9a" />
+                  </TouchableOpacity>
+                </HistoryItem>
+              </>
+            );
+          })}
+        </History>
+      )}
+
       <SearchIcon>
         <EvilIcons
           name="search"
@@ -78,6 +131,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
           />
         </CloseIcon>
       )}
+
       <ScrollView>
         <ScrollView
           style={{
@@ -89,6 +143,13 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
         >
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("Search");
+            }}
+          >
+            <Logo text={"All"} />
+          </TouchableOpacity>
           {cate.data?.categories.map((category) => {
             return (
               <TouchableOpacity
@@ -108,6 +169,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
           })}
         </ScrollView>
         <SearchContent
+          navigation={navigation}
           search={isSubmit}
           categoryId={listParams["categoryId"]}
         />
@@ -117,6 +179,8 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
 };
 
 export default SearchScreen;
+
+const Text = styled.Text``;
 
 const SearchIcon = styled.TouchableOpacity`
   top: 43;
@@ -149,8 +213,27 @@ const SearchInput = styled.TextInput`
   color: ${(props: any) => props.theme.input.color};
 `;
 
-const Button = styled.TouchableOpacity``;
-
-const Text = styled.Text``;
-
 const View = styled.View``;
+
+const History = styled.View`
+  position: absolute;
+  left: 60;
+  top: 92;
+  z-index: 10000;
+`;
+
+const HistoryItem = styled.TouchableOpacity`
+  background-color: ${(props: any) => props.theme.history.background};
+  width: 280px;
+  padding: 8px 16px;
+`;
+
+const HistoryText = styled.Text`
+  color: ${(props: any) => props.theme.history.color};
+`;
+
+const BorderTop = styled.View`
+  height: 0.2px;
+  width: 100%;
+  background-color: #fff;
+`;

@@ -20,9 +20,11 @@ export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
   instructor: User;
+  getHistory: Array<Scalars['String']>;
   isOwn: Scalars['Boolean'];
   course?: Maybe<Course>;
   getTrackCourse?: Maybe<TrackingCourse>;
+  recommend: Array<Course>;
   courses: PaginatedCourse;
   myCourse?: Maybe<Array<Course>>;
   categories: Array<Category>;
@@ -365,9 +367,12 @@ export type Mutation = {
   forgotPassword: Scalars['Boolean'];
   requestActivate: Scalars['Boolean'];
   becomeOrUpdateInstructor: UserResponse;
+  saveHistory: Scalars['Boolean'];
+  removeHistory: Scalars['Boolean'];
   removeTrackCourse: Scalars['Boolean'];
   trackCourse?: Maybe<TrackingCourse>;
   purchase?: Maybe<Course>;
+  writeFeedBack: Scalars['Boolean'];
   trackLesson?: Maybe<TrackingLesson>;
   postQuestion: Question;
   postReplyQuestion: Question;
@@ -424,6 +429,16 @@ export type MutationBecomeOrUpdateInstructorArgs = {
 };
 
 
+export type MutationSaveHistoryArgs = {
+  search: Scalars['String'];
+};
+
+
+export type MutationRemoveHistoryArgs = {
+  search: Scalars['String'];
+};
+
+
 export type MutationRemoveTrackCourseArgs = {
   courseId: Scalars['Int'];
 };
@@ -437,6 +452,13 @@ export type MutationTrackCourseArgs = {
 
 export type MutationPurchaseArgs = {
   courseId: Scalars['Float'];
+};
+
+
+export type MutationWriteFeedBackArgs = {
+  courseId: Scalars['Int'];
+  rate: Scalars['Int'];
+  content: Scalars['String'];
 };
 
 
@@ -504,7 +526,7 @@ export type CategoryFragmentFragment = (
 
 export type CourseFragmentFragment = (
   { __typename?: 'Course' }
-  & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'description' | 'requirement' | 'learnWhat' | 'soldNumber' | 'videoNumber' | 'rateNumber' | 'totalHours' | 'promoVidUrl' | 'formalityPoint' | 'contentPoint' | 'presentationPoint' | 'instructorId' | 'imageUrl'>
+  & Pick<Course, 'id' | 'title' | 'subtitle' | 'price' | 'description' | 'requirement' | 'learnWhat' | 'soldNumber' | 'videoNumber' | 'rateNumber' | 'totalHours' | 'promoVidUrl' | 'formalityPoint' | 'contentPoint' | 'presentationPoint' | 'instructorId' | 'imageUrl' | 'createdAt'>
 );
 
 export type ErrorFragmentFragment = (
@@ -738,6 +760,16 @@ export type RemoveFromFavoriteMutation = (
   & Pick<Mutation, 'removeFromFavorite'>
 );
 
+export type RemoveHistoryMutationVariables = Exact<{
+  search: Scalars['String'];
+}>;
+
+
+export type RemoveHistoryMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'removeHistory'>
+);
+
 export type RemoveTrackCourseMutationVariables = Exact<{
   courseId: Scalars['Int'];
 }>;
@@ -757,6 +789,16 @@ export type RequestActivateMutationVariables = Exact<{
 export type RequestActivateMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'requestActivate'>
+);
+
+export type SaveHistoryMutationVariables = Exact<{
+  search: Scalars['String'];
+}>;
+
+
+export type SaveHistoryMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'saveHistory'>
 );
 
 export type TrackCourseMutationVariables = Exact<{
@@ -796,6 +838,18 @@ export type UpdateUserMutationVariables = Exact<{
 export type UpdateUserMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'updateUser'>
+);
+
+export type WriteFeedBackMutationVariables = Exact<{
+  courseId: Scalars['Int'];
+  rate: Scalars['Int'];
+  content: Scalars['String'];
+}>;
+
+
+export type WriteFeedBackMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'writeFeedBack'>
 );
 
 export type AssignmentsQueryVariables = Exact<{
@@ -893,6 +947,14 @@ export type FeedBacksQuery = (
       ) }
     )> }
   ) }
+);
+
+export type GetHistoryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetHistoryQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'getHistory'>
 );
 
 export type GetLanguageQueryVariables = Exact<{ [key: string]: never; }>;
@@ -1068,6 +1130,24 @@ export type QuestionsQuery = (
   ) }
 );
 
+export type RecommendQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RecommendQuery = (
+  { __typename?: 'Query' }
+  & { recommend: Array<(
+    { __typename?: 'Course' }
+    & { category: (
+      { __typename?: 'Category' }
+      & Pick<Category, 'id' | 'name' | 'imageUrl'>
+    ), favorite: (
+      { __typename?: 'Favorite' }
+      & FavoriteFragmentFragment
+    ) }
+    & CourseFragmentFragment
+  )> }
+);
+
 export type ReplyQuestionsQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['DateTime']>;
@@ -1113,6 +1193,7 @@ export const CourseFragmentFragmentDoc = gql`
   presentationPoint
   instructorId
   imageUrl
+  createdAt
 }
     `;
 export const FavoriteFragmentFragmentDoc = gql`
@@ -1340,6 +1421,15 @@ export const RemoveFromFavoriteDocument = gql`
 export function useRemoveFromFavoriteMutation() {
   return Urql.useMutation<RemoveFromFavoriteMutation, RemoveFromFavoriteMutationVariables>(RemoveFromFavoriteDocument);
 };
+export const RemoveHistoryDocument = gql`
+    mutation RemoveHistory($search: String!) {
+  removeHistory(search: $search)
+}
+    `;
+
+export function useRemoveHistoryMutation() {
+  return Urql.useMutation<RemoveHistoryMutation, RemoveHistoryMutationVariables>(RemoveHistoryDocument);
+};
 export const RemoveTrackCourseDocument = gql`
     mutation RemoveTrackCourse($courseId: Int!) {
   removeTrackCourse(courseId: $courseId)
@@ -1357,6 +1447,15 @@ export const RequestActivateDocument = gql`
 
 export function useRequestActivateMutation() {
   return Urql.useMutation<RequestActivateMutation, RequestActivateMutationVariables>(RequestActivateDocument);
+};
+export const SaveHistoryDocument = gql`
+    mutation SaveHistory($search: String!) {
+  saveHistory(search: $search)
+}
+    `;
+
+export function useSaveHistoryMutation() {
+  return Urql.useMutation<SaveHistoryMutation, SaveHistoryMutationVariables>(SaveHistoryDocument);
 };
 export const TrackCourseDocument = gql`
     mutation TrackCourse($lessonId: Float!, $courseId: Float!) {
@@ -1388,6 +1487,15 @@ export const UpdateUserDocument = gql`
 
 export function useUpdateUserMutation() {
   return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument);
+};
+export const WriteFeedBackDocument = gql`
+    mutation WriteFeedBack($courseId: Int!, $rate: Int!, $content: String!) {
+  writeFeedBack(rate: $rate, content: $content, courseId: $courseId)
+}
+    `;
+
+export function useWriteFeedBackMutation() {
+  return Urql.useMutation<WriteFeedBackMutation, WriteFeedBackMutationVariables>(WriteFeedBackDocument);
 };
 export const AssignmentsDocument = gql`
     query Assignments($lessonId: Float!) {
@@ -1490,6 +1598,15 @@ export const FeedBacksDocument = gql`
 
 export function useFeedBacksQuery(options: Omit<Urql.UseQueryArgs<FeedBacksQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<FeedBacksQuery>({ query: FeedBacksDocument, ...options });
+};
+export const GetHistoryDocument = gql`
+    query GetHistory {
+  getHistory
+}
+    `;
+
+export function useGetHistoryQuery(options: Omit<Urql.UseQueryArgs<GetHistoryQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetHistoryQuery>({ query: GetHistoryDocument, ...options });
 };
 export const GetLanguageDocument = gql`
     query GetLanguage {
@@ -1656,6 +1773,26 @@ export const QuestionsDocument = gql`
 
 export function useQuestionsQuery(options: Omit<Urql.UseQueryArgs<QuestionsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<QuestionsQuery>({ query: QuestionsDocument, ...options });
+};
+export const RecommendDocument = gql`
+    query Recommend {
+  recommend {
+    ...CourseFragment
+    category {
+      id
+      name
+      imageUrl
+    }
+    favorite {
+      ...FavoriteFragment
+    }
+  }
+}
+    ${CourseFragmentFragmentDoc}
+${FavoriteFragmentFragmentDoc}`;
+
+export function useRecommendQuery(options: Omit<Urql.UseQueryArgs<RecommendQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<RecommendQuery>({ query: RecommendDocument, ...options });
 };
 export const ReplyQuestionsDocument = gql`
     query ReplyQuestions($limit: Int!, $cursor: DateTime, $questionId: Int!) {

@@ -1,0 +1,13 @@
+query Recommend {
+  recommend {
+    ...CourseFragment
+    category {
+      id
+      name
+      imageUrl
+    }
+    favorite {
+      ...FavoriteFragment
+    }
+  }
+}

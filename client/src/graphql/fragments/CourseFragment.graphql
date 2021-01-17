@@ -16,4 +16,5 @@ fragment CourseFragment on Course {
   presentationPoint
   instructorId
   imageUrl
+  createdAt
 }

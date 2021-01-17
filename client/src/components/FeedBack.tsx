@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { TouchableOpacity } from "react-native";
-import styled from "styled-components/native";
+import styled, { DefaultTheme } from "styled-components/native";
 import {
   useFeedBacksQuery,
   useGetLanguageQuery,
   useGetThemeQuery,
+  useMeQuery,
+  useWriteFeedBackMutation,
 } from "../generated/graphql";
 import { languageModify } from "../utils/languageModify";
 import { themeModify } from "../utils/themeModify";
 import { useRate } from "../utils/useRate";
+import { FontAwesome } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface FeedBackProps {
   courseRate?: number;
@@ -16,7 +22,7 @@ interface FeedBackProps {
 }
 
 export const FeedBack = ({ courseId, courseRate }: FeedBackProps) => {
-  const [theme] = useGetThemeQuery();
+  const [color] = useGetThemeQuery();
   const [language] = useGetLanguageQuery();
 
   const [{ data }] = useFeedBacksQuery({
@@ -25,6 +31,21 @@ export const FeedBack = ({ courseId, courseRate }: FeedBackProps) => {
       limit: 5,
     },
   });
+
+  const [text, setText] = useState("");
+
+  const theme: DefaultTheme = {
+    input: {
+      background: themeModify("#fffefc", color.data?.getTheme),
+      color: themeModify("#5d5d5d", color.data?.getTheme),
+    },
+  };
+
+  const [rate, setRate] = useState(0);
+
+  const [, writeFeedBack] = useWriteFeedBackMutation();
+
+  const [me] = useMeQuery();
 
   return (
     <SectionContain
@@ -37,17 +58,91 @@ export const FeedBack = ({ courseId, courseRate }: FeedBackProps) => {
         style={{
           marginTop: 20,
           marginBottom: 5,
-          color: themeModify("#000", theme.data?.getTheme),
+          color: themeModify("#000", color.data?.getTheme),
         }}
       >
         {languageModify("Top review", language.data?.getLanguage)}
       </WrapContainHeader>
       <RateContainer>
-        <Rate style={{ color: themeModify("#000", theme.data?.getTheme) }}>
+        <Rate style={{ color: themeModify("#000", color.data?.getTheme) }}>
           {courseRate ? courseRate / 2 : 0}
         </Rate>
         {useRate(courseRate ? courseRate / 2 : 0)}
       </RateContainer>
+      <View style={{ width: "100%", position: "relative" }}>
+        <View style={{ width: "100%", zIndex: -1 }}>
+          <TextField
+            theme={theme}
+            multiline
+            style={{
+              shadowColor: themeModify("#000", color.data?.getTheme),
+              shadowOffset: {
+                width: 0,
+                height: 3,
+              },
+              shadowOpacity: 0.29,
+              shadowRadius: 4.65,
+              elevation: 7,
+            }}
+            placeholderTextColor={themeModify("#000", color.data?.getTheme)}
+            onChangeText={(output: any) => setText(output)}
+            value={text}
+            placeholder="Write your feedback"
+            onSubmitEditing={() => {}}
+          ></TextField>
+        </View>
+        <View
+          style={{
+            position: "absolute",
+            top: 27,
+            left: 25,
+          }}
+        >
+          <Avatar source={{ uri: me.data?.me?.avatar }} />
+        </View>
+        <Close
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+          }}
+          onPress={() => setText("")}
+        >
+          <AntDesign name="closecircle" size={24} color="white" />
+        </Close>
+        <Touch
+          style={{
+            position: "absolute",
+            top: 27,
+            right: 15,
+          }}
+          onPress={async () => {
+            if (text.trim() !== "") {
+              const response = await writeFeedBack({
+                courseId,
+                rate,
+                content: text.trim(),
+              });
+              console.log(response);
+              setText("");
+            } else {
+              setText(text.trim());
+            }
+          }}
+        >
+          <MaterialIcons name="send" size={23} color="#1a9dee" />
+        </Touch>
+        <View
+          style={{
+            position: "absolute",
+            top: 60,
+            left: 30,
+            flowDirection: "column",
+          }}
+        >
+          {useRate(rate, setRate)}
+        </View>
+      </View>
       {data?.feedBacks.feedBacks.map((feed) => {
         return (
           <WrapContain
@@ -58,7 +153,7 @@ export const FeedBack = ({ courseId, courseRate }: FeedBackProps) => {
               shadowOpacity: 0.5,
               shadowRadius: 2,
               elevation: 3,
-              backgroundColor: themeModify("#ffff", theme.data?.getTheme),
+              backgroundColor: themeModify("#ffff", color.data?.getTheme),
             }}
           >
             <Instructor>
@@ -68,21 +163,21 @@ export const FeedBack = ({ courseId, courseRate }: FeedBackProps) => {
                   style={{
                     fontWeight: "700",
                     fontSize: 18,
-                    color: themeModify("#000", theme.data?.getTheme),
+                    color: themeModify("#000", color.data?.getTheme),
                   }}
                 >
                   {feed.user.username}
                 </TextContain>
                 <TextContain
                   style={{
-                    color: themeModify("#777373", theme.data?.getTheme),
+                    color: themeModify("#777373", color.data?.getTheme),
                   }}
                 >
                   {useRate(feed.rate / 2)}
                 </TextContain>
                 <TextContain
                   style={{
-                    color: themeModify("#000", theme.data?.getTheme),
+                    color: themeModify("#000", color.data?.getTheme),
                   }}
                 >
                   {feed.content}
@@ -97,7 +192,7 @@ export const FeedBack = ({ courseId, courseRate }: FeedBackProps) => {
           <FeedBackHasMore>
             <Text
               style={{
-                color: themeModify("#fff", theme.data?.getTheme),
+                color: themeModify("#fff", color.data?.getTheme),
                 fontSize: 20,
               }}
             >
@@ -110,6 +205,28 @@ export const FeedBack = ({ courseId, courseRate }: FeedBackProps) => {
   );
 };
 
+const Touch = styled.TouchableOpacity``;
+const Close = styled.TouchableOpacity`
+  transform: translate(9px, -2px);
+`;
+
+const Avatar = styled.Image`
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+`;
+
+const TextField = styled.TextInput`
+  height: 150px;
+  margin-top: 10px;
+  padding: 0px 50px 15px 74px;
+  font-size: 15px;
+  /* max-height: 150px; */
+  width: 100%;
+  background-color: ${(props: any) => props.theme.input.background};
+  color: ${(props: any) => props.theme.input.color};
+`;
+
 const FeedBackHasMore = styled.View`
   background-color: #c8c8c8;
   padding: 8px 16px;
@@ -118,12 +235,6 @@ const FeedBackHasMore = styled.View`
   height: 50px;
   align-items: center;
   justify-content: center;
-`;
-
-const Border = styled.View`
-  height: 1px;
-  width: 500px;
-  transform: translateX(-20px);
 `;
 
 const SectionContain = styled.View``;
@@ -157,34 +268,7 @@ const WrapContain = styled.View`
   margin-top: 15px;
 `;
 
-const TagIntro = styled.View`
-  border: 1px #fff;
-  flex-direction: row;
-  padding: 5px 10px;
-  border-radius: 5px;
-  align-items: center;
-  margin-right: 5px;
-`;
-
-const PayButton = styled.View`
-  width: 250px;
-  align-items: center;
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 5px;
-`;
-
-const PayButtonText = styled.Text`
-  color: #fff;
-  text-transform: uppercase;
-`;
-
 const View = styled.View``;
-
-const BestSellerImage = styled.Image`
-  width: 70px;
-  height: 30px;
-`;
 
 const Text = styled.Text`
   margin-right: 2px;
@@ -202,88 +286,7 @@ const Rate = styled.Text`
   margin: 0 5px;
 `;
 
-const IntroductionWrap = styled.View`
-  width: 100%;
-  position: absolute;
-  top: 40px;
-  left: 20px;
-`;
-
-const Marketing = styled.View`
-  align-items: center;
-`;
-
 const TextContain = styled.Text`
   color: #000;
   font-size: 15px;
-`;
-
-const Content = styled.View`
-  transform: translateY(-100px);
-  padding: 20px;
-`;
-
-const Container = styled.View`
-  flex: 1;
-`;
-
-const Cover = styled.View`
-  height: 375px;
-`;
-
-const Image = styled.Image`
-  width: 100%;
-  height: 100%;
-  position: absolute;
-`;
-
-const Title = styled.Text`
-  font-size: 24px;
-  color: white;
-  font-weight: bold;
-  width: 250px;
-`;
-
-const Caption = styled.Text`
-  color: white;
-  font-size: 17px;
-  width: 300px;
-`;
-
-const CloseView = styled.View`
-  width: 32px;
-  height: 32px;
-  /* background: white; */
-  border-radius: 16px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-  justify-content: center;
-  align-items: center;
-`;
-
-const Wrapper = styled.View`
-  flex-direction: row;
-  align-items: center;
-`;
-
-const Logo = styled.Image`
-  width: 24px;
-  height: 24px;
-`;
-
-const Subtitle = styled.Text`
-  font-size: 15px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-  margin-left: 5px;
-  text-transform: uppercase;
-`;
-
-const PayButtonFixed = styled.View`
-  height: 50px;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  /* bottom: 0px; */
-  z-index: 90;
 `;

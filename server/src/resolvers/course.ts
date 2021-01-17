@@ -40,6 +40,44 @@ export class CourseResolver {
     return course.title;
   }
 
+  @Query(() => [String])
+  getHistory(@Ctx() { req }: MyContext) {
+    if (req.session.history && req.session.userId) {
+      return req.session.history;
+    }
+    return [];
+  }
+
+  @Mutation(() => Boolean)
+  saveHistory(
+    @Arg("search", () => String) search: string,
+    @Ctx() { req }: MyContext
+  ) {
+    try {
+      if (!req.session.history) req.session.history = [];
+      if (req.session.history && !req.session.history.includes(search)) {
+        if (req.session.history.length === 5) req.session.history.shift();
+        req.session.history.push(search);
+      } else {
+        req.session.history = [search];
+      }
+    } catch (err) {}
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  removeHistory(
+    @Arg("search", () => String) search: string,
+    @Ctx() { req }: MyContext
+  ) {
+    if (!req.session.history) req.session.history = [];
+    req.session.history = req.session.history.filter(
+      (text: string) => text !== search
+    );
+
+    return true;
+  }
+
   @FieldResolver(() => String)
   async subtitle(@Root() course: Course, @Ctx() { req, translate }: MyContext) {
     if (req.session.language === "vi") {
@@ -108,7 +146,6 @@ export class CourseResolver {
         courseId,
       },
     });
-    console.log(studentCourse);
     if (studentCourse) {
       return true;
     }
@@ -159,6 +196,45 @@ export class CourseResolver {
     return false;
   }
 
+  @Query(() => [Course])
+  async recommend(@Ctx() { req }: MyContext) {
+    let str: string = "";
+    if (req.session.history) {
+      req.session.history.forEach((h: string, i: number) => {
+        if (i === 0) str += `c.title LIKE '%${h}%'`;
+        else str += `or c.title LIKE '%${h}%'`;
+      });
+    }
+    const courses = await getConnection().query(
+      `
+        select c.id, c.title, c.subtitle, c.price, c.description,
+        c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
+        c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId",
+        f."userId"      
+        from course c
+        ${
+          req.session.userId
+            ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
+              req.session.userId
+            : ""
+        }
+        ${req.session.history ? "where " + str : ""}
+        order by c."soldNumber" DESC
+        limit 15
+      `
+    );
+
+    return courses.map((course: any, index: number) => {
+      return {
+        ...course,
+        favorite: {
+          userId: course.userId ? course.userId : -1,
+        },
+      };
+    });
+  }
+
   @Query(() => PaginatedCourse)
   async courses(
     @Arg("limit", () => Int) limit: number,
@@ -185,7 +261,7 @@ export class CourseResolver {
 
     if (search) {
       const listSearch = search.toLowerCase().split(" ");
-      let query = `title c.LIKE ('${"%" + search + "%"}'`;
+      let query = `c.title LIKE '${"%" + search + "%"}'`;
       if (listSearch.length !== 1) {
         listSearch.map((value) => {
           if (value.length > 2) {
@@ -193,7 +269,7 @@ export class CourseResolver {
           }
         });
       }
-      where.push(query + ")");
+      where.push(query);
     }
 
     if (categoryId) {
@@ -222,7 +298,12 @@ export class CourseResolver {
 
     const courses = await getConnection().query(
       `
-        select * from course c
+        select c.id, c.title, c.subtitle, c.price, c.description,
+        c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
+        c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId",
+        f."userId"      
+        from course c
         ${
           req.session.userId
             ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
@@ -264,7 +345,6 @@ export class CourseResolver {
           courseId: courseId,
         },
       });
-      console.log(track);
       if (track) {
         await TrackingCourse.update(
           { courseId, userId: req.session.userId },
@@ -273,7 +353,6 @@ export class CourseResolver {
           }
         );
         track.lessonId = lessonId;
-        console.log(track);
         return track;
       } else {
         try {

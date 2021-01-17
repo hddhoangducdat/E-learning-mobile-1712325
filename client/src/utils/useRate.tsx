@@ -1,7 +1,11 @@
 import { FontAwesome } from "@expo/vector-icons";
 import React from "react";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
-export const useRate = (rateNumber: number) => {
+export const useRate = (
+  rateNumber: number,
+  setRate?: React.Dispatch<React.SetStateAction<number>>
+) => {
   let arr = [];
   for (let i = 0; i < Math.floor(rateNumber); i++) {
     arr.push("star");
@@ -14,6 +18,15 @@ export const useRate = (rateNumber: number) => {
   }
 
   return arr.map((star, t) => (
-    <FontAwesome key={t} name={star} size={15} color="#f2b20f" />
+    <TouchableOpacity
+      key={t}
+      onPress={() => {
+        if (setRate) {
+          setRate(t + 1);
+        }
+      }}
+    >
+      <FontAwesome name={star} size={15} color="#f2b20f" />
+    </TouchableOpacity>
   ));
 };

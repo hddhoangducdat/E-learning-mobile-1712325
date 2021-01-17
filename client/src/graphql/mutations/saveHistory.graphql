@@ -1,0 +1,3 @@
+mutation SaveHistory($search: String!) {
+  saveHistory(search: $search)
+}

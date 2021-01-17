@@ -24,8 +24,8 @@ export class FeedBack extends BaseEntity {
   rate!: number;
 
   @Field()
-  @Column()
-  subject!: string;
+  @Column({ default: "subject" })
+  subject: string;
 
   @Field()
   @Column()

@@ -1,0 +1,3 @@
+mutation WriteFeedBack($courseId: Int!, $rate: Int!, $content: String!) {
+  writeFeedBack(rate: $rate, content: $content, courseId: $courseId)
+}

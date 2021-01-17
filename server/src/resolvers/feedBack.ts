@@ -1,9 +1,11 @@
 import { FeedBack } from "../entities/FeedBack";
 import {
   Arg,
+  Ctx,
   Field,
   FieldResolver,
   Int,
+  Mutation,
   ObjectType,
   Query,
   Resolver,
@@ -11,6 +13,7 @@ import {
 } from "type-graphql";
 import { getConnection } from "typeorm";
 import { User } from "../entities/User";
+import { MyContext } from "../types";
 
 @ObjectType({ isAbstract: true })
 class PaginatedFeedBack {
@@ -25,6 +28,30 @@ export class FeedBackResolver {
   @FieldResolver(() => User)
   user(@Root() feedBack: FeedBack) {
     return User.findOne(feedBack.userId);
+  }
+
+  @Mutation(() => Boolean)
+  async writeFeedBack(
+    @Arg("content", () => String) content: string,
+    @Arg("rate", () => Int) rate: number,
+    @Arg("courseId", () => Int) courseId: number,
+    @Ctx() { req }: MyContext
+  ) {
+    if (req.session.userId) {
+      try {
+        await getConnection().query(
+          `
+          insert into feed_back ("courseId", rate, "userId", content)
+          values ($1, $2, $3, $4)
+        `,
+          [courseId, rate, req.session.userId, content]
+        );
+      } catch (err) {
+        return false;
+      }
+      return true;
+    }
+    return false;
   }
 
   @Query(() => PaginatedFeedBack)

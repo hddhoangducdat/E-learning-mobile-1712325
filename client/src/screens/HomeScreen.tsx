@@ -23,6 +23,7 @@ import {
   useCoursesQuery,
   useGetLanguageQuery,
   useGetThemeQuery,
+  useRecommendQuery,
 } from "../generated/graphql";
 import ReverseCourse from "../components/ReverseCourse";
 import PopUpNoti from "../components/PopUpNoti";
@@ -31,7 +32,7 @@ import { themeModify } from "../utils/themeModify";
 import ActivateButton from "../components/ActivateButton";
 import ActivateForm from "../components/form/ActivateForm";
 
-const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
+const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
   const [theme] = useGetThemeQuery();
   const [language] = useGetLanguageQuery();
   const dispatch = useDispatch();
@@ -64,9 +65,13 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
     },
   });
 
+  const [recommend] = useRecommendQuery();
+
   useEffect(() => {
     toggleMenu();
   });
+
+  console.log(route.params);
 
   const toggleMenu = () => {
     if (openMenu) {
@@ -144,7 +149,7 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
               </TouchableOpacity>
               {data?.me ? (
                 <>
-                  <Title style={{}}>
+                  <Title>
                     {languageModify("Welcome back", language.data?.getLanguage)}
                   </Title>
                   <Name
@@ -191,6 +196,40 @@ const HomeScreen = ({ navigation }: HomeStackNavProps<"Home">) => {
                 );
               })}
             </ScrollView>
+
+            <Subtitle>
+              {languageModify("Recommend for you", language.data?.getLanguage)}
+            </Subtitle>
+
+            <ScrollView
+              horizontal={true}
+              style={{ paddingBottom: 30, height: 300 }}
+              showsHorizontalScrollIndicator={false}
+            >
+              {!recommend.fetching
+                ? recommend.data?.recommend.map((card, index) => {
+                    return (
+                      <Card
+                        key={index}
+                        id={card.id}
+                        categoryId={card.category.id}
+                        navigation={navigation}
+                        categoryName={card.category.name}
+                        image={card.imageUrl}
+                        caption={card.title}
+                        logo={card.category.imageUrl}
+                        subtitle={card.subtitle}
+                        rate={card.rateNumber}
+                        participant={card.soldNumber}
+                        price={card.price}
+                        favorite={card.favorite.userId !== -1 ? true : false}
+                        isBestSeller={true}
+                      />
+                    );
+                  })
+                : null}
+            </ScrollView>
+
             <Subtitle>
               {languageModify(
                 "Most Popular Courses",

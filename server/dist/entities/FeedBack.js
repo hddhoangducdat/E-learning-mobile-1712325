@@ -32,7 +32,7 @@ __decorate([
 ], FeedBack.prototype, "rate", void 0);
 __decorate([
     type_graphql_1.Field(),
-    typeorm_1.Column(),
+    typeorm_1.Column({ default: "subject" }),
     __metadata("design:type", String)
 ], FeedBack.prototype, "subject", void 0);
 __decorate([

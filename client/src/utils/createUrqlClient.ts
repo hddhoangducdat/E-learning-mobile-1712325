@@ -1,13 +1,10 @@
 import {
-  Client,
-  ClientOptions,
   createClient,
   dedupExchange,
   Exchange,
   fetchExchange,
   stringifyVariables,
 } from "urql";
-import gql from "graphql-tag";
 import {
   LoginMutation,
   MeQuery,
@@ -18,14 +15,6 @@ import {
   BecomeOrUpdateInstructorMutation,
   UpdateUserMutationVariables,
   User,
-  PurchaseMutation,
-  IsOwnQuery,
-  IsOwnDocument,
-  PostQuestionMutation,
-  QuestionsQuery,
-  QuestionsDocument,
-  PurchaseMutationVariables,
-  useIsOwnQuery,
   ChangeLanguageMutation,
   GetLanguageQuery,
   GetLanguageDocument,
@@ -86,9 +75,9 @@ const cusorPagination = (query: string): Resolver => {
       results.push(...data);
     });
     return {
-      __typename: "PaginatedQuestion",
+      __typename: "PaginatedCourse",
       hasMore,
-      questions: results,
+      courses: results,
     };
   };
 };
@@ -161,6 +150,9 @@ export const createUrqlClient = () => {
           // Query: {
           //   questions: cusorPagination("questions"),
           // },
+          Query: {
+            courses: cusorPagination("courses"),
+          },
         },
         updates: {
           Mutation: {
@@ -193,6 +185,10 @@ export const createUrqlClient = () => {
               invalidateAllQuestions(cache);
             },
 
+            writeFeedBack: (_result, _args, cache, _info) => {
+              invalidWithArgument(cache, "feedBacks");
+            },
+
             postReplyQuestion: (_result, _args, cache, _info) => {
               invalidateAllReplyQuestions(cache);
             },
@@ -204,6 +200,14 @@ export const createUrqlClient = () => {
             purchase: (_result, _args, cache, _info) => {
               invalidateIsOwn(cache);
               invalidNoArgument(cache, "myCourse");
+            },
+
+            saveHistory: (_result, _args, cache, _info) => {
+              invalidNoArgument(cache, "getHistory");
+            },
+
+            removeHistory: (_result, _args, cache, _info) => {
+              invalidNoArgument(cache, "getHistory");
             },
 
             addToMyFavorite: (_result, _args, cache, _info) => {
