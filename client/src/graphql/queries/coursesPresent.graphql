@@ -1,0 +1,28 @@
+query CoursesPresent(
+  $limit: Int!
+  $categoryId: Float
+  $isAsc: Boolean
+  $orderType: String
+  $search: String
+) {
+  coursesPresent(
+    limit: $limit
+    categoryId: $categoryId
+    isAsc: $isAsc
+    orderType: $orderType
+    search: $search
+  ) {
+    courses {
+      ...CourseFragment
+      category {
+        id
+        imageUrl
+        name
+      }
+      favorite {
+        ...FavoriteFragment
+      }
+    }
+    hasMore
+  }
+}

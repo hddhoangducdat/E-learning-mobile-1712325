@@ -16,10 +16,12 @@ interface VideoRenderingProps {
   width?: boolean;
   setTime?: React.Dispatch<React.SetStateAction<number>>;
   time?: number;
+  id?: number;
 }
 
 export default function VideoRendering({
   videoUrl,
+  id,
   width,
   setTime,
   time,
@@ -57,7 +59,7 @@ export default function VideoRendering({
         await downloadResumable.pauseAsync();
         console.log("Paused download operation, saving for future retrieval");
         AsyncStorage.setItem(
-          "pausedDownload",
+          id!.toString(),
           JSON.stringify(downloadResumable.savable())
         );
       } catch (e) {

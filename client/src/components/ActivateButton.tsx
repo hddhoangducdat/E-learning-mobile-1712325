@@ -18,7 +18,8 @@ const ActivateButton = ({ setActivate }: ActivateButtonProps) => {
   const [me] = useMeQuery();
   const [, request] = useRequestActivateMutation();
 
-  if (me.data?.me?.isActivated || me.data?.me) return null;
+  if (me.data?.me) return null;
+  if (me.data?.me?.isActivated) return null;
   return (
     <>
       <Container

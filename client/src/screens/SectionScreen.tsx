@@ -132,7 +132,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
         week: 1,
         lessonStt: 1,
         courseId,
-      });
+      } as any);
     }
   }, [track.data?.getTrackCourse]);
 

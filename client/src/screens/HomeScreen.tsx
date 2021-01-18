@@ -24,6 +24,7 @@ import {
   useGetLanguageQuery,
   useGetThemeQuery,
   useRecommendQuery,
+  useCoursesPresentQuery,
 } from "../generated/graphql";
 import ReverseCourse from "../components/ReverseCourse";
 import PopUpNoti from "../components/PopUpNoti";
@@ -31,6 +32,7 @@ import { languageModify } from "../utils/languageModify";
 import { themeModify } from "../utils/themeModify";
 import ActivateButton from "../components/ActivateButton";
 import ActivateForm from "../components/form/ActivateForm";
+import LottieView from "lottie-react-native";
 
 const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
   const [theme] = useGetThemeQuery();
@@ -45,21 +47,21 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
   const [{ data }] = useMeQuery();
   const [cate] = useCategoriesQuery();
 
-  const [bestSeller] = useCoursesQuery({
+  const [bestSeller] = useCoursesPresentQuery({
     variables: {
       limit: 10,
       orderType: "BEST_SELLER",
     },
   });
 
-  const [topRated] = useCoursesQuery({
+  const [topRated] = useCoursesPresentQuery({
     variables: {
       limit: 10,
       orderType: "RATE",
     },
   });
 
-  const [newestCourses] = useCoursesQuery({
+  const [newestCourses] = useCoursesPresentQuery({
     variables: {
       limit: 10,
     },
@@ -70,8 +72,6 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
   useEffect(() => {
     toggleMenu();
   });
-
-  console.log(route.params);
 
   const toggleMenu = () => {
     if (openMenu) {
@@ -201,34 +201,55 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
               {languageModify("Recommend for you", language.data?.getLanguage)}
             </Subtitle>
 
-            <ScrollView
-              horizontal={true}
-              style={{ paddingBottom: 30, height: 300 }}
-              showsHorizontalScrollIndicator={false}
-            >
-              {!recommend.fetching
-                ? recommend.data?.recommend.map((card, index) => {
-                    return (
-                      <Card
-                        key={index}
-                        id={card.id}
-                        categoryId={card.category.id}
-                        navigation={navigation}
-                        categoryName={card.category.name}
-                        image={card.imageUrl}
-                        caption={card.title}
-                        logo={card.category.imageUrl}
-                        subtitle={card.subtitle}
-                        rate={card.rateNumber}
-                        participant={card.soldNumber}
-                        price={card.price}
-                        favorite={card.favorite.userId !== -1 ? true : false}
-                        isBestSeller={true}
-                      />
-                    );
-                  })
-                : null}
-            </ScrollView>
+            {!recommend.fetching ? (
+              <ScrollView
+                horizontal={true}
+                style={{ paddingBottom: 30, height: 300 }}
+                showsHorizontalScrollIndicator={false}
+              >
+                {recommend.data?.recommend.map((card, index) => {
+                  return (
+                    <Card
+                      key={index}
+                      id={card.id}
+                      categoryId={card.category.id}
+                      navigation={navigation}
+                      categoryName={card.category.name}
+                      image={card.imageUrl}
+                      caption={card.title}
+                      logo={card.category.imageUrl}
+                      subtitle={card.subtitle}
+                      rate={card.rateNumber}
+                      participant={card.soldNumber}
+                      price={card.price}
+                      favorite={card.favorite.userId !== -1 ? true : false}
+                      isBestSeller={true}
+                    />
+                  );
+                })}
+              </ScrollView>
+            ) : (
+              <View
+                style={{
+                  width: "100%",
+                  height: 200,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <LottieView
+                  style={{
+                    width: 300,
+                    height: 300,
+                  }}
+                  autoPlay
+                  loop
+                  source={require("../assets/json/222-trail-loading.json")}
+                  // OR find more Lottie files @ https://lottiefiles.com/featured
+                  // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+                />
+              </View>
+            )}
 
             <Subtitle>
               {languageModify(
@@ -237,95 +258,139 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
               )}
             </Subtitle>
 
-            <ScrollView
-              horizontal={true}
-              style={{ paddingBottom: 30, height: 300 }}
-              showsHorizontalScrollIndicator={false}
-            >
-              {!bestSeller.fetching
-                ? bestSeller.data?.courses.courses.map((card, index) => {
-                    return (
-                      <Card
-                        key={index}
-                        id={card.id}
-                        categoryId={card.category.id}
-                        navigation={navigation}
-                        categoryName={card.category.name}
-                        image={card.imageUrl}
-                        caption={card.title}
-                        logo={card.category.imageUrl}
-                        subtitle={card.subtitle}
-                        rate={card.rateNumber}
-                        participant={card.soldNumber}
-                        price={card.price}
-                        favorite={card.favorite.userId !== -1 ? true : false}
-                        isBestSeller={true}
-                      />
-                    );
-                  })
-                : null}
-              <MoreView
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 3,
-                  },
-                  shadowOpacity: 0.29,
-                  shadowRadius: 4.65,
+            {!bestSeller.fetching ? (
+              <ScrollView
+                horizontal={true}
+                style={{ paddingBottom: 30, height: 300 }}
+                showsHorizontalScrollIndicator={false}
+              >
+                {bestSeller.data?.coursesPresent.courses.map((card, index) => {
+                  return (
+                    <Card
+                      key={index}
+                      id={card.id}
+                      categoryId={card.category.id}
+                      navigation={navigation}
+                      categoryName={card.category.name}
+                      image={card.imageUrl}
+                      caption={card.title}
+                      logo={card.category.imageUrl}
+                      subtitle={card.subtitle}
+                      rate={card.rateNumber}
+                      participant={card.soldNumber}
+                      price={card.price}
+                      favorite={card.favorite.userId !== -1 ? true : false}
+                      isBestSeller={true}
+                    />
+                  );
+                })}
+                <MoreView
+                  style={{
+                    shadowColor: "#000",
+                    shadowOffset: {
+                      width: 0,
+                      height: 3,
+                    },
+                    shadowOpacity: 0.29,
+                    shadowRadius: 4.65,
 
-                  elevation: 7,
+                    elevation: 7,
+                  }}
+                >
+                  <MaterialIcons name="navigate-next" size={50} color="white" />
+                </MoreView>
+              </ScrollView>
+            ) : (
+              <View
+                style={{
+                  width: "100%",
+                  height: 200,
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <MaterialIcons name="navigate-next" size={50} color="white" />
-              </MoreView>
-            </ScrollView>
+                <LottieView
+                  style={{
+                    width: 300,
+                    height: 300,
+                  }}
+                  autoPlay
+                  loop
+                  source={require("../assets/json/222-trail-loading.json")}
+                  // OR find more Lottie files @ https://lottiefiles.com/featured
+                  // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+                />
+              </View>
+            )}
+
             <Subtitle>
               {languageModify("Top rated courses", language.data?.getLanguage)}
             </Subtitle>
-            <ScrollView
-              horizontal={true}
-              style={{ paddingBottom: 30, height: 300 }}
-              showsHorizontalScrollIndicator={false}
-            >
-              {!topRated.fetching
-                ? topRated.data?.courses.courses.map((card, index) => {
-                    return (
-                      <Card
-                        key={index}
-                        id={card.id}
-                        categoryId={card.category.id}
-                        navigation={navigation}
-                        categoryName={card.category.name}
-                        image={card.imageUrl}
-                        caption={card.title}
-                        logo={card.category.imageUrl}
-                        subtitle={card.subtitle}
-                        rate={card.rateNumber}
-                        participant={card.soldNumber}
-                        price={card.price}
-                        favorite={card.favorite.userId !== -1 ? true : false}
-                        isBestSeller={false}
-                      />
-                    );
-                  })
-                : null}
-              <TopRatedMoreView
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: {
-                    width: 0,
-                    height: 3,
-                  },
-                  shadowOpacity: 0.29,
-                  shadowRadius: 4.65,
+            {!topRated.fetching ? (
+              <ScrollView
+                horizontal={true}
+                style={{ paddingBottom: 30, height: 300 }}
+                showsHorizontalScrollIndicator={false}
+              >
+                {topRated.data?.coursesPresent.courses.map((card, index) => {
+                  return (
+                    <Card
+                      key={index}
+                      id={card.id}
+                      categoryId={card.category.id}
+                      navigation={navigation}
+                      categoryName={card.category.name}
+                      image={card.imageUrl}
+                      caption={card.title}
+                      logo={card.category.imageUrl}
+                      subtitle={card.subtitle}
+                      rate={card.rateNumber}
+                      participant={card.soldNumber}
+                      price={card.price}
+                      favorite={card.favorite.userId !== -1 ? true : false}
+                      isBestSeller={false}
+                    />
+                  );
+                })}
 
-                  elevation: 7,
+                <TopRatedMoreView
+                  style={{
+                    shadowColor: "#000",
+                    shadowOffset: {
+                      width: 0,
+                      height: 3,
+                    },
+                    shadowOpacity: 0.29,
+                    shadowRadius: 4.65,
+
+                    elevation: 7,
+                  }}
+                >
+                  <MaterialIcons name="navigate-next" size={50} color="white" />
+                </TopRatedMoreView>
+              </ScrollView>
+            ) : (
+              <View
+                style={{
+                  width: "100%",
+                  height: 200,
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <MaterialIcons name="navigate-next" size={50} color="white" />
-              </TopRatedMoreView>
-            </ScrollView>
+                <LottieView
+                  style={{
+                    width: 300,
+                    height: 300,
+                  }}
+                  autoPlay
+                  loop
+                  source={require("../assets/json/222-trail-loading.json")}
+                  // OR find more Lottie files @ https://lottiefiles.com/featured
+                  // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+                />
+              </View>
+            )}
 
             <HeaderContainer>
               <Subtitle>
@@ -339,19 +404,44 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
                 </More>
               </TouchableOpacity>
             </HeaderContainer>
-            {newestCourses.data?.courses.courses.map((course, index) => (
-              <ReverseCourse
-                key={index}
-                image={course.imageUrl}
-                caption={course.title}
-                logo={course.category.imageUrl}
-                subtitle={course.subtitle}
-                rate={course.rateNumber}
-                participant={course.soldNumber}
-                price={course.price}
-                isBestSeller={false}
-              />
-            ))}
+            {!newestCourses.fetching ? (
+              newestCourses.data?.coursesPresent.courses.map(
+                (course, index) => (
+                  <ReverseCourse
+                    key={index}
+                    image={course.imageUrl}
+                    caption={course.title}
+                    logo={course.category.imageUrl}
+                    subtitle={course.subtitle}
+                    rate={course.rateNumber}
+                    participant={course.soldNumber}
+                    price={course.price}
+                    isBestSeller={false}
+                  />
+                )
+              )
+            ) : (
+              <View
+                style={{
+                  width: "100%",
+                  height: 200,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <LottieView
+                  style={{
+                    width: 300,
+                    height: 300,
+                  }}
+                  autoPlay
+                  loop
+                  source={require("../assets/json/222-trail-loading.json")}
+                  // OR find more Lottie files @ https://lottiefiles.com/featured
+                  // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+                />
+              </View>
+            )}
           </ScrollView>
         </SafeAreaView>
       </AnimatedContainer>
@@ -438,3 +528,5 @@ const More = styled.Text`
   margin-left: 135px;
   color: #000;
 `;
+
+const View = styled.View``;

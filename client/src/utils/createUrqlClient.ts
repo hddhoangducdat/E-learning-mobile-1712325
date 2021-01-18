@@ -5,6 +5,7 @@ import {
   fetchExchange,
   stringifyVariables,
 } from "urql";
+import _ from "lodash";
 import {
   LoginMutation,
   MeQuery,
@@ -35,6 +36,7 @@ import {
   query,
 } from "@urql/exchange-graphcache";
 import { betterUpdateQuery } from "./betterUpdateQuery";
+import { formatError } from "graphql";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -63,16 +65,46 @@ const cusorPagination = (query: string): Resolver => {
       query
     );
     info.partial = !isItInTheCache;
-    const results: string[] = [];
+    let results: string[] = [];
     let hasMore = true;
+    // console.log(fieldArgs);
     fieldInfos.forEach((fi) => {
-      const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
-      const data = cache.resolve(key, query) as string[];
-      const _hasMore = cache.resolve(key, "hasMore");
-      if (!_hasMore) {
-        hasMore = _hasMore as boolean;
+      if (!stringifyVariables(fieldArgs).includes("cursor")) {
+        if (_.isEqual(fi.arguments, fieldArgs)) {
+          const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
+          const data = cache.resolve(key, query) as string[];
+          hasMore = cache.resolve(key, "hasMore") as boolean;
+          results = [...data];
+        }
+      } else {
+        if (
+          !stringifyVariables(fieldArgs).includes("categoryId") &&
+          !stringifyVariables(fi.arguments).includes("categoryId")
+        ) {
+          const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
+          const data = cache.resolve(key, query) as string[];
+          const _hasMore = cache.resolve(key, "hasMore");
+
+          results.push(...data);
+          if (!_hasMore) {
+            hasMore = _hasMore as boolean;
+          }
+        } else {
+          if (fi.arguments!.categoryId === fieldArgs.categoryId) {
+            const key = cache.resolveFieldByKey(
+              entityKey,
+              fi.fieldKey
+            ) as string;
+            const data = cache.resolve(key, query) as string[];
+            const _hasMore = cache.resolve(key, "hasMore");
+
+            results.push(...data);
+            if (!_hasMore) {
+              hasMore = _hasMore as boolean;
+            }
+          }
+        }
       }
-      results.push(...data);
     });
     return {
       __typename: "PaginatedCourse",
@@ -131,7 +163,7 @@ export const createUrqlClient = () => {
   //   cookie = ctx?.req?.headers?.cookie;
   // }
   return createClient({
-    url: "http://192.168.7.114:4000/graphql",
+    url: "http://4417cdfc28b1.ngrok.io/graphql",
     fetchOptions: {
       credentials: "include",
       headers: cookie
@@ -211,12 +243,12 @@ export const createUrqlClient = () => {
             },
 
             addToMyFavorite: (_result, _args, cache, _info) => {
-              invalidWithArgument(cache, "courses");
+              // invalidWithArgument(cache, "courses");
               invalidNoArgument(cache, "myFavorite");
             },
 
             removeFromFavorite: (_result, _args, cache, _info) => {
-              invalidWithArgument(cache, "courses");
+              // invalidWithArgument(cache, "courses");
               invalidNoArgument(cache, "myFavorite");
             },
 

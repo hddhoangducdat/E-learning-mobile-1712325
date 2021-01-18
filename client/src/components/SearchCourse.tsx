@@ -31,7 +31,7 @@ export default function SearchCourse({
 
   return (
     <>
-      <Seperate />
+      {/* <Seperate /> */}
       <Container>
         <Content>
           <Logo
@@ -40,7 +40,9 @@ export default function SearchCourse({
             }}
           />
           <Wrapper>
-            <Caption theme={theme}>{caption}</Caption>
+            <Caption style={{ width: 230 }} theme={theme}>
+              {caption}
+            </Caption>
             <Subtitle>{subtitle}</Subtitle>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               {useRate(rate / 2)}
@@ -106,7 +108,7 @@ const Subtitle = styled.Text`
 
 const Container = styled.View`
   position: relative;
-  width: 300px;
+  width: 100%;
   border-radius: 14px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 `;

@@ -61,7 +61,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
 
             elevation: 7,
           }}
-          placeholderTextColor="#fffefc"
+          placeholderTextColor={themeModify("#000", theme.data?.getTheme)}
           theme={theme}
           onChangeText={(text: any) => setSearch(text)}
           value={search}
@@ -145,7 +145,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
         >
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate("Search");
+              navigation.navigate("Search", { categoryId: null } as any);
             }}
           >
             <Logo text={"All"} />

@@ -158,6 +158,9 @@ let UserResolver = class UserResolver {
         return new Promise((resolve) => {
             req.session.destroy((err) => {
                 res.clearCookie(constances_1.COOKIE_NAME);
+                res.clearCookie("theme");
+                res.clearCookie("language");
+                res.clearCookie("history");
                 if (err) {
                     console.log(err);
                     resolve(false);

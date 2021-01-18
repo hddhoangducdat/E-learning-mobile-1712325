@@ -2,34 +2,57 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components/native";
 // import { LinearGradient } from "expo";
 import CourseSection from "../components/CourseSection";
-import Courses from "../components/Favorites";
 import { AsyncStorage, Dimensions } from "react-native";
 import { Video } from "expo-av";
 import { useMeQuery, useMyCourseQuery } from "../generated/graphql";
+import LottieView from "lottie-react-native";
 
-interface CoursesScreenProps {}
-
-const navigationOptions = { title: "Courses", header: null };
 let screenWidth = Dimensions.get("window").width;
 
 const CoursesScreen = ({}) => {
   const [{ data }] = useMyCourseQuery();
   const [me] = useMeQuery();
   const [downloaded, setDownloaded] = useState<any[]>([]);
+
   useEffect(() => {
-    AsyncStorage.getAllKeys().then((keys) => {
-      setDownloaded(
-        keys.map(async (key) => {
-          const data = await AsyncStorage.getItem(key);
-          if (data) {
-            return data;
-          }
-        })
-      );
-    });
+    getAllVideoLink();
   }, []);
 
-  if (!me.data?.me) return null;
+  const getAllVideoLink = async () => {
+    const listKeys = await AsyncStorage.getAllKeys();
+    listKeys.map((key) => {
+      AsyncStorage.getItem(key).then((result: any) => {
+        if (result.fileUri) {
+          setDownloaded([...downloaded, result.fileUri]);
+        }
+      });
+    });
+  };
+
+  if (!me.data?.me)
+    return (
+      <View
+        style={{
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <LottieView
+          style={{
+            width: 400,
+            height: 400,
+          }}
+          autoPlay
+          loop
+          source={require("../assets/json/3944-voce-ganhou.json")}
+          // OR find more Lottie files @ https://lottiefiles.com/featured
+          // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+        />
+        <Title style={{ width: 200 }}>You haven't logged in yet</Title>
+      </View>
+    );
 
   return (
     <Container>
@@ -65,7 +88,8 @@ const CoursesScreen = ({}) => {
         </Hero>
         <Subtitle>Donwloaded Courses</Subtitle>
         <View>
-          {downloaded.map(({ fileUri }, id) => {
+          {downloaded.map((fileUri, id) => {
+            console.log(fileUri);
             return (
               <Video
                 key={id}
@@ -137,7 +161,6 @@ const Caption = styled.Text`
 
 const Title = styled.Text`
   font-size: 32px;
-  color: white;
   font-weight: 600;
   margin-top: 4px;
   margin-left: 20px;
@@ -179,31 +202,3 @@ const Subtitle = styled.Text`
   color: #b8bece;
   margin: 20px 0 0 20px;
 `;
-
-const sections = [
-  {
-    title: "React Native for Designers",
-    progress: 0.2,
-    image: require("../assets/images/background1.jpg"),
-  },
-  {
-    title: "Styled Components",
-    progress: 0.3,
-    image: require("../assets/images/background2.jpg"),
-  },
-  {
-    title: "Assets, Icons and SVG",
-    progress: 0.9,
-    image: require("../assets/images/background3.jpg"),
-  },
-  {
-    title: "Props and Data",
-    progress: 0.5,
-    image: require("../assets/images/background4.jpg"),
-  },
-  {
-    title: "States and Layout Animation",
-    progress: 0.1,
-    image: require("../assets/images/background6.jpg"),
-  },
-];

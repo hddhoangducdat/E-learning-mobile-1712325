@@ -89,6 +89,7 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
           }}
         >
           <VideoRendering
+            id={data?.lesson?.id}
             time={track.data?.getTrackLesson?.time}
             setTime={setTime}
             width={true}

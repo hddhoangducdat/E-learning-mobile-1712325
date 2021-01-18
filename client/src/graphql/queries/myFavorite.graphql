@@ -1,6 +1,11 @@
 query MyFavorite {
   myFavorite {
-    ...CourseFragment
+    id
+    imageUrl
+    title
+    subtitle
+    rateNumber
+    soldNumber
     category {
       imageUrl
       name

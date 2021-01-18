@@ -174,6 +174,9 @@ export class UserResolver {
     return new Promise((resolve) => {
       req.session.destroy((err: any) => {
         res.clearCookie(COOKIE_NAME);
+        res.clearCookie("theme");
+        res.clearCookie("language");
+        res.clearCookie("history");
         if (err) {
           console.log(err);
           resolve(false);

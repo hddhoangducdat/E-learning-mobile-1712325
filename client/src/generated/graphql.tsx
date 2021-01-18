@@ -25,6 +25,7 @@ export type Query = {
   course?: Maybe<Course>;
   getTrackCourse?: Maybe<TrackingCourse>;
   recommend: Array<Course>;
+  coursesPresent: PaginatedCourse;
   courses: PaginatedCourse;
   myCourse?: Maybe<Array<Course>>;
   categories: Array<Category>;
@@ -61,6 +62,15 @@ export type QueryCourseArgs = {
 
 export type QueryGetTrackCourseArgs = {
   courseId: Scalars['Int'];
+};
+
+
+export type QueryCoursesPresentArgs = {
+  search?: Maybe<Scalars['String']>;
+  orderType?: Maybe<Scalars['String']>;
+  isAsc?: Maybe<Scalars['Boolean']>;
+  categoryId?: Maybe<Scalars['Float']>;
+  limit: Scalars['Int'];
 };
 
 
@@ -926,6 +936,34 @@ export type CoursesQuery = (
   ) }
 );
 
+export type CoursesPresentQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  categoryId?: Maybe<Scalars['Float']>;
+  isAsc?: Maybe<Scalars['Boolean']>;
+  orderType?: Maybe<Scalars['String']>;
+  search?: Maybe<Scalars['String']>;
+}>;
+
+
+export type CoursesPresentQuery = (
+  { __typename?: 'Query' }
+  & { coursesPresent: (
+    { __typename?: 'PaginatedCourse' }
+    & Pick<PaginatedCourse, 'hasMore'>
+    & { courses: Array<(
+      { __typename?: 'Course' }
+      & { category: (
+        { __typename?: 'Category' }
+        & Pick<Category, 'id' | 'imageUrl' | 'name'>
+      ), favorite: (
+        { __typename?: 'Favorite' }
+        & FavoriteFragmentFragment
+      ) }
+      & CourseFragmentFragment
+    )> }
+  ) }
+);
+
 export type FeedBacksQueryVariables = Exact<{
   limit: Scalars['Int'];
   cursor?: Maybe<Scalars['DateTime']>;
@@ -1103,11 +1141,11 @@ export type MyFavoriteQuery = (
   { __typename?: 'Query' }
   & { myFavorite?: Maybe<Array<(
     { __typename?: 'Course' }
+    & Pick<Course, 'id' | 'imageUrl' | 'title' | 'subtitle' | 'rateNumber' | 'soldNumber'>
     & { category: (
       { __typename?: 'Category' }
       & Pick<Category, 'imageUrl' | 'name'>
     ) }
-    & CourseFragmentFragment
   )>> }
 );
 
@@ -1575,6 +1613,35 @@ ${FavoriteFragmentFragmentDoc}`;
 export function useCoursesQuery(options: Omit<Urql.UseQueryArgs<CoursesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<CoursesQuery>({ query: CoursesDocument, ...options });
 };
+export const CoursesPresentDocument = gql`
+    query CoursesPresent($limit: Int!, $categoryId: Float, $isAsc: Boolean, $orderType: String, $search: String) {
+  coursesPresent(
+    limit: $limit
+    categoryId: $categoryId
+    isAsc: $isAsc
+    orderType: $orderType
+    search: $search
+  ) {
+    courses {
+      ...CourseFragment
+      category {
+        id
+        imageUrl
+        name
+      }
+      favorite {
+        ...FavoriteFragment
+      }
+    }
+    hasMore
+  }
+}
+    ${CourseFragmentFragmentDoc}
+${FavoriteFragmentFragmentDoc}`;
+
+export function useCoursesPresentQuery(options: Omit<Urql.UseQueryArgs<CoursesPresentQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<CoursesPresentQuery>({ query: CoursesPresentDocument, ...options });
+};
 export const FeedBacksDocument = gql`
     query FeedBacks($limit: Int!, $cursor: DateTime, $courseId: Float!) {
   feedBacks(limit: $limit, cursor: $cursor, courseId: $courseId) {
@@ -1748,14 +1815,19 @@ export function useMyCourseQuery(options: Omit<Urql.UseQueryArgs<MyCourseQueryVa
 export const MyFavoriteDocument = gql`
     query MyFavorite {
   myFavorite {
-    ...CourseFragment
+    id
+    imageUrl
+    title
+    subtitle
+    rateNumber
+    soldNumber
     category {
       imageUrl
       name
     }
   }
 }
-    ${CourseFragmentFragmentDoc}`;
+    `;
 
 export function useMyFavoriteQuery(options: Omit<Urql.UseQueryArgs<MyFavoriteQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MyFavoriteQuery>({ query: MyFavoriteDocument, ...options });

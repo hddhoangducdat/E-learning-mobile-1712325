@@ -123,7 +123,6 @@ export const FeedBack = ({ courseId, courseRate }: FeedBackProps) => {
                 rate,
                 content: text.trim(),
               });
-              console.log(response);
               setText("");
             } else {
               setText(text.trim());

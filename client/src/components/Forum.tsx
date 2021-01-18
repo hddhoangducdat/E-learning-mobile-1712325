@@ -42,8 +42,6 @@ const Forum = ({ lessonId }: ForumProps) => {
   const [open, setOpen] = useState<QuestionProps | null>(null);
   const [text, setText] = useState("");
 
-  console.log(open);
-
   return (
     <>
       <InputView

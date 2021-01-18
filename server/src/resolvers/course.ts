@@ -14,7 +14,6 @@ import {
 } from "type-graphql";
 import { getConnection } from "typeorm";
 import { Course } from "../entities/Course";
-import { FieldError } from "./FieldError";
 import { Category } from "../entities/Category";
 import { TrackingCourse } from "../entities/TrackingCourse";
 
@@ -210,8 +209,8 @@ export class CourseResolver {
         select c.id, c.title, c.subtitle, c.price, c.description,
         c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
         c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
-        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId",
-        f."userId"      
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId"
+        ${req.session.userId ? `, f."userId"` : ""}        
         from course c
         ${
           req.session.userId
@@ -219,9 +218,10 @@ export class CourseResolver {
               req.session.userId
             : ""
         }
-        ${req.session.history ? "where " + str : ""}
+        where c."rateNumber" > 4
+        ${req.session.history ? "and" + str : ""}
         order by c."soldNumber" DESC
-        limit 15
+        limit 10
       `
     );
 
@@ -233,6 +233,97 @@ export class CourseResolver {
         },
       };
     });
+  }
+
+  @Query(() => PaginatedCourse)
+  async coursesPresent(
+    @Arg("limit", () => Int) limit: number,
+    @Arg("categoryId", () => Number, { nullable: true })
+    categoryId: number | null,
+    @Arg("isAsc", () => Boolean, { nullable: true }) isAsc: boolean | null,
+    @Arg("orderType", () => String, { nullable: true })
+    orderType: "BEST_SELLER" | "RATE" | null,
+    @Arg("search", () => String, { nullable: true }) search: string | null,
+    @Ctx() { req }: MyContext
+  ): Promise<PaginatedCourse> {
+    const realLimit = Math.min(20, limit);
+    const realLimitPlusOne = realLimit + 1;
+
+    const replacements: any[] = [realLimitPlusOne];
+
+    let where: string[] = [];
+
+    if (search) {
+      const listSearch = search.toLowerCase().split(" ");
+      let query = `c.title LIKE '${"%" + search + "%"}'`;
+      if (listSearch.length !== 1) {
+        listSearch.map((value) => {
+          if (value.length > 2) {
+            query += ` OR c.title LIKE '${"%" + value + "%"}'`;
+          }
+        });
+      }
+      where.push(query);
+    }
+
+    if (categoryId) {
+      replacements.push(categoryId);
+      where.push(`c."categoryId" = $${replacements.length}`);
+    }
+
+    let order;
+
+    switch (orderType) {
+      case "BEST_SELLER":
+        order = "soldNumber";
+        break;
+      case "RATE":
+        order = "rateNumber";
+        break;
+      default:
+        order = "createdAt";
+    }
+
+    let query = "";
+
+    where.map((value, index) => {
+      query += index === 0 ? value : " AND " + value;
+    });
+
+    const courses = await getConnection().query(
+      `
+        select c.id, c.title, c.subtitle, c.price, c.description,
+        c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
+        c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId"
+        ${req.session.userId ? `, f."userId"` : ""}      
+        from course c
+        ${
+          req.session.userId
+            ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
+              req.session.userId
+            : ""
+        }
+        ${query.length === 0 ? "" : "where " + query}
+        order by c."${order}" ${isAsc ? "ASC" : "DESC"}
+        limit $1
+      `,
+      replacements
+    );
+
+    return {
+      courses: courses
+        .map((course: any) => {
+          return {
+            ...course,
+            favorite: {
+              userId: course.userId ? course.userId : -1,
+            },
+          };
+        })
+        .slice(0, realLimit),
+      hasMore: courses.length === realLimitPlusOne,
+    };
   }
 
   @Query(() => PaginatedCourse)
@@ -301,8 +392,8 @@ export class CourseResolver {
         select c.id, c.title, c.subtitle, c.price, c.description,
         c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
         c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
-        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId",
-        f."userId"      
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId"
+        ${req.session.userId ? `, f."userId"` : ""}    
         from course c
         ${
           req.session.userId

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components/native";
 import { FontAwesome } from "@expo/vector-icons";
 import {
@@ -28,6 +28,9 @@ export default function Card({
   const [theme] = useGetThemeQuery();
   const [, addToFavorite] = useAddToMyFavoriteMutation();
   const [, removeFromFavorite] = useRemoveFromFavoriteMutation();
+
+  const [fav, setFav] = useState(favorite);
+
   return (
     <Container
       style={{
@@ -92,10 +95,11 @@ export default function Card({
 
         <MarginStatus />
 
-        {favorite ? (
+        {fav ? (
           <TouchableOpacity
             style={{ flexDirection: "row", alignItems: "center" }}
             onPress={() => {
+              setFav(false);
               removeFromFavorite({
                 courseId: id,
               });
@@ -108,6 +112,7 @@ export default function Card({
           <TouchableOpacity
             style={{ flexDirection: "row", alignItems: "center" }}
             onPress={() => {
+              setFav(true);
               addToFavorite({
                 courseId: id,
               });

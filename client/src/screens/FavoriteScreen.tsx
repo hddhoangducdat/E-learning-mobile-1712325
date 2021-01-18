@@ -1,23 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled, { DefaultTheme } from "styled-components/native";
-// import { LinearGradient } from "expo";
-import CourseSection from "../components/CourseSection";
-import Courses from "../components/Favorites";
-import { AsyncStorage, Dimensions } from "react-native";
-import { Video } from "expo-av";
-import {
-  useMeQuery,
-  useMyCourseQuery,
-  useMyFavoriteQuery,
-} from "../generated/graphql";
+import { useMeQuery } from "../generated/graphql";
 import Favorites from "../components/Favorites";
-
-interface CoursesScreenProps {}
+import LottieView from "lottie-react-native";
 
 const FavoriteScreen = ({}) => {
   const [me] = useMeQuery();
-
-  if (!me.data?.me) return null;
 
   const theme: DefaultTheme = {
     container: {
@@ -27,6 +15,33 @@ const FavoriteScreen = ({}) => {
       title: "#050505",
     },
   };
+
+  if (!me.data?.me)
+    return (
+      <View
+        style={{
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <LottieView
+          style={{
+            width: 350,
+            height: 350,
+          }}
+          autoPlay
+          loop
+          source={require("../assets/json/4432-face-scanning.json")}
+          // OR find more Lottie files @ https://lottiefiles.com/featured
+          // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+        />
+        <Title theme={theme} style={{ width: 200 }}>
+          You haven't logged in yet
+        </Title>
+      </View>
+    );
 
   return (
     <Container theme={theme}>
@@ -42,6 +57,8 @@ const FavoriteScreen = ({}) => {
 };
 
 export default FavoriteScreen;
+
+const View = styled.View``;
 
 const Container = styled.View`
   background: ${(props: any) => props.theme.container.background};

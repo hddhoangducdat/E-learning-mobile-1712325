@@ -52,6 +52,7 @@ let FavoriteResolver = class FavoriteResolver {
           select * from course c
           inner join favorite f on f."courseId" = c.id and f."userId" = $1
         `, [req.session.userId]);
+                console.log(courses);
                 return courses;
             }
             return null;

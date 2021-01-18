@@ -180,22 +180,87 @@ let CourseResolver = class CourseResolver {
         select c.id, c.title, c.subtitle, c.price, c.description,
         c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
         c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
-        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId",
-        f."userId"      
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId"
+        ${req.session.userId ? `, f."userId"` : ""}        
         from course c
         ${req.session.userId
                 ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
                     req.session.userId
                 : ""}
-        ${req.session.history ? "where " + str : ""}
+        where c."rateNumber" > 4
+        ${req.session.history ? "and" + str : ""}
         order by c."soldNumber" DESC
-        limit 15
+        limit 10
       `);
             return courses.map((course, index) => {
                 return Object.assign(Object.assign({}, course), { favorite: {
                         userId: course.userId ? course.userId : -1,
                     } });
             });
+        });
+    }
+    coursesPresent(limit, categoryId, isAsc, orderType, search, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const realLimit = Math.min(20, limit);
+            const realLimitPlusOne = realLimit + 1;
+            const replacements = [realLimitPlusOne];
+            let where = [];
+            if (search) {
+                const listSearch = search.toLowerCase().split(" ");
+                let query = `c.title LIKE '${"%" + search + "%"}'`;
+                if (listSearch.length !== 1) {
+                    listSearch.map((value) => {
+                        if (value.length > 2) {
+                            query += ` OR c.title LIKE '${"%" + value + "%"}'`;
+                        }
+                    });
+                }
+                where.push(query);
+            }
+            if (categoryId) {
+                replacements.push(categoryId);
+                where.push(`c."categoryId" = $${replacements.length}`);
+            }
+            let order;
+            switch (orderType) {
+                case "BEST_SELLER":
+                    order = "soldNumber";
+                    break;
+                case "RATE":
+                    order = "rateNumber";
+                    break;
+                default:
+                    order = "createdAt";
+            }
+            let query = "";
+            where.map((value, index) => {
+                query += index === 0 ? value : " AND " + value;
+            });
+            const courses = yield typeorm_1.getConnection().query(`
+        select c.id, c.title, c.subtitle, c.price, c.description,
+        c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
+        c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId"
+        ${req.session.userId ? `, f."userId"` : ""}      
+        from course c
+        ${req.session.userId
+                ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
+                    req.session.userId
+                : ""}
+        ${query.length === 0 ? "" : "where " + query}
+        order by c."${order}" ${isAsc ? "ASC" : "DESC"}
+        limit $1
+      `, replacements);
+            return {
+                courses: courses
+                    .map((course) => {
+                    return Object.assign(Object.assign({}, course), { favorite: {
+                            userId: course.userId ? course.userId : -1,
+                        } });
+                })
+                    .slice(0, realLimit),
+                hasMore: courses.length === realLimitPlusOne,
+            };
         });
     }
     courses(limit, cursor, categoryId, isAsc, orderType, search, { req }) {
@@ -243,8 +308,8 @@ let CourseResolver = class CourseResolver {
         select c.id, c.title, c.subtitle, c.price, c.description,
         c.requirement, c."learnWhat", c."soldNumber", c."videoNumber", c."rateNumber",
         c."totalHours", c."promoVidUrl", c."formalityPoint", c."contentPoint", 
-        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId",
-        f."userId"      
+        c."presentationPoint", c."instructorId", c."imageUrl", c."createdAt", c."categoryId"
+        ${req.session.userId ? `, f."userId"` : ""}    
         from course c
         ${req.session.userId
                 ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
@@ -438,6 +503,18 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], CourseResolver.prototype, "recommend", null);
+__decorate([
+    type_graphql_1.Query(() => PaginatedCourse),
+    __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg("categoryId", () => Number, { nullable: true })),
+    __param(2, type_graphql_1.Arg("isAsc", () => Boolean, { nullable: true })),
+    __param(3, type_graphql_1.Arg("orderType", () => String, { nullable: true })),
+    __param(4, type_graphql_1.Arg("search", () => String, { nullable: true })),
+    __param(5, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object, Object, Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], CourseResolver.prototype, "coursesPresent", null);
 __decorate([
     type_graphql_1.Query(() => PaginatedCourse),
     __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),

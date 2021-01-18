@@ -50,6 +50,7 @@ export class FavoriteResolver {
         `,
         [req.session.userId]
       );
+      console.log(courses);
       return courses;
     }
     return null;

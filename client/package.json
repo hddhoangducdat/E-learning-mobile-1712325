@@ -36,6 +36,7 @@
     "formik": "^2.2.6",
     "global": "^4.4.0",
     "graphql": "^15.4.0",
+    "lodash": "^4.17.20",
     "lottie-react-native": "^3.5.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
