@@ -37,12 +37,13 @@ import LottieView from "lottie-react-native";
 const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
   const [theme] = useGetThemeQuery();
   const [language] = useGetLanguageQuery();
-  const dispatch = useDispatch();
-  const scale = useRef(new Animated.Value(1)).current;
-  const opacity = useRef(new Animated.Value(1)).current;
   const { openMenu, tabBarVisible } = useSelector(
     (state: ReduxReducers) => state
   );
+  const dispatch = useDispatch();
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
+
   const [openAuthForm, setOpenAuthForm] = useState(false);
   const [{ data }] = useMeQuery();
   const [cate] = useCategoriesQuery();
@@ -178,9 +179,10 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
               horizontal={true}
               showsHorizontalScrollIndicator={false}
             >
-              {cate.data?.categories.map((category) => {
+              {cate.data?.categories.map((category, index) => {
                 return (
                   <TouchableOpacity
+                    key={index}
                     onPress={() => {
                       navigation.navigate("Search", {
                         categoryId: category.id,

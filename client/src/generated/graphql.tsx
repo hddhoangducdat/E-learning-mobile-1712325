@@ -220,6 +220,7 @@ export type Favorite = {
   courseId: Scalars['Float'];
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
+  category: Category;
 };
 
 export type Section = {
@@ -388,7 +389,7 @@ export type Mutation = {
   postReplyQuestion: Question;
   changeLanguage: Scalars['String'];
   changeTheme: Scalars['String'];
-  addToMyFavorite?: Maybe<Course>;
+  addToMyFavorite?: Maybe<Scalars['Boolean']>;
   removeFromFavorite: Scalars['Boolean'];
 };
 
@@ -618,10 +619,7 @@ export type AddToMyFavoriteMutationVariables = Exact<{
 
 export type AddToMyFavoriteMutation = (
   { __typename?: 'Mutation' }
-  & { addToMyFavorite?: Maybe<(
-    { __typename?: 'Course' }
-    & CourseFragmentFragment
-  )> }
+  & Pick<Mutation, 'addToMyFavorite'>
 );
 
 export type BecomeOrUpdateInstructorMutationVariables = Exact<{
@@ -1141,11 +1139,11 @@ export type MyFavoriteQuery = (
   { __typename?: 'Query' }
   & { myFavorite?: Maybe<Array<(
     { __typename?: 'Course' }
-    & Pick<Course, 'id' | 'imageUrl' | 'title' | 'subtitle' | 'rateNumber' | 'soldNumber'>
     & { category: (
       { __typename?: 'Category' }
-      & Pick<Category, 'imageUrl' | 'name'>
+      & Pick<Category, 'id' | 'imageUrl' | 'name'>
     ) }
+    & CourseFragmentFragment
   )>> }
 );
 
@@ -1324,11 +1322,9 @@ export function useActivateAccountMutation() {
 };
 export const AddToMyFavoriteDocument = gql`
     mutation AddToMyFavorite($courseId: Float!) {
-  addToMyFavorite(courseId: $courseId) {
-    ...CourseFragment
-  }
+  addToMyFavorite(courseId: $courseId)
 }
-    ${CourseFragmentFragmentDoc}`;
+    `;
 
 export function useAddToMyFavoriteMutation() {
   return Urql.useMutation<AddToMyFavoriteMutation, AddToMyFavoriteMutationVariables>(AddToMyFavoriteDocument);
@@ -1815,19 +1811,15 @@ export function useMyCourseQuery(options: Omit<Urql.UseQueryArgs<MyCourseQueryVa
 export const MyFavoriteDocument = gql`
     query MyFavorite {
   myFavorite {
-    id
-    imageUrl
-    title
-    subtitle
-    rateNumber
-    soldNumber
+    ...CourseFragment
     category {
+      id
       imageUrl
       name
     }
   }
 }
-    `;
+    ${CourseFragmentFragmentDoc}`;
 
 export function useMyFavoriteQuery(options: Omit<Urql.UseQueryArgs<MyFavoriteQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MyFavoriteQuery>({ query: MyFavoriteDocument, ...options });

@@ -22,11 +22,7 @@ import {
   ChangeThemeMutation,
   GetThemeQuery,
   GetThemeDocument,
-  useGetThemeQuery,
   ActivateAccountMutation,
-  MyCourseQuery,
-  MyCourseDocument,
-  // RegisterMutation, LogoutMutation, VoteMutationVariables, DeletePostMutationVariables,
 } from "../generated/graphql";
 import { pipe, tap } from "wonka";
 import {
@@ -36,7 +32,6 @@ import {
   query,
 } from "@urql/exchange-graphcache";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import { formatError } from "graphql";
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -163,7 +158,7 @@ export const createUrqlClient = () => {
   //   cookie = ctx?.req?.headers?.cookie;
   // }
   return createClient({
-    url: "http://4417cdfc28b1.ngrok.io/graphql",
+    url: "http://de4030a52316.ngrok.io/graphql",
     fetchOptions: {
       credentials: "include",
       headers: cookie
@@ -267,6 +262,8 @@ export const createUrqlClient = () => {
                   }
                 }
               );
+              invalidWithArgument(cache, "courses");
+              invalidWithArgument(cache, "course");
             },
             register: (_result, _args, cache, _info) => {
               betterUpdateQuery<RegisterMutation, MeQuery>(
@@ -356,6 +353,14 @@ export const createUrqlClient = () => {
                 _result,
                 () => ({ me: null })
               );
+              invalidWithArgument(cache, "courses");
+              invalidWithArgument(cache, "course");
+              invalidNoArgument(cache, "myFavorite");
+              invalidNoArgument(cache, "myCourse");
+              invalidNoArgument(cache, "getHistory");
+              invalidWithArgument(cache, "getTrackLesson");
+              invalidWithArgument(cache, "feedBacks");
+              invalidWithArgument(cache, "feedBacks");
             },
           },
         },

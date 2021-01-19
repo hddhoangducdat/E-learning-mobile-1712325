@@ -26,7 +26,11 @@ const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const Course_1 = require("../entities/Course");
 const Favorite_1 = require("../entities/Favorite");
+const Category_1 = require("../entities/Category");
 let FavoriteResolver = class FavoriteResolver {
+    category(course) {
+        return Category_1.Category.findOne(course.categoryId);
+    }
     addToMyFavorite(courseId, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (req.session.userId) {
@@ -34,15 +38,10 @@ let FavoriteResolver = class FavoriteResolver {
           insert into favorite ("userId", "courseId")
           values ($1, $2)
         `, [req.session.userId, courseId]);
-                const course = yield Course_1.Course.find({
-                    where: {
-                        id: courseId,
-                    },
-                });
-                return course[0];
+                return true;
             }
             else
-                return null;
+                return false;
         });
     }
     myFavorite({ req }) {
@@ -67,7 +66,14 @@ let FavoriteResolver = class FavoriteResolver {
     }
 };
 __decorate([
-    type_graphql_1.Mutation(() => Course_1.Course, { nullable: true }),
+    type_graphql_1.FieldResolver(() => Category_1.Category),
+    __param(0, type_graphql_1.Root()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Course_1.Course]),
+    __metadata("design:returntype", void 0)
+], FavoriteResolver.prototype, "category", null);
+__decorate([
+    type_graphql_1.Mutation(() => Boolean, { nullable: true }),
     __param(0, type_graphql_1.Arg("courseId", () => Number)),
     __param(1, type_graphql_1.Ctx()),
     __metadata("design:type", Function),

@@ -29,7 +29,7 @@ const SearchContent: React.FC<SearchContentProps> = ({
     setCursor(null);
   }, [categoryId]);
 
-  const [{ data }] = useCoursesQuery({
+  const [{ data, fetching }] = useCoursesQuery({
     variables: {
       limit: 5,
       search,
@@ -40,7 +40,7 @@ const SearchContent: React.FC<SearchContentProps> = ({
 
   const [theme] = useGetThemeQuery();
 
-  if (!data?.courses.courses)
+  if (fetching)
     return (
       <View
         style={{
@@ -64,6 +64,10 @@ const SearchContent: React.FC<SearchContentProps> = ({
       </View>
     );
 
+  if (!data?.courses.courses) {
+    return null;
+  }
+
   return (
     <>
       <ScrollView
@@ -76,27 +80,27 @@ const SearchContent: React.FC<SearchContentProps> = ({
           (_, i) => i + 1
         ).map((_, index) => {
           return (
-            <>
-              <ScrollView key={index} style={{ width: windowWidth }}>
-                {data?.courses.courses
-                  .slice(index * 5, index * 5 + 5)
-                  .map((course, index) => {
-                    return (
-                      <TouchableOpacity
-                        key={index}
-                        onPress={() => {
-                          navigation.navigate("Home", {
-                            courseId: course.id,
-                            categoryUrl: course.category.imageUrl,
-                            categoryId: course.category.id,
-                            categoryName: course.category.name,
-                            isBestSeller: true,
-                          } as any);
-                        }}
-                        style={{
-                          width: windowWidth,
-                        }}
-                      >
+            <ScrollView key={index} style={{ width: windowWidth }}>
+              {data?.courses.courses
+                .slice(index * 5, index * 5 + 5)
+                .map((course, index) => {
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => {
+                        navigation.navigate("Home", {
+                          courseId: course.id,
+                          categoryUrl: course.category.imageUrl,
+                          categoryId: course.category.id,
+                          categoryName: course.category.name,
+                          isBestSeller: true,
+                        } as any);
+                      }}
+                      style={{
+                        width: windowWidth,
+                      }}
+                    >
+                      {course.imageUrl ? (
                         <SearchCourse
                           image={course.imageUrl}
                           caption={course.title}
@@ -108,29 +112,31 @@ const SearchContent: React.FC<SearchContentProps> = ({
                           category={course.category.name}
                           isBestSeller={false}
                         />
-                      </TouchableOpacity>
-                    );
-                  })}
-                {index + 1 === Math.ceil(data?.courses.courses.length / 5) &&
-                data?.courses.hasMore ? (
-                  <TouchableOpacity
-                    style={{ alignItems: "center", marginBottom: 15 }}
-                    onPress={() =>
-                      setCursor(
-                        data.courses.courses[data.courses.courses.length - 1]
-                          .createdAt
-                      )
-                    }
-                  >
-                    <Feather
-                      name="more-horizontal"
-                      size={30}
-                      color={themeModify("#000", theme.data?.getTheme)}
-                    />
-                  </TouchableOpacity>
-                ) : null}
-              </ScrollView>
-            </>
+                      ) : (
+                        <></>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              {index + 1 === Math.ceil(data?.courses.courses.length / 5) &&
+              data?.courses.hasMore ? (
+                <TouchableOpacity
+                  style={{ alignItems: "center", marginBottom: 15 }}
+                  onPress={() =>
+                    setCursor(
+                      data.courses.courses[data.courses.courses.length - 1]
+                        .createdAt
+                    )
+                  }
+                >
+                  <Feather
+                    name="more-horizontal"
+                    size={30}
+                    color={themeModify("#000", theme.data?.getTheme)}
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </ScrollView>
           );
         })}
         {/* { data?.courses.courses.map((course, index) => {

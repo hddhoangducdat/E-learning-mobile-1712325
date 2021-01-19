@@ -15,10 +15,16 @@ import {
 import { getConnection } from "typeorm";
 import { Course } from "../entities/Course";
 import { Favorite } from "../entities/Favorite";
+import { Category } from "../entities/Category";
 
 @Resolver(Favorite)
 export class FavoriteResolver {
-  @Mutation(() => Course, { nullable: true })
+  @FieldResolver(() => Category)
+  category(@Root() course: Course) {
+    return Category.findOne(course.categoryId);
+  }
+
+  @Mutation(() => Boolean, { nullable: true })
   async addToMyFavorite(
     @Arg("courseId", () => Number) courseId: number,
     @Ctx() { req }: MyContext
@@ -31,13 +37,8 @@ export class FavoriteResolver {
         `,
         [req.session.userId, courseId]
       );
-      const course = await Course.find({
-        where: {
-          id: courseId,
-        },
-      });
-      return course[0];
-    } else return null;
+      return true;
+    } else return false;
   }
 
   @Query(() => [Course], { nullable: true })

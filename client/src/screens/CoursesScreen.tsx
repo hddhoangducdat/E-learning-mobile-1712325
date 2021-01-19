@@ -15,19 +15,31 @@ const CoursesScreen = ({}) => {
   const [downloaded, setDownloaded] = useState<any[]>([]);
 
   useEffect(() => {
-    getAllVideoLink();
+    getAllVideoLink().then((result: any) => {
+      setDownloaded(result);
+    });
   }, []);
 
   const getAllVideoLink = async () => {
-    const listKeys = await AsyncStorage.getAllKeys();
-    listKeys.map((key) => {
-      AsyncStorage.getItem(key).then((result: any) => {
-        if (result.fileUri) {
-          setDownloaded([...downloaded, result.fileUri]);
-        }
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const result = await AsyncStorage.multiGet(keys);
+
+      return result.map((req: any) => {
+        try {
+          const object = JSON.parse(req[1]);
+          if (object.fileUri) {
+            return object.fileUri;
+          }
+        } catch (err) {}
+        return "";
       });
-    });
+    } catch (error) {
+      console.error(error);
+    }
   };
+
+  // console.log(downloaded);
 
   if (!me.data?.me)
     return (
@@ -89,7 +101,8 @@ const CoursesScreen = ({}) => {
         <Subtitle>Donwloaded Courses</Subtitle>
         <View>
           {downloaded.map((fileUri, id) => {
-            console.log(fileUri);
+            if (fileUri === "") return null;
+            // console.log(fileUri);
             return (
               <Video
                 key={id}
@@ -160,6 +173,7 @@ const Caption = styled.Text`
 `;
 
 const Title = styled.Text`
+  color: #fff;
   font-size: 32px;
   font-weight: 600;
   margin-top: 4px;
@@ -200,5 +214,5 @@ const Subtitle = styled.Text`
   text-transform: uppercase;
   font-weight: 600;
   color: #b8bece;
-  margin: 20px 0 0 20px;
+  margin: 20px;
 `;

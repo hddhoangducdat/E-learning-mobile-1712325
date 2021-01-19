@@ -1,5 +1,3 @@
 mutation AddToMyFavorite($courseId: Float!) {
-  addToMyFavorite(courseId: $courseId) {
-    ...CourseFragment
-  }
+  addToMyFavorite(courseId: $courseId)
 }

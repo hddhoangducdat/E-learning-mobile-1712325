@@ -1,9 +1,7 @@
 import React from "react";
 import { Action, createStore } from "redux";
 import { Provider, useDispatch } from "react-redux";
-import HomeScreen from "./src/screens/HomeScreen";
 import { Provider as GraphqlProvider, createClient } from "urql";
-import { registerRootComponent } from "expo";
 import {
   ReduxReducers,
   TRIGGER_MENU,

@@ -1,12 +1,8 @@
 query MyFavorite {
   myFavorite {
-    id
-    imageUrl
-    title
-    subtitle
-    rateNumber
-    soldNumber
+    ...CourseFragment
     category {
+      id
       imageUrl
       name
     }

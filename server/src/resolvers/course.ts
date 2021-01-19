@@ -485,7 +485,7 @@ export class CourseResolver {
   }
 
   @Query(() => [Course], { nullable: true })
-  async myCourse(@Ctx() { req }: MyContext) {
+  async myCourse(@Ctx() { req }: MyContext): Promise<null | Course[]> {
     if (req.session.userId) {
       const courses = await getConnection().query(
         `
