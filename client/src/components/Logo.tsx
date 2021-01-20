@@ -20,7 +20,12 @@ const Logo = (props: any) => {
       {props.image ? (
         <Image source={{ uri: props.image }} resizeMode="contain" />
       ) : null}
-      <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
+      <Text
+        style={{
+          color: themeModify("#000", theme.data?.getTheme),
+          marginRight: props.image ? 0 : 5,
+        }}
+      >
         {props.text}
       </Text>
     </Container>

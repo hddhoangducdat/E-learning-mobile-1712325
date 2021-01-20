@@ -12,22 +12,20 @@ import LottieView from "lottie-react-native";
 
 const windowWidth = Dimensions.get("window").width - 5;
 
-interface SearchContentProps {
+export interface SearchContentProps {
   search?: string;
   categoryId?: number;
   navigation: StackNavigationProp<AppParamList, "Search">;
+  orderType?: string;
 }
 
 const SearchContent: React.FC<SearchContentProps> = ({
   search,
   categoryId,
   navigation,
+  orderType,
 }) => {
   const [cursor, setCursor] = useState<number | null>(null);
-
-  useEffect(() => {
-    setCursor(null);
-  }, [categoryId]);
 
   const [{ data, fetching }] = useCoursesQuery({
     variables: {
@@ -35,12 +33,13 @@ const SearchContent: React.FC<SearchContentProps> = ({
       search,
       categoryId,
       cursor,
+      orderType,
     },
   });
 
   const [theme] = useGetThemeQuery();
 
-  if (fetching)
+  if (fetching || data?.courses.courses.length === 0)
     return (
       <View
         style={{
@@ -64,30 +63,30 @@ const SearchContent: React.FC<SearchContentProps> = ({
       </View>
     );
 
-  if (data?.courses.courses.length === 0) {
-    return (
-      <View
-        style={{
-          width: "100%",
-          height: "100%",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <LottieView
-          style={{
-            width: 400,
-            height: 400,
-          }}
-          autoPlay
-          loop
-          source={require("../assets/json/8021-empty-and-lost.json")}
-          // OR find more Lottie files @ https://lottiefiles.com/featured
-          // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
-        />
-      </View>
-    );
-  }
+  // if (data?.courses.courses.length === 0) {
+  //   return (
+  //     <View
+  //       style={{
+  //         width: "100%",
+  //         height: "100%",
+  //         alignItems: "center",
+  //         justifyContent: "center",
+  //       }}
+  //     >
+  //       <LottieView
+  //         style={{
+  //           width: 400,
+  //           height: 400,
+  //         }}
+  //         autoPlay
+  //         loop
+  //         source={require("../assets/json/8021-empty-and-lost.json")}
+  //         // OR find more Lottie files @ https://lottiefiles.com/featured
+  //         // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+  //       />
+  //     </View>
+  //   );
+  // }
 
   return (
     <>
@@ -97,7 +96,11 @@ const SearchContent: React.FC<SearchContentProps> = ({
         style={{ width: windowWidth }}
       >
         {Array.from(
-          { length: Math.ceil(data?.courses.courses.length / 5) },
+          {
+            length: Math.ceil(
+              data?.courses.courses ? data?.courses.courses.length / 5 : 0 / 5
+            ),
+          },
           (_, i) => i + 1
         ).map((_, index) => {
           return (
@@ -139,8 +142,12 @@ const SearchContent: React.FC<SearchContentProps> = ({
                     </TouchableOpacity>
                   );
                 })}
-              {index + 1 === Math.ceil(data?.courses.courses.length / 5) &&
-              data?.courses.hasMore ? (
+              {index + 1 ===
+                Math.ceil(
+                  data?.courses.courses
+                    ? data?.courses.courses.length / 5
+                    : 0 / 5
+                ) && data?.courses.hasMore ? (
                 <TouchableOpacity
                   style={{ alignItems: "center", marginBottom: 15 }}
                   onPress={() =>

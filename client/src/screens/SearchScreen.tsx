@@ -3,7 +3,7 @@ import styled, { DefaultTheme } from "styled-components/native";
 import { EvilIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Keyboard, ScrollView, TouchableOpacity } from "react-native";
-import SearchContent from "../components/SearchContent";
+import SearchContent, { SearchContentProps } from "../components/SearchContent";
 import {
   useCategoriesQuery,
   useGetHistoryQuery,
@@ -14,12 +14,18 @@ import {
 import { themeModify } from "../utils/themeModify";
 import { AppBottomTabProps, HomeStackNavProps } from "../utils/params";
 import Logo from "../components/Logo";
-import { toParamsMap } from "../utils/toParamMap";
 import { FontAwesome } from "@expo/vector-icons";
 
 const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
-  const [listParams, setListParams] = useState<Record<string, object>>({});
+  // const [listParams, setListParams] = useState<Record<string, object>>({});
   const [search, setSearch] = useState("");
+  const [categoryId, setCategoryId] = useState<null | number>(
+    route.params ? route.params.categoryId : null
+  );
+  const [orderType, setOrderType] = useState<null | string>(
+    route.params ? route.params.orderType : null
+  );
+
   const [isSubmit, setIsSubmit] = useState<undefined | string>();
   const [color] = useGetThemeQuery();
   const theme: DefaultTheme = {
@@ -40,11 +46,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
   const [, saveHistory] = useSaveHistoryMutation();
   const [, removeHistory] = useRemoveHistoryMutation();
 
-  useEffect(() => {
-    if (route?.params) {
-      setListParams(toParamsMap(route.params));
-    }
-  }, [route.params, isSubmit]);
+  console.log(orderType);
 
   return (
     <Container theme={theme}>
@@ -91,9 +93,9 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
             borderRadius: 10,
           }}
         >
-          {history.data?.getHistory.map((text: string) => {
+          {history.data?.getHistory.map((text: string, index) => {
             return (
-              <>
+              <View key={index}>
                 <HistoryItem
                   onPress={() => {
                     setSearch("");
@@ -109,7 +111,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
                     <FontAwesome name="eraser" size={20} color="#ad9a9a" />
                   </TouchableOpacity>
                 </HistoryItem>
-              </>
+              </View>
             );
           })}
         </History>
@@ -145,18 +147,44 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
         >
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate("Search", { categoryId: null } as any);
+              setCategoryId(null);
+              setOrderType(null);
             }}
           >
             <Logo text={"All"} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (!orderType) {
+                setOrderType("BEST_SELLER");
+              } else {
+                setOrderType(null);
+              }
+            }}
+          >
+            <Logo
+              text={<AntDesign name="linechart" size={24} color="black" />}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              if (!orderType) {
+                setOrderType("RATE");
+              } else {
+                setOrderType(null);
+              }
+            }}
+          >
+            <Logo text={<AntDesign name="staro" size={24} color="black" />} />
           </TouchableOpacity>
           {cate.data?.categories.map((category) => {
             return (
               <TouchableOpacity
                 onPress={() => {
-                  navigation.navigate("Search", {
-                    categoryId: category.id,
-                  } as any);
+                  // navigation.navigate("Search", {
+                  //   categoryId: category.id,
+                  // } as any);
+                  setCategoryId(category.id);
                 }}
               >
                 <Logo
@@ -171,7 +199,8 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
         <SearchContent
           navigation={navigation}
           search={isSubmit}
-          categoryId={listParams["categoryId"]}
+          categoryId={categoryId}
+          orderType={orderType}
         />
       </ScrollView>
     </Container>

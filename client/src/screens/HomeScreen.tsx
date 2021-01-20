@@ -33,6 +33,7 @@ import { themeModify } from "../utils/themeModify";
 import ActivateButton from "../components/ActivateButton";
 import ActivateForm from "../components/form/ActivateForm";
 import LottieView from "lottie-react-native";
+import { SearchContentProps } from "../components/SearchContent";
 
 const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
   const [theme] = useGetThemeQuery();
@@ -173,7 +174,6 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
               style={{
                 flexDirection: "row",
                 paddingTop: 30,
-                marginLeft: 15,
                 height: 115,
               }}
               horizontal={true}
@@ -207,7 +207,7 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
               recommend.data?.recommend.length !== 0 ? (
                 <ScrollView
                   horizontal={true}
-                  style={{ paddingBottom: 30, height: 300 }}
+                  style={{ paddingBottom: 30, height: 310 }}
                   showsHorizontalScrollIndicator={false}
                 >
                   {recommend.data?.recommend.map((card, index) => {
@@ -286,7 +286,7 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
             {!bestSeller.fetching ? (
               <ScrollView
                 horizontal={true}
-                style={{ paddingBottom: 30, height: 300 }}
+                style={{ paddingBottom: 30, height: 310 }}
                 showsHorizontalScrollIndicator={false}
               >
                 {bestSeller.data?.coursesPresent.courses.map((card, index) => {
@@ -321,6 +321,11 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
 
                     elevation: 7,
                   }}
+                  onPress={() => {
+                    navigation.navigate("Search", {
+                      orderType: "BEST_SELLER",
+                    } as any);
+                  }}
                 >
                   <MaterialIcons name="navigate-next" size={50} color="white" />
                 </MoreView>
@@ -354,7 +359,7 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
             {!topRated.fetching ? (
               <ScrollView
                 horizontal={true}
-                style={{ paddingBottom: 30, height: 300 }}
+                style={{ paddingBottom: 30, height: 310 }}
                 showsHorizontalScrollIndicator={false}
               >
                 {topRated.data?.coursesPresent.courses.map((card, index) => {
@@ -390,6 +395,11 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
 
                     elevation: 7,
                   }}
+                  onPress={() => {
+                    navigation.navigate("Search", {
+                      orderType: "RATE",
+                    } as any);
+                  }}
                 >
                   <MaterialIcons name="navigate-next" size={50} color="white" />
                 </TopRatedMoreView>
@@ -421,7 +431,11 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
               <Subtitle>
                 {languageModify("Our new courses", language.data?.getLanguage)}
               </Subtitle>
-              <TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("Search");
+                }}
+              >
                 <More
                   style={{ color: themeModify("#000", theme.data?.getTheme) }}
                 >
@@ -480,21 +494,21 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
 
 export default HomeScreen;
 
-const MoreView = styled.View`
+const MoreView = styled.TouchableOpacity`
   background-color: #3d23cf;
   justify-content: center;
   align-items: center;
-  height: 290px;
+  height: 245px;
   width: 70px;
   margin-right: 20px;
   margin-top: 20px;
 `;
 
-const TopRatedMoreView = styled.View`
+const TopRatedMoreView = styled.TouchableOpacity`
   background-color: #23cf96;
   justify-content: center;
   align-items: center;
-  height: 290px;
+  height: 245px;
   width: 70px;
   margin-right: 20px;
   margin-top: 20px;
