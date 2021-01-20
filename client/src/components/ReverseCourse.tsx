@@ -4,6 +4,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { themeModify } from "../utils/themeModify";
 import { useGetThemeQuery } from "../generated/graphql";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function ReverseCourse({
   logo,
@@ -14,47 +15,69 @@ export default function ReverseCourse({
   participant,
   isBestSeller,
   price,
+  id,
+  categoryId,
+  categoryName,
+  navigation,
 }: any) {
   const [theme] = useGetThemeQuery();
   return (
-    <Container>
-      <Content>
-        <Wrapper>
-          <Caption>{caption.slice(0, 23)}</Caption>
-          <Subtitle>{subtitle}</Subtitle>
-          <RateContainer>
-            {rate / 2 <= 1 ? (
-              <FontAwesome name="star-o" size={15} color="#f2b20f" />
-            ) : rate / 2 <= 3 ? (
-              <FontAwesome name="star-half-empty" size={15} color="#f2b20f" />
-            ) : (
-              <FontAwesome name="star" size={15} color="#f2b20f" />
-            )}
+    <TouchableOpacity
+      onPress={() =>
+        navigation.push("Section", {
+          courseId: id,
+          categoryUrl: logo,
+          categoryId,
+          categoryName,
+          isBestSeller,
+        } as any)
+      }
+    >
+      <Container>
+        <Content>
+          <Wrapper>
+            <Caption>{caption.slice(0, 23)}</Caption>
+            <Subtitle>{subtitle}</Subtitle>
+            <RateContainer>
+              {rate / 2 <= 1 ? (
+                <FontAwesome name="star-o" size={15} color="#f2b20f" />
+              ) : rate / 2 <= 3 ? (
+                <FontAwesome name="star-half-empty" size={15} color="#f2b20f" />
+              ) : (
+                <FontAwesome name="star" size={15} color="#f2b20f" />
+              )}
 
-            <Rate style={{ color: themeModify("#000", theme.data?.getTheme) }}>
-              {rate / 2}
-            </Rate>
-            <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
-              {"(" + participant}
-            </Text>
-            <FontAwesome name="user-o" size={10} color="black" />
-            <Text style={{ color: themeModify("#000", theme.data?.getTheme) }}>
-              {")"}
-            </Text>
-            <RightText
-              style={{ color: themeModify("#000", theme.data?.getTheme) }}
-            >
-              {price}
-            </RightText>
-          </RateContainer>
-        </Wrapper>
-        <Logo
-          source={{
-            uri: image,
-          }}
-        />
-      </Content>
-    </Container>
+              <Rate
+                style={{ color: themeModify("#000", theme.data?.getTheme) }}
+              >
+                {rate / 2}
+              </Rate>
+              <Text
+                style={{ color: themeModify("#000", theme.data?.getTheme) }}
+              >
+                {"(" + participant}
+              </Text>
+              <FontAwesome name="user-o" size={10} color="black" />
+              <Text
+                style={{ color: themeModify("#000", theme.data?.getTheme) }}
+              >
+                {")"}
+              </Text>
+              <RightText
+                style={{ color: themeModify("#000", theme.data?.getTheme) }}
+              >
+                {price}
+              </RightText>
+            </RateContainer>
+          </Wrapper>
+          <Logo
+            source={{
+              uri: image,
+            }}
+          />
+        </Content>
+      </Container>
+    </TouchableOpacity>
   );
 }
 

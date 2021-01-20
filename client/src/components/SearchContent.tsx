@@ -57,15 +57,36 @@ const SearchContent: React.FC<SearchContentProps> = ({
           }}
           autoPlay
           loop
-          source={require("../assets/json/222-trail-loading.json")}
+          source={require("../assets/json/61-octopus.json")}
           // OR find more Lottie files @ https://lottiefiles.com/featured
           // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
         />
       </View>
     );
 
-  if (!data?.courses.courses) {
-    return null;
+  if (data?.courses.courses.length === 0) {
+    return (
+      <View
+        style={{
+          width: "100%",
+          height: "100%",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <LottieView
+          style={{
+            width: 400,
+            height: 400,
+          }}
+          autoPlay
+          loop
+          source={require("../assets/json/8021-empty-and-lost.json")}
+          // OR find more Lottie files @ https://lottiefiles.com/featured
+          // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+        />
+      </View>
+    );
   }
 
   return (
@@ -88,7 +109,7 @@ const SearchContent: React.FC<SearchContentProps> = ({
                     <TouchableOpacity
                       key={index}
                       onPress={() => {
-                        navigation.navigate("Home", {
+                        navigation.navigate("Section", {
                           courseId: course.id,
                           categoryUrl: course.category.imageUrl,
                           categoryId: course.category.id,
@@ -139,42 +160,6 @@ const SearchContent: React.FC<SearchContentProps> = ({
             </ScrollView>
           );
         })}
-        {/* { data?.courses.courses.map((course, index) => {
-          if (categoryId && course.category.id !== categoryId) return null;
-          return (
-            <>
-              <ScrollView style={{ width: windowWidth }}>
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => {
-                    navigation.navigate("Home", {
-                      courseId: course.id,
-                      categoryUrl: course.category.imageUrl,
-                      categoryId: course.category.id,
-                      categoryName: course.category.name,
-                      isBestSeller: true,
-                    } as any);
-                  }}
-                  style={{
-                    width: windowWidth,
-                  }}
-                >
-                  <SearchCourse
-                    image={course.imageUrl}
-                    caption={course.title}
-                    logo={course.category.imageUrl}
-                    subtitle={course.subtitle}
-                    rate={course.rateNumber}
-                    participant={course.soldNumber}
-                    price={course.price}
-                    category={course.category.name}
-                    isBestSeller={false}
-                  />
-                </TouchableOpacity>
-              </ScrollView>
-            </>
-          );
-        })} */}
       </ScrollView>
     </>
   );

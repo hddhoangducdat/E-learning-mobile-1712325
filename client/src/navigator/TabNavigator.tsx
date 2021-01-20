@@ -63,7 +63,11 @@ export const TabsNavigator: React.FC<TabsNavigatorProps> = ({}) => {
         name="Home"
         component={HomeNavigator}
       />
-      <Tabs.Screen name="Search" component={SearchScreen} />
+      <Tabs.Screen
+        options={{ tabBarVisible: tabBarVisible ? true : false }}
+        name="Search"
+        component={SearchScreen}
+      />
       <Tabs.Screen name="Courses" component={CoursesScreen} />
       <Tabs.Screen name="Favorite" component={FavoriteScreen} />
     </Tabs.Navigator>

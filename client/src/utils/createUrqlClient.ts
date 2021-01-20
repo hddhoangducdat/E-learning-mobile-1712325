@@ -158,7 +158,7 @@ export const createUrqlClient = () => {
   //   cookie = ctx?.req?.headers?.cookie;
   // }
   return createClient({
-    url: "http://de4030a52316.ngrok.io/graphql",
+    url: "http://ac22493b1fe9.ngrok.io/graphql",
     fetchOptions: {
       credentials: "include",
       headers: cookie

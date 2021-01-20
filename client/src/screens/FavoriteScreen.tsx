@@ -3,8 +3,12 @@ import styled, { DefaultTheme } from "styled-components/native";
 import { useMeQuery } from "../generated/graphql";
 import Favorites from "../components/Favorites";
 import LottieView from "lottie-react-native";
+import { AppBottomTabProps } from "../utils/params";
 
-const FavoriteScreen = ({}) => {
+const FavoriteScreen = ({
+  route,
+  navigation,
+}: AppBottomTabProps<"Favorite">) => {
   const [me] = useMeQuery();
 
   const theme: DefaultTheme = {
@@ -33,7 +37,7 @@ const FavoriteScreen = ({}) => {
           }}
           autoPlay
           loop
-          source={require("../assets/json/4432-face-scanning.json")}
+          source={require("../assets/json/3619-profile.json")}
           // OR find more Lottie files @ https://lottiefiles.com/featured
           // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
         />
@@ -49,8 +53,7 @@ const FavoriteScreen = ({}) => {
         <Title theme={theme} style={{ marginTop: 50 }}>
           Favorites
         </Title>
-
-        <Favorites />
+        <Favorites navigation={navigation} />
       </ScrollView>
     </Container>
   );

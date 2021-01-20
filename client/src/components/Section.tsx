@@ -11,6 +11,8 @@ import { Animated } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import { languageModify } from "../utils/languageModify";
 import { themeModify } from "../utils/themeModify";
+import { TRIGGER_NOTI } from "../../types";
+import { useDispatch } from "react-redux";
 
 const Section = (props: any) => {
   const [theme] = useGetThemeQuery();
@@ -52,6 +54,7 @@ const Section = (props: any) => {
 
     return hours + ":" + tmp2;
   };
+  const dispatch = useDispatch();
 
   return (
     <Container>
@@ -107,15 +110,25 @@ const Section = (props: any) => {
           ? data?.lessons.map((lesson, index) => (
               <TouchableOpacity
                 key={index}
-                onPress={() =>
-                  props.navigation.push("Lesson", {
-                    lessonId: lesson.id,
-                    categoryUrl: props.categoryUrl,
-                    week: props.stt,
-                    lessonStt: index + 1,
-                    courseId: props.courseId,
-                  })
-                }
+                onPress={() => {
+                  if (props.isOwn) {
+                    props.navigation.push("Lesson", {
+                      lessonId: lesson.id,
+                      categoryUrl: props.categoryUrl,
+                      week: props.stt,
+                      lessonStt: index + 1,
+                      courseId: props.courseId,
+                    });
+                  } else {
+                    dispatch({
+                      type: TRIGGER_NOTI,
+                      payload: {
+                        name: "email",
+                        noti: "Please purchase our course",
+                      },
+                    });
+                  }
+                }}
               >
                 <LessonWrap>
                   <LessonOrder

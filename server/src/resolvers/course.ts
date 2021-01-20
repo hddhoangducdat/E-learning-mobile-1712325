@@ -41,7 +41,7 @@ export class CourseResolver {
 
   @Query(() => [String])
   getHistory(@Ctx() { req }: MyContext) {
-    if (req.session.history && req.session.userId) {
+    if (req.session.history) {
       return req.session.history;
     }
     return [];
@@ -218,8 +218,8 @@ export class CourseResolver {
               req.session.userId
             : ""
         }
-        where c."rateNumber" > 4
-        ${req.session.history ? "and" + str : ""}
+        where 
+        ${req.session.history ? str : `c."rateNumber" > 4`}
         order by c."soldNumber" DESC
         limit 10
       `

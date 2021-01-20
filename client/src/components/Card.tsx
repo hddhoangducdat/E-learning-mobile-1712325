@@ -4,11 +4,13 @@ import { FontAwesome } from "@expo/vector-icons";
 import {
   useAddToMyFavoriteMutation,
   useGetThemeQuery,
+  useMeQuery,
   useRemoveFromFavoriteMutation,
 } from "../generated/graphql";
 import { themeModify } from "../utils/themeModify";
 import { AntDesign } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import LottieView from "lottie-react-native";
 
 export default function Card({
   logo,
@@ -30,6 +32,9 @@ export default function Card({
   const [, removeFromFavorite] = useRemoveFromFavoriteMutation();
 
   const [fav, setFav] = useState(favorite);
+  const [load, setLoad] = useState(false);
+
+  const [{ data }] = useMeQuery();
 
   return (
     <Container
@@ -93,39 +98,130 @@ export default function Card({
 
         <RightText>{price}</RightText>
 
-        <MarginStatus />
-
-        {fav ? (
-          <TouchableOpacity
-            style={{ flexDirection: "row", alignItems: "center" }}
-            onPress={() => {
-              setFav(false);
-              removeFromFavorite({
-                courseId: id,
-              });
-            }}
-          >
-            <AntDesign name="heart" size={12} color="#e30e5f" />
-            <Text style={{ color: "#e30e5f", marginLeft: 5 }}>remove</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={{ flexDirection: "row", alignItems: "center" }}
-            onPress={() => {
-              setFav(true);
-              addToFavorite({
-                courseId: id,
-              });
-            }}
-          >
-            <AntDesign name="hearto" size={12} color="#e30e5f" />
-            <Text style={{ color: "#e30e5f", marginLeft: 5 }}>add</Text>
-          </TouchableOpacity>
-        )}
+        {data?.me ? (
+          fav ? (
+            <>
+              <MarginStatus />
+              {load ? (
+                <>
+                  <MarginStatus />
+                  <View>
+                    <LottieView
+                      style={{
+                        width: 42,
+                        height: 42,
+                        position: "absolute",
+                        right: 12,
+                      }}
+                      autoPlay
+                      loop
+                      source={require("../assets/json/322-favorite.json")}
+                      // OR find more Lottie files @ https://lottiefiles.com/featured
+                      // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+                    />
+                    <Text
+                      style={{
+                        position: "absolute",
+                        right: 10,
+                        color: "#e30e5f",
+                        marginLeft: 5,
+                      }}
+                    >
+                      load
+                    </Text>
+                  </View>
+                </>
+              ) : (
+                <TouchableOpacity
+                  style={{ flexDirection: "row", alignItems: "center" }}
+                  onPress={() => {
+                    setTimeout(() => {
+                      setFav(false);
+                      setLoad(false);
+                    }, 2000);
+                    setLoad(true);
+                    removeFromFavorite({
+                      courseId: id,
+                    });
+                  }}
+                >
+                  <AntDesign name="heart" size={12} color="#e30e5f" />
+                  <Text
+                    style={{
+                      color: "#e30e5f",
+                      marginLeft: 5,
+                    }}
+                  >
+                    remove
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </>
+          ) : (
+            <>
+              <MarginStatus />
+              {load ? (
+                <>
+                  <MarginStatus />
+                  <View>
+                    <LottieView
+                      style={{
+                        width: 42,
+                        height: 42,
+                        position: "absolute",
+                        right: 12,
+                      }}
+                      autoPlay
+                      loop
+                      source={require("../assets/json/322-favorite.json")}
+                      // OR find more Lottie files @ https://lottiefiles.com/featured
+                      // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+                    />
+                    <Text
+                      style={{
+                        position: "absolute",
+                        color: "#e30e5f",
+                        right: 10,
+                      }}
+                    >
+                      load
+                    </Text>
+                  </View>
+                </>
+              ) : (
+                <TouchableOpacity
+                  style={{ flexDirection: "row", alignItems: "center" }}
+                  onPress={() => {
+                    setTimeout(() => {
+                      setFav(true);
+                      setLoad(false);
+                    }, 2000);
+                    setLoad(true);
+                    addToFavorite({
+                      courseId: id,
+                    });
+                  }}
+                >
+                  <AntDesign name="hearto" size={12} color="#e30e5f" />
+                  <Text style={{ color: "#e30e5f", marginLeft: 5 }}>add</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          )
+        ) : null}
       </RateContainer>
     </Container>
   );
 }
+
+const View = styled.View`
+  width: 100%;
+  right: 10;
+  flex-direction: row;
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+`;
 
 const MarginStatus = styled.View`
   width: 30px;

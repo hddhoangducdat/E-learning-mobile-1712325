@@ -70,77 +70,81 @@ export const FeedBack = ({ courseId, courseRate }: FeedBackProps) => {
         {useRate(courseRate ? courseRate / 2 : 0)}
       </RateContainer>
       <View style={{ width: "100%", position: "relative" }}>
-        <View style={{ width: "100%", zIndex: -1 }}>
-          <TextField
-            theme={theme}
-            multiline
-            style={{
-              shadowColor: themeModify("#000", color.data?.getTheme),
-              shadowOffset: {
-                width: 0,
-                height: 3,
-              },
-              shadowOpacity: 0.29,
-              shadowRadius: 4.65,
-              elevation: 7,
-            }}
-            placeholderTextColor={themeModify("#000", color.data?.getTheme)}
-            onChangeText={(output: any) => setText(output)}
-            value={text}
-            placeholder="Write your feedback"
-            onSubmitEditing={() => {}}
-          ></TextField>
-        </View>
-        <View
-          style={{
-            position: "absolute",
-            top: 27,
-            left: 25,
-          }}
-        >
-          <Avatar source={{ uri: me.data?.me?.avatar }} />
-        </View>
-        <Close
-          style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-          }}
-          onPress={() => setText("")}
-        >
-          <AntDesign name="closecircle" size={24} color="white" />
-        </Close>
-        <Touch
-          style={{
-            position: "absolute",
-            top: 27,
-            right: 15,
-          }}
-          onPress={async () => {
-            if (text.trim() !== "") {
-              const response = await writeFeedBack({
-                courseId,
-                rate,
-                content: text.trim(),
-              });
-              setText("");
-            } else {
-              setText(text.trim());
-            }
-          }}
-        >
-          <MaterialIcons name="send" size={23} color="#1a9dee" />
-        </Touch>
-        <View
-          style={{
-            position: "absolute",
-            top: 60,
-            left: 30,
-            flowDirection: "column",
-          }}
-        >
-          {useRate(rate, setRate)}
-        </View>
+        {me.data?.me ? (
+          <>
+            <View style={{ width: "100%", zIndex: -1 }}>
+              <TextField
+                theme={theme}
+                multiline
+                style={{
+                  shadowColor: themeModify("#000", color.data?.getTheme),
+                  shadowOffset: {
+                    width: 0,
+                    height: 3,
+                  },
+                  shadowOpacity: 0.29,
+                  shadowRadius: 4.65,
+                  elevation: 7,
+                }}
+                placeholderTextColor={themeModify("#000", color.data?.getTheme)}
+                onChangeText={(output: any) => setText(output)}
+                value={text}
+                placeholder="Write your feedback"
+                onSubmitEditing={() => {}}
+              ></TextField>
+            </View>
+            <View
+              style={{
+                position: "absolute",
+                top: 27,
+                left: 25,
+              }}
+            >
+              <Avatar source={{ uri: me.data?.me?.avatar }} />
+            </View>
+            <Close
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+              }}
+              onPress={() => setText("")}
+            >
+              <AntDesign name="closecircle" size={24} color="white" />
+            </Close>
+            <Touch
+              style={{
+                position: "absolute",
+                top: 27,
+                right: 15,
+              }}
+              onPress={async () => {
+                if (text.trim() !== "") {
+                  const response = await writeFeedBack({
+                    courseId,
+                    rate,
+                    content: text.trim(),
+                  });
+                  setText("");
+                } else {
+                  setText(text.trim());
+                }
+              }}
+            >
+              <MaterialIcons name="send" size={23} color="#1a9dee" />
+            </Touch>
+            <View
+              style={{
+                position: "absolute",
+                top: 60,
+                left: 30,
+                flowDirection: "column",
+              }}
+            >
+              {useRate(rate, setRate)}
+            </View>
+          </>
+        ) : null}
       </View>
       {data?.feedBacks.feedBacks.map((feed) => {
         return (

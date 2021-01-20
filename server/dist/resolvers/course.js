@@ -52,7 +52,7 @@ let CourseResolver = class CourseResolver {
         });
     }
     getHistory({ req }) {
-        if (req.session.history && req.session.userId) {
+        if (req.session.history) {
             return req.session.history;
         }
         return [];
@@ -187,8 +187,8 @@ let CourseResolver = class CourseResolver {
                 ? `left join favorite f on f."courseId" = c.id and f."userId"=` +
                     req.session.userId
                 : ""}
-        where c."rateNumber" > 4
-        ${req.session.history ? "and" + str : ""}
+        where 
+        ${req.session.history ? str : `c."rateNumber" > 4`}
         order by c."soldNumber" DESC
         limit 10
       `);

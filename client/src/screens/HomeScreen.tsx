@@ -204,32 +204,55 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
             </Subtitle>
 
             {!recommend.fetching ? (
-              <ScrollView
-                horizontal={true}
-                style={{ paddingBottom: 30, height: 300 }}
-                showsHorizontalScrollIndicator={false}
-              >
-                {recommend.data?.recommend.map((card, index) => {
-                  return (
-                    <Card
-                      key={index}
-                      id={card.id}
-                      categoryId={card.category.id}
-                      navigation={navigation}
-                      categoryName={card.category.name}
-                      image={card.imageUrl}
-                      caption={card.title}
-                      logo={card.category.imageUrl}
-                      subtitle={card.subtitle}
-                      rate={card.rateNumber}
-                      participant={card.soldNumber}
-                      price={card.price}
-                      favorite={card.favorite.userId !== -1 ? true : false}
-                      isBestSeller={true}
-                    />
-                  );
-                })}
-              </ScrollView>
+              recommend.data?.recommend.length !== 0 ? (
+                <ScrollView
+                  horizontal={true}
+                  style={{ paddingBottom: 30, height: 300 }}
+                  showsHorizontalScrollIndicator={false}
+                >
+                  {recommend.data?.recommend.map((card, index) => {
+                    return (
+                      <Card
+                        key={index}
+                        id={card.id}
+                        categoryId={card.category.id}
+                        navigation={navigation}
+                        categoryName={card.category.name}
+                        image={card.imageUrl}
+                        caption={card.title}
+                        logo={card.category.imageUrl}
+                        subtitle={card.subtitle}
+                        rate={card.rateNumber}
+                        participant={card.soldNumber}
+                        price={card.price}
+                        favorite={card.favorite.userId !== -1 ? true : false}
+                        isBestSeller={true}
+                      />
+                    );
+                  })}
+                </ScrollView>
+              ) : (
+                <View
+                  style={{
+                    width: "100%",
+                    height: 200,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <LottieView
+                    style={{
+                      width: 250,
+                      height: 250,
+                    }}
+                    autoPlay
+                    loop
+                    source={require("../assets/json/629-empty-box.json")}
+                    // OR find more Lottie files @ https://lottiefiles.com/featured
+                    // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
+                  />
+                </View>
+              )
             ) : (
               <View
                 style={{
@@ -241,12 +264,12 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
               >
                 <LottieView
                   style={{
-                    width: 300,
-                    height: 300,
+                    width: 250,
+                    height: 250,
                   }}
                   autoPlay
                   loop
-                  source={require("../assets/json/222-trail-loading.json")}
+                  source={require("../assets/json/260-3d-rotate-loading-animation.json")}
                   // OR find more Lottie files @ https://lottiefiles.com/featured
                   // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
                 />
@@ -313,12 +336,12 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
               >
                 <LottieView
                   style={{
-                    width: 300,
-                    height: 300,
+                    width: 180,
+                    height: 180,
                   }}
                   autoPlay
                   loop
-                  source={require("../assets/json/222-trail-loading.json")}
+                  source={require("../assets/json/226-splashy-loader.json")}
                   // OR find more Lottie files @ https://lottiefiles.com/featured
                   // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
                 />
@@ -387,7 +410,7 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
                   }}
                   autoPlay
                   loop
-                  source={require("../assets/json/222-trail-loading.json")}
+                  source={require("../assets/json/196-material-wave-loading.json")}
                   // OR find more Lottie files @ https://lottiefiles.com/featured
                   // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
                 />
@@ -411,6 +434,10 @@ const HomeScreen = ({ route, navigation }: HomeStackNavProps<"Home">) => {
                 (course, index) => (
                   <ReverseCourse
                     key={index}
+                    id={course.id}
+                    navigation={navigation}
+                    categoryId={course.category.id}
+                    categoryName={course.category.name}
                     image={course.imageUrl}
                     caption={course.title}
                     logo={course.category.imageUrl}

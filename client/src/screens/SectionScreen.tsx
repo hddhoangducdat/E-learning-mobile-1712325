@@ -34,6 +34,7 @@ import { languageModify } from "../utils/languageModify";
 import { themeModify } from "../utils/themeModify";
 import Card from "../components/Card";
 import { FeedBack } from "../components/FeedBack";
+import PopUpNoti from "../components/PopUpNoti";
 
 interface SectionScreenProps {}
 
@@ -73,10 +74,6 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
       instructorId: data?.course?.instructorId!,
     },
   });
-
-  function getRandomInt(max: number): number {
-    return Math.floor(Math.random() * Math.floor(max)) + 1;
-  }
 
   const [seeMore, setSeeMore] = useState({
     description: false,
@@ -153,6 +150,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
 
   return (
     <Container>
+      <PopUpNoti />
       {openAuthForm ? (
         <AuthForm isCourse={courseId} setOpenAuthForm={setOpenAuthForm} />
       ) : null}
@@ -458,6 +456,7 @@ const SectionScreen = ({ route, navigation }: HomeStackNavProps<"Section">) => {
                     navigation={navigation}
                     categoryUrl={categoryUrl}
                     courseId={courseId}
+                    isOwn={isOwn.data?.isOwn}
                   />
                 );
               })}

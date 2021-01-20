@@ -4,15 +4,23 @@ import styled from "styled-components/native";
 import CourseSection from "../components/CourseSection";
 import { AsyncStorage, Dimensions } from "react-native";
 import { Video } from "expo-av";
-import { useMeQuery, useMyCourseQuery } from "../generated/graphql";
+import {
+  useGetThemeQuery,
+  useMeQuery,
+  useMyCourseQuery,
+} from "../generated/graphql";
 import LottieView from "lottie-react-native";
+import { themeModify } from "../utils/themeModify";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { AppBottomTabProps } from "../utils/params";
 
 let screenWidth = Dimensions.get("window").width;
 
-const CoursesScreen = ({}) => {
+const CoursesScreen = ({ route, navigation }: AppBottomTabProps<"Courses">) => {
   const [{ data }] = useMyCourseQuery();
   const [me] = useMeQuery();
   const [downloaded, setDownloaded] = useState<any[]>([]);
+  const [theme] = useGetThemeQuery();
 
   useEffect(() => {
     getAllVideoLink().then((result: any) => {
@@ -40,7 +48,6 @@ const CoursesScreen = ({}) => {
   };
 
   // console.log(downloaded);
-
   if (!me.data?.me)
     return (
       <View
@@ -62,7 +69,14 @@ const CoursesScreen = ({}) => {
           // OR find more Lottie files @ https://lottiefiles.com/featured
           // Just click the one you like, place that file in the 'assets' folder to the left, and replace the above 'require' statement
         />
-        <Title style={{ width: 200 }}>You haven't logged in yet</Title>
+        <Title
+          style={{
+            width: 200,
+            color: themeModify("#000", theme.data?.getTheme),
+          }}
+        >
+          You haven't logged in yet
+        </Title>
       </View>
     );
 
@@ -83,12 +97,24 @@ const CoursesScreen = ({}) => {
             >
               {data?.myCourse
                 ? data?.myCourse.map((course, index) => (
-                    <CourseSection
-                      key={index}
-                      id={course.id}
-                      title={course.title}
-                      image={course.imageUrl}
-                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate("Section", {
+                          courseId: course.id,
+                          categoryUrl: course.category.imageUrl,
+                          categoryId: course.category.id,
+                          categoryName: course.category.name,
+                          isBestSeller: false,
+                        } as any);
+                      }}
+                    >
+                      <CourseSection
+                        key={index}
+                        id={course.id}
+                        title={course.title}
+                        image={course.imageUrl}
+                      />
+                    </TouchableOpacity>
                   ))
                 : null}
             </SectionScrollView>

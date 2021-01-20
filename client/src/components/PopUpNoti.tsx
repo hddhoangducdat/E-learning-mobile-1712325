@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components/native";
-import { NotificationIcon } from "./Icon";
-import { Entypo } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Animated } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxReducers, TRIGGER_NOTI } from "../../types";
@@ -36,7 +35,7 @@ const PopUpNoti = () => {
 
   return (
     <AnimatedContainer style={{ top }}>
-      <Entypo name={notification.name} size={24} color="white" />
+      <MaterialIcons name="notifications-active" size={24} color="white" />
       <Text>{notification.noti}</Text>
       <View onPress={() => dispatch({ type: TRIGGER_NOTI, payload: false })}>
         <AntDesign name="close" size={24} color="white" />
