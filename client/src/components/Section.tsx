@@ -87,7 +87,7 @@ const Section = (props: any) => {
                 right: 0,
                 top: 16,
               }}
-              name="md-arrow-dropdown"
+              name="chevron-down"
               size={24}
               color="#817676"
             />
@@ -98,7 +98,7 @@ const Section = (props: any) => {
                 right: 0,
                 top: 16,
               }}
-              name="md-arrow-dropup"
+              name="chevron-up"
               size={24}
               color="#817676"
             />

@@ -82,48 +82,46 @@ const CoursesScreen = ({ route, navigation }: AppBottomTabProps<"Courses">) => {
 
   return (
     <Container>
-      <ScrollView>
-        <Hero>
-          <Background source={require("../assets/images/background12.jpg")} />
-          {/* <LinearGradient
+      <Hero>
+        <Background source={require("../assets/images/background12.jpg")} />
+        {/* <LinearGradient
             colors={["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.5)"]}
             style={{ position: "absolute", width: screenWidth, height: 460 }}
           /> */}
-          <Title style={{ marginTop: 50 }}>My Courses</Title>
-          <Sections>
-            <SectionScrollView
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-            >
-              {data?.myCourse
-                ? data?.myCourse.map((course, index) => (
-                    <TouchableOpacity
-                      onPress={() => {
-                        navigation.navigate("Section", {
-                          courseId: course.id,
-                          categoryUrl: course.category.imageUrl,
-                          categoryId: course.category.id,
-                          categoryName: course.category.name,
-                          isBestSeller: false,
-                        } as any);
-                      }}
-                    >
-                      <CourseSection
-                        key={index}
-                        id={course.id}
-                        title={course.title}
-                        image={course.imageUrl}
-                      />
-                    </TouchableOpacity>
-                  ))
-                : null}
-            </SectionScrollView>
-          </Sections>
-          <Author>
-            <Avatar source={{ uri: me.data?.me?.avatar }} />
-            <Name>{me.data.me.username}</Name>
-          </Author>
-        </Hero>
+        <Title style={{ marginTop: 50 }}>My Courses</Title>
+        <Sections>
+          <SectionScrollView
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+          >
+            {data?.myCourse
+              ? data?.myCourse.map((course, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => {
+                      navigation.navigate("Section", {
+                        courseId: course.id,
+                        categoryUrl: course.category.imageUrl,
+                        categoryId: course.category.id,
+                        categoryName: course.category.name,
+                        isBestSeller: false,
+                      } as any);
+                    }}
+                  >
+                    <CourseSection
+                      id={course.id}
+                      title={course.title}
+                      image={course.imageUrl}
+                    />
+                  </TouchableOpacity>
+                ))
+              : null}
+          </SectionScrollView>
+        </Sections>
+        <Author>
+          <Avatar source={{ uri: me.data?.me?.avatar }} />
+          <Name>{me.data.me.username}</Name>
+        </Author>
         <Subtitle>Donwloaded Courses</Subtitle>
         <View>
           {downloaded.map((fileUri, id) => {
@@ -142,12 +140,12 @@ const CoursesScreen = ({ route, navigation }: AppBottomTabProps<"Courses">) => {
                 shouldPlay={false}
                 isLooping={false}
                 useNativeControls
-                style={{ width: 250, height: 150 }}
+                style={{ width: "100%", height: 200 }}
               />
             );
           })}
         </View>
-      </ScrollView>
+      </Hero>
     </Container>
   );
 };
@@ -168,8 +166,8 @@ const ScrollView = styled.ScrollView`
   height: 100%;
 `;
 
-const Hero = styled.View`
-  height: 340px;
+const Hero = styled.ScrollView`
+  height: 100%;
   background: #3c4560;
 `;
 
@@ -178,7 +176,7 @@ const Background = styled.Image`
   top: 0;
   left: 0;
   width: ${screenWidth};
-  height: 340px;
+  height: 100%;
 `;
 
 const Logo = styled.Image`

@@ -43,6 +43,7 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
       lessonId,
     },
   });
+
   const [, trackLesson] = useTrackLessonMutation();
   const [time, setTime] = useState(0);
 
@@ -58,6 +59,8 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
       lessonId,
     });
   }, [1]);
+
+  console.log(track.data?.getTrackLesson);
 
   const [nav, setNav] = useState([
     {
@@ -77,6 +80,7 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
       name: "Assignments",
     },
   ]);
+
   return (
     <ImageBackground
       source={require("../assets/images/background12.jpg")}
@@ -113,17 +117,18 @@ const LessonScreen = ({ route, navigation }: HomeStackNavProps<"Lesson">) => {
           >
             <Tab>
               <Ionicons
-                style={{ marginBottom: 10 }}
-                name="ios-arrow-round-back"
-                size={35}
+                style={{ marginTop: 3 }}
+                name="chevron-back"
+                size={30}
                 color="white"
               />
             </Tab>
           </TouchableOpacity>
 
-          {nav.map(({ name, active }) => {
+          {nav.map(({ name, active }, index) => {
             return (
               <TouchableOpacity
+                key={index}
                 style={{ alignItems: "center", justifyContent: "center" }}
                 onPress={() => {
                   setNav(

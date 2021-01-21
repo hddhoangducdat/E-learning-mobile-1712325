@@ -22,6 +22,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
   const [categoryId, setCategoryId] = useState<null | number>(
     route.params ? route.params.categoryId : null
   );
+  const [cursor, setCursor] = useState<number | null>(null);
   const [orderType, setOrderType] = useState<null | string>(
     route.params ? route.params.orderType : null
   );
@@ -100,6 +101,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
                   onPress={() => {
                     setSearch("");
                     setIsSubmit(text);
+                    setCursor(null);
                   }}
                   theme={theme}
                 >
@@ -149,6 +151,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
             onPress={() => {
               setCategoryId(null);
               setOrderType(null);
+              setCursor(null);
             }}
           >
             <Logo text={"All"} />
@@ -160,6 +163,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
               } else {
                 setOrderType(null);
               }
+              setCursor(null);
             }}
           >
             <Logo
@@ -173,6 +177,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
               } else {
                 setOrderType(null);
               }
+              setCursor(null);
             }}
           >
             <Logo text={<AntDesign name="staro" size={24} color="black" />} />
@@ -185,6 +190,7 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
                   //   categoryId: category.id,
                   // } as any);
                   setCategoryId(category.id);
+                  setCursor(null);
                 }}
               >
                 <Logo
@@ -201,6 +207,8 @@ const SearchScreen = ({ route, navigation }: AppBottomTabProps<"Search">) => {
           search={isSubmit}
           categoryId={categoryId}
           orderType={orderType}
+          cursor={cursor}
+          setCursor={setCursor}
         />
       </ScrollView>
     </Container>

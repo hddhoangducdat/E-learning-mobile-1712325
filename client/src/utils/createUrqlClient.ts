@@ -73,8 +73,10 @@ const cusorPagination = (query: string): Resolver => {
         }
       } else {
         if (
-          !stringifyVariables(fieldArgs).includes("categoryId") &&
-          !stringifyVariables(fi.arguments).includes("categoryId")
+          (!stringifyVariables(fieldArgs).includes("categoryId") &&
+            !stringifyVariables(fi.arguments).includes("categoryId")) ||
+          (!stringifyVariables(fieldArgs).includes("orderType") &&
+            !stringifyVariables(fi.arguments).includes("orderType"))
         ) {
           const key = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string;
           const data = cache.resolve(key, query) as string[];
@@ -85,7 +87,16 @@ const cusorPagination = (query: string): Resolver => {
             hasMore = _hasMore as boolean;
           }
         } else {
-          if (fi.arguments!.categoryId === fieldArgs.categoryId) {
+          if (
+            (fi.arguments!.categoryId === fieldArgs.categoryId &&
+              !fieldArgs.orderType &&
+              !fi.arguments!.orderType) ||
+            (fi.arguments!.orderType === fieldArgs.orderType &&
+              !fieldArgs.categoryId &&
+              !fi.arguments!.categoryId) ||
+            (fi.arguments!.categoryId === fieldArgs.categoryId &&
+              fi.arguments!.orderType === fieldArgs.orderType)
+          ) {
             const key = cache.resolveFieldByKey(
               entityKey,
               fi.fieldKey
@@ -158,7 +169,7 @@ export const createUrqlClient = () => {
   //   cookie = ctx?.req?.headers?.cookie;
   // }
   return createClient({
-    url: "http://65559883ecf0.ngrok.io/graphql",
+    url: "http://3ac421da6c9e.ngrok.io/graphql",
     fetchOptions: {
       credentials: "include",
       headers: cookie
@@ -221,7 +232,11 @@ export const createUrqlClient = () => {
             },
 
             trackLesson: (_result, _args, cache, _info) => {
-              invalidWithArgument(cache, "getTrackLesson");
+              invalidNoArgument(cache, "getTrackLesson");
+            },
+
+            trackCourse: (_result, _args, cache, _info) => {
+              invalidNoArgument(cache, "getTrackCourse");
             },
 
             purchase: (_result, _args, cache, _info) => {
@@ -353,14 +368,6 @@ export const createUrqlClient = () => {
                 _result,
                 () => ({ me: null })
               );
-              invalidWithArgument(cache, "courses");
-              invalidWithArgument(cache, "course");
-              invalidNoArgument(cache, "myFavorite");
-              invalidNoArgument(cache, "myCourse");
-              invalidNoArgument(cache, "getHistory");
-              invalidWithArgument(cache, "getTrackLesson");
-              invalidWithArgument(cache, "feedBacks");
-              invalidWithArgument(cache, "feedBacks");
             },
           },
         },

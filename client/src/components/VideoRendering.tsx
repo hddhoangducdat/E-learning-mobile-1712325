@@ -73,14 +73,12 @@ export default function VideoRendering({
         console.error(e);
       }
     };
+
     return (
       <>
         <Video
           ref={(component: Video) => {
             videoStatus.current = component;
-            // if (time) {
-            //   component?.playFromPositionAsync(time);
-            // }
           }}
           source={{
             uri: videoUrl,
@@ -95,7 +93,7 @@ export default function VideoRendering({
           isMuted={false}
           resizeMode="cover"
           onPlaybackStatusUpdate={(status: AVPlaybackStatus) => {
-            setTime(status?.positionMillis);
+            setTime(status.positionMillis);
           }}
           shouldPlay={false}
           isLooping={false}

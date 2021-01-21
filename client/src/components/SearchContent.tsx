@@ -17,6 +17,8 @@ export interface SearchContentProps {
   categoryId?: number;
   navigation: StackNavigationProp<AppParamList, "Search">;
   orderType?: string;
+  setCursor: React.Dispatch<React.SetStateAction<number | null>>;
+  cursor?: number;
 }
 
 const SearchContent: React.FC<SearchContentProps> = ({
@@ -24,9 +26,9 @@ const SearchContent: React.FC<SearchContentProps> = ({
   categoryId,
   navigation,
   orderType,
+  cursor,
+  setCursor,
 }) => {
-  const [cursor, setCursor] = useState<number | null>(null);
-
   const [{ data, fetching }] = useCoursesQuery({
     variables: {
       limit: 5,

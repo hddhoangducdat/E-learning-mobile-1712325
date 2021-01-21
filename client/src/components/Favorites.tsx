@@ -18,6 +18,7 @@ const Favorites = ({ navigation }: FavoritesProps) => {
       {data?.myFavorite
         ? data?.myFavorite.map((course, index) => (
             <TouchableOpacity
+              key={index}
               onPress={() => {
                 navigation.navigate("Section", {
                   courseId: course.id,
@@ -29,7 +30,6 @@ const Favorites = ({ navigation }: FavoritesProps) => {
               }}
             >
               <Favorite
-                key={index}
                 id={course.id}
                 logo={course.category.imageUrl}
                 image={course.imageUrl}

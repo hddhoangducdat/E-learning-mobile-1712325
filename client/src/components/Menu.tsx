@@ -20,6 +20,7 @@ import {
 } from "../generated/graphql";
 import AccountForm from "./Account";
 import { themeModify } from "../utils/themeModify";
+import { Restart } from "fiction-expo-restart";
 
 const screenHeight = Dimensions.get("window").height;
 
@@ -128,10 +129,13 @@ const Menu = ({ me }: MenuProps) => {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => {
-            changeLanguage({
+          onPress={async () => {
+            const result = await changeLanguage({
               language: language.data?.getLanguage === "vi" ? "en" : "vi",
             });
+            if (result.data?.changeLanguage) {
+              Restart();
+            }
           }}
         >
           <MenuItem

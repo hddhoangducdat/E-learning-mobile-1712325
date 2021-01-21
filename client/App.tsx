@@ -12,32 +12,11 @@ import {
 import { StatusBar } from "expo-status-bar";
 import Navigation from "./src/navigator";
 import { createUrqlClient } from "./src/utils/createUrqlClient";
+import { reducer } from "./src/store/actions/index.";
 
 console.disableYellowBox = true;
 
 const client = createUrqlClient();
-
-const initialState: ReduxReducers = {
-  openMenu: false,
-  tabBarVisible: true,
-  openProject: false,
-  notification: false,
-};
-
-const reducer = (state = initialState, action: Action): ReduxReducers => {
-  switch (action.type) {
-    case TRIGGER_MENU:
-      return { ...state, openMenu: action.payload };
-    case TRIGGER_TAB_BAR:
-      return { ...state, tabBarVisible: action.payload };
-    case TRIGGER_PROJECT_CARD:
-      return { ...state, openProject: action.payload };
-    case TRIGGER_NOTI:
-      return { ...state, notification: action.payload };
-    default:
-      return state;
-  }
-};
 
 const store = createStore(reducer);
 

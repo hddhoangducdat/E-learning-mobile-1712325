@@ -85,6 +85,7 @@ let LessonResolver = class LessonResolver {
                         time,
                     });
                     track.time = time;
+                    console.log(track);
                     return track;
                 }
                 else {
@@ -99,6 +100,7 @@ let LessonResolver = class LessonResolver {
                     catch (err) {
                         return null;
                     }
+                    console.log(track);
                     return track;
                 }
             }

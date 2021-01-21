@@ -6,6 +6,7 @@ import styled from "styled-components/native";
 import { TRIGGER_TAB_BAR } from "../../../types";
 import { useLoginMutation, usePurchaseMutation } from "../../generated/graphql";
 import { toErrorMap } from "../../utils/toErrorMap";
+import { Restart } from "fiction-expo-restart";
 interface LoginFormProps {
   isCourse?: number;
 }
@@ -58,6 +59,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ isCourse }) => {
                 courseId: isCourse,
               });
             }
+            Restart();
           }
         }
         // setOpenAuthForm((value) => {

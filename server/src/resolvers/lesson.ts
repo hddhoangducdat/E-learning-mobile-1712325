@@ -11,7 +11,7 @@ import {
   Resolver,
   Root,
 } from "type-graphql";
-import { getConnection } from "typeorm";
+import { AdvancedConsoleLogger, getConnection } from "typeorm";
 import { Lesson } from "../entities/Lesson";
 import { Section } from "../entities/Section";
 import { MyContext } from "../types";
@@ -103,6 +103,7 @@ export class LessonResolver {
           }
         );
         track.time = time;
+        console.log(track);
         return track;
       } else {
         try {
@@ -115,6 +116,7 @@ export class LessonResolver {
         } catch (err) {
           return null;
         }
+        console.log(track);
         return track;
       }
     }
